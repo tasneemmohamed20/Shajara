@@ -2,7 +2,7 @@ package com.example.moodlegovapp.core.data.network
 
 import android.content.Context
 import com.example.moodlegovapp.R
-import com.example.moodlegovapp.core.data.service.SecureStorage
+import com.example.moodlegovapp.core.data.service.DataStoreManager
 import com.example.moodlegovapp.core.domain.models.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 
 class MockApiService(
     private val context: Context,
-    private val secureStorage: SecureStorage
+    private val dataStoreManager: DataStoreManager
 ) : ApiServiceProtocol {
 
     private val gson = Gson()
@@ -42,7 +42,7 @@ class MockApiService(
         fakeDelay()
         return try {
             AppResult.Success(readJson(R.raw.mock_user_profile, object : TypeToken<User>() {}))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -51,7 +51,7 @@ class MockApiService(
         fakeDelay()
         return try {
             AppResult.Success(readJson(R.raw.mock_performance_overview, object : TypeToken<PerformanceOverview>() {}))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -60,7 +60,7 @@ class MockApiService(
         fakeDelay()
         return try {
             AppResult.Success(readJson(R.raw.mock_enrolled_courses, object : TypeToken<List<Course>>() {}))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -70,7 +70,7 @@ class MockApiService(
         return try {
             val course = readJson(R.raw.mock_course_detail, object : TypeToken<Course>() {})
             AppResult.Success(course.copy(id = courseId))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -80,7 +80,7 @@ class MockApiService(
         return try {
             val course = readJson(R.raw.mock_course_detail, object : TypeToken<Course>() {})
             AppResult.Success(course.modules)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -97,7 +97,7 @@ class MockApiService(
             val filtered = if (query.isBlank()) all
             else all.filter { it.title.contains(query, ignoreCase = true) }
             AppResult.Success(filtered)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -126,7 +126,7 @@ class MockApiService(
         fakeDelay()
         return try {
             AppResult.Success(readJson(R.raw.mock_notifications, object : TypeToken<List<Notification>>() {}))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -140,7 +140,7 @@ class MockApiService(
         fakeDelay()
         return try {
             AppResult.Success(readJson(R.raw.mock_certificates, object : TypeToken<List<Certificate>>() {}))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
@@ -159,7 +159,7 @@ class MockApiService(
         fakeDelay()
         return try {
             AppResult.Success(readJson(R.raw.mock_badges, object : TypeToken<List<Badge>>() {}))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }

@@ -3,7 +3,7 @@ package com.example.moodlegovapp.core.data.session
 import com.example.moodlegovapp.core.data.network.AppResult
 import com.example.moodlegovapp.core.data.repository.AuthRepository
 import com.example.moodlegovapp.core.data.repository.UserRepository
-import com.example.moodlegovapp.core.data.service.SecureStorage
+import com.example.moodlegovapp.core.data.service.DataStoreManager
 import com.example.moodlegovapp.core.domain.models.AuthToken
 import com.example.moodlegovapp.core.domain.models.User
 import androidx.lifecycle.LiveData
@@ -13,53 +13,52 @@ import kotlinx.coroutines.*
 class AppSession(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository?,
-    private val secureStorage: SecureStorage
+    private val dataStoreManager: DataStoreManager
 ) {
-    // mirrors iOS @Published var authToken
     private val _authToken = MutableLiveData<AuthToken?>(null)
     val authToken: LiveData<AuthToken?> = _authToken
 
-    // mirrors iOS @Published var currentUser
     private val _currentUser = MutableLiveData<User?>(null)
     val currentUser: LiveData<User?> = _currentUser
 
     // mirrors iOS: var isAuthenticated
-    val isAuthenticated: Boolean get() = authRepository.isLoggedIn
+    val isAuthenticated: Boolean get() = _authToken.value != null
 
     // Auto-restore session on init — mirrors iOS init block
     init {
-        if (secureStorage.isLoggedIn) {
-            secureStorage.getToken()?.let { token ->
+        CoroutineScope(Dispatchers.IO).launch {
+            val token = dataStoreManager.get<String>(DataStoreManager.KEY_TOKEN)
+            if (token != null) {
+                val privateToken = dataStoreManager.get<String>(DataStoreManager.KEY_PRIVATE_TOKEN)
                 _authToken.postValue(AuthToken(
                     token = token,
-                    privateToken = secureStorage.getPrivateToken()
+                    privateToken = privateToken
                 ))
-                CoroutineScope(Dispatchers.IO).launch {
-                    userRepository?.getUserProfile()?.let { result ->
-                        if (result is AppResult.Success) {
-                            _currentUser.postValue(result.data)
-                            secureStorage.saveUserId(result.data.id)
-                        }
+                userRepository?.getUserProfile()?.let { result ->
+                    if (result is AppResult.Success) {
+                        _currentUser.postValue(result.data)
+                        dataStoreManager.save(DataStoreManager.KEY_USER_ID, result.data.id)
                     }
                 }
             }
         }
     }
 
-    // mirrors iOS: func login(username:password:) async -> AppResult<AuthToken>
     suspend fun login(username: String, password: String): AppResult<AuthToken> {
         val result = authRepository.login(username, password)
 
         if (result is AppResult.Success) {
-            secureStorage.saveToken(result.data.token)
-            result.data.privateToken?.let { secureStorage.savePrivateToken(it) }
+            dataStoreManager.save(DataStoreManager.KEY_TOKEN, result.data.token)
+            result.data.privateToken?.let { 
+                dataStoreManager.save(DataStoreManager.KEY_PRIVATE_TOKEN, it) 
+            }
             _authToken.postValue(result.data)
 
             // fetch user profile after login
             userRepository?.getUserProfile()?.let { userResult ->
                 if (userResult is AppResult.Success) {
                     _currentUser.postValue(userResult.data)
-                    secureStorage.saveUserId(userResult.data.id)
+                    dataStoreManager.save(DataStoreManager.KEY_USER_ID, userResult.data.id)
                 }
             }
         }
@@ -67,10 +66,9 @@ class AppSession(
         return result
     }
 
-    // mirrors iOS: func logout()
-    fun logout() {
+    suspend fun logout() {
         authRepository.logout()
-        secureStorage.clearAll()
+        dataStoreManager.clearAll()
         _authToken.postValue(null)
         _currentUser.postValue(null)
     }

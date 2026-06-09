@@ -1,6 +1,6 @@
 package com.example.moodlegovapp.core.data.network
 
-import com.example.moodlegovapp.core.data.service.SecureStorage
+import com.example.moodlegovapp.core.data.service.DataStoreManager
 import retrofit2.Response
 import  com.example.moodlegovapp.core.domain.models.Assignment
 import  com.example.moodlegovapp.core.domain.models.AssignmentSubmission
@@ -18,10 +18,10 @@ import  com.example.moodlegovapp.core.domain.models.User
 import  com.example.moodlegovapp.core.domain.models.AuthToken
 class RealApiService(
     private val retrofit: RetrofitApiService,
-    private val secureStorage: SecureStorage
+    private val dataStoreManager: DataStoreManager
 ) : ApiServiceProtocol {
 
-    private fun userId() = secureStorage.getUserId() ?: 101
+    private fun userId() = dataStoreManager.userIdState.value?.toInt()?: 101
 
     // ── Safe call helper ──────────────────────
     // mirrors iOS request<T>() generic function

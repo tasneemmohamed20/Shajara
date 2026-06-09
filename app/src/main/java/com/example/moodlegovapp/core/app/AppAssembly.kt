@@ -24,7 +24,7 @@ class AppAssembly private constructor(private val deps: AppDependencies) {
         AppSession(
             authRepository = deps.authRepository,
             userRepository = deps.userRepository,
-            secureStorage       = deps.secureStorage
+            dataStoreManager       = deps.dataStoreManager
         )
     }
 

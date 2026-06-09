@@ -6,13 +6,14 @@ import com.example.moodlegovapp.core.data.network.AppError
 import com.example.moodlegovapp.core.data.network.AppResult
 import com.example.moodlegovapp.core.data.network.MockApiService
 import com.example.moodlegovapp.core.data.network.NetworkConfig
-import com.example.moodlegovapp.core.data.service.SecureStorage
+import com.example.moodlegovapp.core.data.service.DataStoreManager
+import com.example.moodlegovapp.core.data.service.DataStoreManager.Companion.KEY_TOKEN
 import com.example.moodlegovapp.core.domain.repositoryinterface.AuthRepositoryProtocol
 import com.example.moodlegovapp.core.domain.models.AuthToken
 
 class AuthRepository(
     private val api: ApiServiceProtocol,
-    private val keychain: SecureStorage,
+    private val dataStoreManager: DataStoreManager,
     private val localMock: MockApiService? = null  // fallback if remote mock fails
 ) : AuthRepositoryProtocol {
 
@@ -21,7 +22,8 @@ class AuthRepository(
 
         return when (result) {
             is AppResult.Success -> {
-                keychain.saveToken(result.data.token)
+//                dataStoreManager.saveToken(result.data.token)
+                dataStoreManager.save(KEY_TOKEN, result.data.token)
                 result
             }
             is AppResult.Failure -> {
@@ -38,7 +40,8 @@ class AuthRepository(
                     Log.d("AuthRepository", "Remote mock failed — falling back to local MockApiService")
                     val fallback = localMock.login(username, password)
                     if (fallback is AppResult.Success) {
-                        keychain.saveToken(fallback.data.token)
+//                        dataStoreManager.saveToken(fallback.data.token)
+                        dataStoreManager.save(KEY_TOKEN, fallback.data.token)
                     }
                     fallback
                 } else {
@@ -49,7 +52,10 @@ class AuthRepository(
         }
     }
 
-    override fun logout() = keychain.clearAll()
+    override suspend fun logout() = dataStoreManager.clearAll()
 
-    override val isLoggedIn: Boolean get() = keychain.isLoggedIn
+    suspend fun checkUserStatus(): Boolean {
+        val token = dataStoreManager.get<String>(DataStoreManager.KEY_TOKEN)
+        return token != null
+    }
 }

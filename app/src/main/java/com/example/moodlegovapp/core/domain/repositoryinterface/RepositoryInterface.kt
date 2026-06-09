@@ -19,8 +19,8 @@ import com.example.moodlegovapp.core.domain.models.User
 // mirrors iOS AuthRepositoryProtocol
 interface AuthRepositoryProtocol {
     suspend fun login(username: String, password: String): AppResult<AuthToken>
-    fun logout()
-    val isLoggedIn: Boolean
+    suspend fun logout()
+//    val isLoggedIn: Boolean
 }
 
 // mirrors iOS UserRepositoryProtocol

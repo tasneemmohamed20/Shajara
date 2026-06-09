@@ -1,7 +1,7 @@
 package com.example.moodlegovapp.core.data.network
 
 import android.util.Log
-import com.example.moodlegovapp.core.data.service.SecureStorage
+import com.example.moodlegovapp.core.data.service.DataStoreManager
 import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -15,15 +15,14 @@ import javax.net.ssl.X509TrustManager
 object RetrofitClient {
 
     fun create(
-        secureStorage: SecureStorage,
+        dataStoreManager: DataStoreManager,
         isDebug: Boolean = false
     ): RetrofitApiService {
 
         // ── Auth interceptor: attaches token ──
-        // mirrors iOS AuthInterceptor
         val authInterceptor = Interceptor { chain ->
             val original = chain.request()
-            val token = secureStorage.getToken()
+            val token = dataStoreManager.authTokenState.value
             val request = if (token != null && !NetworkConfig.USE_REMOTE_MOCK) {
                 original.newBuilder()
                     .addHeader("Authorization", "Bearer $token")
@@ -33,7 +32,6 @@ object RetrofitClient {
         }
 
         // ── Logging: DEBUG only, no sensitive data ──
-        // mirrors iOS: #if DEBUG print("[API] ->") only, never tokens
         val logging = HttpLoggingInterceptor { message ->
             // Never log Authorization headers
             if (!message.contains("Authorization", ignoreCase = true)) {
@@ -45,7 +43,6 @@ object RetrofitClient {
         }
 
         // ── TLS: enforce system validation ────
-        // mirrors iOS TLSSessionDelegate which calls SecTrustEvaluateWithError
         // Android validates by default; we just wire up the standard TrustManager
         val trustManager = object : X509TrustManager {
             override fun checkClientTrusted(chain: Array<out java.security.cert.X509Certificate>?, authType: String?) {}

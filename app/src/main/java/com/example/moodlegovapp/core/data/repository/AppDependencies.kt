@@ -6,7 +6,7 @@ import com.example.moodlegovapp.core.data.network.MockApiService
 import com.example.moodlegovapp.core.data.network.NetworkConfig
 import com.example.moodlegovapp.core.data.network.RealApiService
 import com.example.moodlegovapp.core.data.network.RetrofitClient
-import com.example.moodlegovapp.core.data.service.SecureStorage
+import com.example.moodlegovapp.core.data.service.DataStoreManager
 
 
 class AppDependencies private constructor(context: Context) {
@@ -22,11 +22,11 @@ class AppDependencies private constructor(context: Context) {
 
     // ── Secure Storage ────────────────────────
     // mirrors iOS: let keychainManager: KeychainManager = .shared
-    val secureStorage: SecureStorage = SecureStorage.getInstance(context)
+    val dataStoreManager: DataStoreManager = DataStoreManager.getInstance(context)
 
     // ── Local Mock (for fallback) ─────────────
     private val localMock: MockApiService by lazy {
-        MockApiService(context, secureStorage)
+        MockApiService(context, dataStoreManager)
     }
 
 
@@ -34,8 +34,8 @@ class AppDependencies private constructor(context: Context) {
         when {
             NetworkConfig.USE_MOCK && NetworkConfig.USE_REMOTE_MOCK -> {
                 // Call remote Postman mock via RealApiService
-                val retrofit = RetrofitClient.create(secureStorage, isDebug = true)
-                RealApiService(retrofit, secureStorage)
+                val retrofit = RetrofitClient.create(dataStoreManager, isDebug = true)
+                RealApiService(retrofit, dataStoreManager)
             }
             NetworkConfig.USE_MOCK -> {
                 // Read local JSON files
@@ -43,8 +43,8 @@ class AppDependencies private constructor(context: Context) {
             }
             else -> {
                 // Real Moodle API
-                val retrofit = RetrofitClient.create(secureStorage, isDebug = false)
-                RealApiService(retrofit, secureStorage)
+                val retrofit = RetrofitClient.create(dataStoreManager, isDebug = false)
+                RealApiService(retrofit, dataStoreManager)
             }
         }
     }
@@ -55,7 +55,7 @@ class AppDependencies private constructor(context: Context) {
     val authRepository: AuthRepository by lazy {
         AuthRepository(
             api       = apiService,
-            keychain  = secureStorage,
+            dataStoreManager  = dataStoreManager,
             localMock = if (NetworkConfig.USE_REMOTE_MOCK) localMock else null
         )
     }
