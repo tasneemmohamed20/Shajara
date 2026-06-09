@@ -1,0 +1,181 @@
+{
+  "endpoints": {
+    "get_course_contents": {
+      "description": "Get full course contents (sections + activities) — Course Overview screen",
+      "method": "GET",
+      "moodle_function": "core_course_get_contents",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_get_contents",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "options[0][name]": "includestealthmodules",
+        "options[0][value]": "1",
+        "options[1][name]": "excludemodules",
+        "options[1][value]": "0",
+        "options[2][name]": "excludecontents",
+        "options[2][value]": "0"
+      },
+      "response": [
+        {
+          "id": 1001,
+          "name": "Module 1: Fundamentals of Scene Preservation",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 1,
+          "hiddenbynumsections": 0,
+          "uservisible": true,
+          "modules": [
+            {
+              "id": 201,
+              "url": "https://lms.sharjahpolice.ae/mod/resource/view.php?id=201",
+              "name": "Introduction to Scene Preservation",
+              "instance": 301,
+              "contextid": 501,
+              "description": "",
+              "visible": 1,
+              "uservisible": true,
+              "visibleoncoursepage": 1,
+              "modicon": "https://lms.sharjahpolice.ae/theme/image.php/resource",
+              "modname": "resource",
+              "modplural": "Files",
+              "availability": null,
+              "indent": 0,
+              "onclick": "",
+              "afterlink": null,
+              "customdata": "",
+              "noviewlink": false,
+              "completion": 1,
+              "completiondata": {
+                "state": 1,
+                "timecompleted": 1729000000,
+                "overrideby": null,
+                "valueused": false
+              }
+            }
+          ]
+        },
+        {
+          "id": 1002,
+          "name": "Module 2: Evidence Collection",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 2,
+          "hiddenbynumsections": 0,
+          "uservisible": true,
+          "modules": []
+        },
+        {
+          "id": 1003,
+          "name": "Module 3: Advanced Interview Techniques",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 3,
+          "hiddenbynumsections": 0,
+          "uservisible": true,
+          "modules": [
+            {
+              "id": 202,
+              "name": "Psychology of Suspects",
+              "modname": "url",
+              "modplural": "Videos",
+              "completion": 1,
+              "completiondata": {
+                "state": 1,
+                "timecompleted": 1729050000
+              },
+              "customfields": [
+                {
+                  "name": "duration",
+                  "value": "12 mins"
+                },
+                {
+                  "name": "type",
+                  "value": "Video"
+                }
+              ]
+            },
+            {
+              "id": 203,
+              "name": "Interrogation Room Setup",
+              "modname": "resource",
+              "completion": 1,
+              "completiondata": {
+                "state": 1,
+                "timecompleted": 1729060000
+              },
+              "customfields": [
+                {
+                  "name": "duration",
+                  "value": "8 mins"
+                },
+                {
+                  "name": "type",
+                  "value": "Reading"
+                }
+              ]
+            },
+            {
+              "id": 204,
+              "name": "Body Language Analysis",
+              "modname": "url",
+              "completion": 1,
+              "completiondata": {
+                "state": 0,
+                "timecompleted": null
+              },
+              "customfields": [
+                {
+                  "name": "duration",
+                  "value": "25 mins"
+                },
+                {
+                  "name": "type",
+                  "value": "Video"
+                }
+              ]
+            },
+            {
+              "id": 205,
+              "name": "Module 3 Assessment",
+              "modname": "assign",
+              "completion": 1,
+              "completiondata": {
+                "state": 0,
+                "timecompleted": null
+              },
+              "customfields": [
+                {
+                  "name": "type",
+                  "value": "Exam"
+                }
+              ],
+              "dates": [
+                {
+                  "label": "Due",
+                  "timestamp": 1729728000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 1004,
+          "name": "Module 4: Digital Forensics Basics",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 4,
+          "hiddenbynumsections": 0,
+          "uservisible": false,
+          "availability": "{\"op\":\"&\",\"c\":[{\"type\":\"completion\",\"cm\":204,\"e\":1}],\"showc\":[true]}",
+          "modules": []
+        }
+      ]
+    }
+  }
+}

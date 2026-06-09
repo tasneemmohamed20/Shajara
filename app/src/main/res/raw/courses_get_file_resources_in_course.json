@@ -1,0 +1,79 @@
+{
+  "endpoints": {
+    "get_file_resources_in_course": {
+      "description": "Get file resources in a course — Resources section on Assignment Details",
+      "method": "GET",
+      "moodle_function": "mod_resource_get_resources_by_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_resource_get_resources_by_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseids[0]": "101"
+      },
+      "response": {
+        "resources": [
+          {
+            "id": 301,
+            "coursemodule": 201,
+            "course": 101,
+            "name": "Scene_Photos.zip",
+            "intro": "",
+            "introformat": 1,
+            "introfiles": [],
+            "lang": "",
+            "contentfiles": [
+              {
+                "filename": "Scene_Photos.zip",
+                "filepath": "/",
+                "filesize": 12582912,
+                "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/501/mod_resource/content/1/Scene_Photos.zip?token={{token}}",
+                "timecreated": 1728700000,
+                "timemodified": 1728700000,
+                "sortorder": 1,
+                "mimetype": "application/zip",
+                "isexternalfile": false,
+                "userid": 12,
+                "author": "Maj. Ahmed Al-Mansouri",
+                "license": "allrightsreserved"
+              }
+            ],
+            "display": 0,
+            "displayoptions": "",
+            "filterfiles": 0,
+            "revision": 1,
+            "timemodified": 1728700000,
+            "section": 1003,
+            "visible": 1,
+            "groupmode": 0,
+            "groupingid": 0
+          },
+          {
+            "id": 302,
+            "coursemodule": 202,
+            "course": 101,
+            "name": "Report_Template.pdf",
+            "contentfiles": [
+              {
+                "filename": "Report_Template.pdf",
+                "filepath": "/",
+                "filesize": 2516582,
+                "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/502/mod_resource/content/1/Report_Template.pdf?token={{token}}",
+                "timecreated": 1728700000,
+                "timemodified": 1728700000,
+                "sortorder": 1,
+                "mimetype": "application/pdf",
+                "isexternalfile": false
+              }
+            ],
+            "display": 0,
+            "timemodified": 1728700000,
+            "section": 1003,
+            "visible": 1
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

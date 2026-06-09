@@ -1,0 +1,36 @@
+{
+  "endpoints": {
+    "get_overview_grades_all_courses": {
+      "description": "Get overview grades across all enrolled courses — Grades tab",
+      "method": "GET",
+      "moodle_function": "gradereport_overview_get_course_grades",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "gradereport_overview_get_course_grades",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "grades": [
+          {
+            "courseid": 101,
+            "grade": "92.00",
+            "rawgrade": "92.00"
+          },
+          {
+            "courseid": 102,
+            "grade": "87.00",
+            "rawgrade": "87.00"
+          },
+          {
+            "courseid": 103,
+            "grade": "78.00",
+            "rawgrade": "78.00"
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

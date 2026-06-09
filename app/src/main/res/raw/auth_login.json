@@ -1,0 +1,26 @@
+{
+  "endpoints": {
+    "login": {
+      "description": "Login / Token Generation",
+      "method": "POST",
+      "moodle_function": "core_user_login_token",
+      "url": "/login/token.php",
+      "request": {
+        "username": "ahmed.almansoori",
+        "password": "********",
+        "service": "moodle_mobile_app"
+      },
+      "response": {
+        "token": "abc123xyz456def789",
+        "privatetoken": "privatetoken_abc123"
+      },
+      "error_response": {
+        "error": "invalidlogin",
+        "errorcode": "invalidlogin",
+        "stacktrace": null,
+        "debuginfo": null,
+        "reproductionlink": null
+      }
+    }
+  }
+}

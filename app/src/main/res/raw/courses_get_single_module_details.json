@@ -1,0 +1,52 @@
+{
+  "endpoints": {
+    "get_single_module_details": {
+      "description": "Get single module details",
+      "method": "GET",
+      "moodle_function": "core_course_get_course_module",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_get_course_module",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "cmid": "204"
+      },
+      "response": {
+        "cm": {
+          "id": 204,
+          "course": 101,
+          "module": 15,
+          "name": "Body Language Analysis",
+          "modname": "url",
+          "instance": 400,
+          "section": 1003,
+          "sectionnum": 3,
+          "groupmode": 0,
+          "groupingid": 0,
+          "completion": 1,
+          "idnumber": "",
+          "added": 1728691200,
+          "score": 0,
+          "indent": 0,
+          "visible": 1,
+          "visibleoncoursepage": 1,
+          "visibleold": 1,
+          "completiongradeitemnumber": null,
+          "completionpassgrade": 0,
+          "completionview": 1,
+          "completionexpected": 0,
+          "showdescription": 0,
+          "downloadcontent": null,
+          "availability": null,
+          "grade": 0,
+          "gradepass": 0,
+          "gradecat": null,
+          "advancedgrading": [],
+          "outcomes": [],
+          "dates": []
+        },
+        "warnings": []
+      }
+    }
+  }
+}

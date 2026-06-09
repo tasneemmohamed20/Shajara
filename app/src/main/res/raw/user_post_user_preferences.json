@@ -1,0 +1,24 @@
+{
+  "endpoints": {
+    "post_user_preferences": {
+      "description": "Save user preferences (language, notification settings)",
+      "method": "POST",
+      "moodle_function": "core_user_update_user_preferences",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_user_update_user_preferences",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}",
+        "preferences[0][name]": "lang",
+        "preferences[0][value]": "ar",
+        "preferences[1][name]": "notification_enabled",
+        "preferences[1][value]": "1"
+      },
+      "response": {
+        "saved": true,
+        "warnings": []
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "endpoints": {
+    "get_moodle_notifications": {
+      "description": "Get Moodle notifications — notification bell on Dashboard",
+      "method": "GET",
+      "moodle_function": "message_popup_get_popup_notifications",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "message_popup_get_popup_notifications",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "useridto": "{{userid}}",
+        "newestfirst": "1",
+        "limit": "20",
+        "offset": "0"
+      },
+      "response": {
+        "notifications": [
+          {
+            "id": 9001,
+            "useridfrom": 12,
+            "useridto": 42,
+            "subject": "Assignment due reminder: Crime Scene Analysis Report",
+            "shortenedsubject": "Assignment due reminder: Crime Scene Analysis...",
+            "text": "Your assignment \"Crime Scene Analysis Report\" in Criminal Investigation Techniques is due in 2 days.",
+            "fullmessage": "Your assignment \"Crime Scene Analysis Report\" in Criminal Investigation Techniques is due in 2 days (Oct 24, 11:59 PM).",
+            "fullmessageformat": 1,
+            "fullmessagehtml": "<p>Your assignment <strong>Crime Scene Analysis Report</strong>...</p>",
+            "smallmessage": "Assignment due in 2 days",
+            "contexturl": "https://lms.sharjahpolice.ae/mod/assign/view.php?id=205",
+            "contexturlname": "Crime Scene Analysis Report",
+            "timecreated": 1729555200,
+            "timecreatedpretty": "2 hours ago",
+            "timeread": 0,
+            "read": false,
+            "deleted": false,
+            "iconurl": "https://lms.sharjahpolice.ae/theme/image.php/assign",
+            "component": "mod_assign",
+            "eventtype": "assign_due_reminder",
+            "customdata": "{\"courseid\":101,\"assignmentid\":501}"
+          },
+          {
+            "id": 9002,
+            "useridfrom": 0,
+            "useridto": 42,
+            "subject": "Training Session: Community Engagement Workshop",
+            "shortenedsubject": "Training Session: Community Engagement Workshop",
+            "text": "Reminder: Community Engagement Workshop session is scheduled for Tomorrow, 10:00 AM in Room 204.",
+            "fullmessage": "Reminder: Community Engagement Workshop session is scheduled for Tomorrow, 10:00 AM in Room 204. Instructor: Lt. Al-Nuyami.",
+            "fullmessageformat": 1,
+            "fullmessagehtml": "<p>Reminder: Community Engagement Workshop session is scheduled for <strong>Tomorrow, 10:00 AM</strong>...</p>",
+            "smallmessage": "Session tomorrow at 10:00 AM",
+            "contexturl": "https://lms.sharjahpolice.ae/calendar/view.php",
+            "contexturlname": "Calendar",
+            "timecreated": 1729468800,
+            "timecreatedpretty": "1 day ago",
+            "timeread": 1729470000,
+            "read": true,
+            "deleted": false,
+            "iconurl": "https://lms.sharjahpolice.ae/theme/image.php/calendar",
+            "component": "core_calendar",
+            "eventtype": "event_reminder",
+            "customdata": "{\"eventid\":201}"
+          }
+        ],
+        "unreadcount": 1
+      }
+    },
+    "mark_notification_as_read": {
+      "description": "Mark a notification as read",
+      "method": "POST",
+      "moodle_function": "core_message_mark_notification_read",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_message_mark_notification_read",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "notificationid": "9001",
+        "timeread": "{{current_timestamp}}"
+      },
+      "response": {
+        "notificationid": 9001,
+        "warnings": []
+      }
+    }
+  }
+}

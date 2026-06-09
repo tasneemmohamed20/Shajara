@@ -1,0 +1,130 @@
+{
+  "endpoints": {
+    "get_assignments_for_enrolled_courses": {
+      "description": "Get assignments for all enrolled courses — Tasks screen & Dashboard due items",
+      "method": "GET",
+      "moodle_function": "mod_assign_get_assignments",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_get_assignments",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseids[0]": "101",
+        "courseids[1]": "102",
+        "courseids[2]": "103",
+        "capabilities[0]": "mod/assign:view",
+        "includenotenrolledcourses": "0"
+      },
+      "response": {
+        "courses": [
+          {
+            "id": 101,
+            "fullname": "Criminal Investigation Techniques",
+            "timemodified": 1729000000,
+            "assignments": [
+              {
+                "id": 501,
+                "cmid": 205,
+                "course": 101,
+                "name": "Crime Scene Analysis Report",
+                "nosubmissions": 0,
+                "submissiondrafts": 0,
+                "sendnotifications": 1,
+                "sendlatenotifications": 1,
+                "sendstudentnotifications": 1,
+                "duedate": 1729728000,
+                "allowsubmissionsfromdate": 1728691200,
+                "grade": 100,
+                "timemodified": 1728700000,
+                "completionsubmit": 1,
+                "cutoffdate": 0,
+                "gradingduedate": 0,
+                "teamsubmission": 0,
+                "requireallteammemberssubmit": 0,
+                "teamsubmissiongroupingid": 0,
+                "blindmarking": 0,
+                "hidegrader": 0,
+                "revealidentities": 0,
+                "attemptreopenmethod": "none",
+                "maxattempts": 2,
+                "markingworkflow": 0,
+                "markingallocation": 0,
+                "requiresubmissionstatement": 1,
+                "preventsubmissionnotingroup": 0,
+                "submissionstatement": "I confirm this submission follows academy integrity rules and is my original work.",
+                "submissionstatementformat": 1,
+                "configs": [
+                  {
+                    "plugin": "file",
+                    "subtype": "assignsubmission",
+                    "name": "enabled",
+                    "value": "1"
+                  },
+                  {
+                    "plugin": "file",
+                    "subtype": "assignsubmission",
+                    "name": "maxfilesubmissions",
+                    "value": "1"
+                  },
+                  {
+                    "plugin": "file",
+                    "subtype": "assignsubmission",
+                    "name": "maxsubmissionsizebytes",
+                    "value": "26214400"
+                  },
+                  {
+                    "plugin": "file",
+                    "subtype": "assignsubmission",
+                    "name": "filetypeslist",
+                    "value": ".pdf,.docx"
+                  },
+                  {
+                    "plugin": "onlinetext",
+                    "subtype": "assignsubmission",
+                    "name": "enabled",
+                    "value": "1"
+                  },
+                  {
+                    "plugin": "comments",
+                    "subtype": "assignfeedback",
+                    "name": "enabled",
+                    "value": "1"
+                  }
+                ],
+                "intro": "Analyze the provided crime scene photos and submit a comprehensive report detailing potential evidence, suspects, and procedural steps.",
+                "introformat": 1,
+                "introfiles": [],
+                "introattachments": [
+                  {
+                    "filename": "Scene_Photos.zip",
+                    "filepath": "/",
+                    "filesize": 12582912,
+                    "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/501/mod_assign/introattachment/0/Scene_Photos.zip?token={{token}}",
+                    "timecreated": 1728700000,
+                    "timemodified": 1728700000,
+                    "mimetype": "application/zip"
+                  },
+                  {
+                    "filename": "Report_Template.pdf",
+                    "filepath": "/",
+                    "filesize": 2516582,
+                    "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/501/mod_assign/introattachment/0/Report_Template.pdf?token={{token}}",
+                    "timecreated": 1728700000,
+                    "timemodified": 1728700000,
+                    "mimetype": "application/pdf"
+                  }
+                ],
+                "activity": "",
+                "activityformat": 1,
+                "activityattachments": [],
+                "timelimit": 0,
+                "submissionattachments": 0
+              }
+            ]
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

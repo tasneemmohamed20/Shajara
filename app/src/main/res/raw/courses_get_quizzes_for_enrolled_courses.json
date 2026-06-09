@@ -1,0 +1,68 @@
+{
+  "endpoints": {
+    "get_quizzes_for_enrolled_courses": {
+      "description": "Get quizzes for enrolled courses",
+      "method": "GET",
+      "moodle_function": "mod_quiz_get_quizzes_by_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_quiz_get_quizzes_by_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseids[0]": "101",
+        "courseids[1]": "102"
+      },
+      "response": {
+        "quizzes": [
+          {
+            "id": 601,
+            "course": 101,
+            "coursemodule": 301,
+            "name": "Module 1 Quiz",
+            "intro": "Quiz on fundamentals of scene preservation.",
+            "introformat": 1,
+            "introfiles": [],
+            "timeopen": 1728691200,
+            "timeclose": 1729296000,
+            "timelimit": 1800,
+            "preferredbehaviour": "deferredfeedback",
+            "canredoquestions": 0,
+            "attempts": 2,
+            "attemptonlast": 0,
+            "grademethod": 1,
+            "decimalpoints": 2,
+            "questiondecimalpoints": -1,
+            "reviewattempt": 69904,
+            "reviewcorrectness": 4368,
+            "reviewmarks": 4368,
+            "reviewspecificfeedback": 4368,
+            "reviewgeneralfeedback": 4368,
+            "reviewrightanswer": 4368,
+            "reviewoverallfeedback": 4368,
+            "questionsperpage": 1,
+            "navmethod": "free",
+            "shuffleanswers": 1,
+            "sumgrades": "10.00",
+            "grade": "100.00",
+            "timecreated": 1728691200,
+            "timemodified": 1728691200,
+            "password": "",
+            "subnet": "",
+            "browsersecurity": "-",
+            "delay1": 0,
+            "delay2": 0,
+            "showuserpicture": 0,
+            "showblocks": 0,
+            "completionattemptsexhausted": 0,
+            "completionpass": 1,
+            "allowofflineattempts": 0,
+            "autosaveperiod": 60,
+            "hasfeedback": 0,
+            "hasquestions": 1
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

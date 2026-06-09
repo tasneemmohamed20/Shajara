@@ -1,0 +1,21 @@
+{
+  "endpoints": {
+    "mark_notification_as_read": {
+      "description": "Mark a notification as read",
+      "method": "POST",
+      "moodle_function": "core_message_mark_notification_read",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_message_mark_notification_read",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "notificationid": "9001",
+        "timeread": "{{current_timestamp}}"
+      },
+      "response": {
+        "notificationid": 9001,
+        "warnings": []
+      }
+    }
+  }
+}

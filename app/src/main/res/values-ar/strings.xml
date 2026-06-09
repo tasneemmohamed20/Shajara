@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">منصة التدريب الحكومية</string>
+    <string name="login_academy_name">أكاديمية التدريب الحكومية</string>
+    <string name="login_welcome_title">مرحباً بعودتك</string>
+    <string name="login_welcome_subtitle">سجّل دخولك لمتابعة تدريبك</string>
+    <string name="login_step">خطوة المصادقة</string>
+    <string name="login_logging_as">تسجيل الدخول بصفة</string>
+    <string name="login_role_participant">مشارك</string>
+    <string name="login_change">تغيير</string>
+    <string name="login_username">اسم المستخدم</string>
+    <string name="login_username_placeholder">أدخل اسم المستخدم</string>
+    <string name="login_password">كلمة المرور</string>
+    <string name="login_remember_me">تذكّرني</string>
+    <string name="login_forgot_password">نسيت كلمة المرور؟</string>
+    <string name="login_button">تسجيل الدخول</string>
+    <string name="login_secure_title">بوابة حكومية آمنة</string>
+    <string name="login_secure_body">هذه البوابة مخصصة للموظفين المعتمدين فقط.</string>
+    <string name="login_need_help">تحتاج مساعدة؟</string>
+    <string name="login_contact_support">تواصل مع الدعم</string>
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_courses">الدورات</string>
+    <string name="tab_notifications">التنبيهات</string>
+    <string name="tab_profile">الملف</string>
+    <string name="loading">جاري التحميل...</string>
+    <string name="dashboard_overall_progress">التقدم الإجمالي</string>
+    <string name="dashboard_search_hint">ابحث عن البرامج التدريبية...</string>
+    <string name="dashboard_continue_training">متابعة التدريب</string>
+    <string name="dashboard_pick_up">تابع من حيث توقفت</string>
+    <string name="dashboard_active">نشط</string>
+    <string name="dashboard_new">جديد</string>
+    <string name="dashboard_completed">مكتمل</string>
+    <string name="dashboard_training_schedule">الجدول التدريبي</string>
+    <string name="dashboard_go_to_calendar">الانتقال إلى التقويم</string>
+    <string name="dashboard_today">اليوم</string>
+    <string name="dashboard_this_week">هذا الأسبوع</string>
+    <string name="dashboard_this_month">هذا الشهر</string>
+    <string name="dashboard_all_programs">جميع البرامج التدريبية</string>
+    <string name="dashboard_enrolled">مسجل</string>
+    <string name="dashboard_leaderboard">لوحة الصدارة</string>
+    <string name="dashboard_view_all">عرض الكل</string>
+    <string name="dashboard_certificates">الشهادات</string>
+    <string name="dashboard_achievements">إنجازاتك</string>
+    <string name="error_retry">إعادة المحاولة</string>
+    <string name="no_data">لا توجد بيانات متاحة</string>
+</resources>

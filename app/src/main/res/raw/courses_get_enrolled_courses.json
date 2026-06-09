@@ -1,0 +1,30 @@
+{
+  "endpoints": {
+    "get_enrolled_courses": {
+      "description": "Get all enrolled courses — used on Dashboard and Course list",
+      "method": "GET",
+      "moodle_function": "core_enrol_get_users_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_enrol_get_users_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}"
+      },
+      "response": [
+        {
+          "id": 101,
+          "shortname": "CIT-2024",
+          "fullname": "Criminal Investigation Techniques",
+          "progress": 68,
+          "completed": false,
+          "startdate": 1728691200,
+          "enddate": 1732924800,
+          "instructor": "Maj. Ahmed Al-Mansouri",
+          "courseimage": "https://lms.sharjahpolice.ae/pluginfile.php/101/course/overviewfiles/criminal_inv.jpg",
+          "haspassed": false
+        }
+      ]
+    }
+  }
+}

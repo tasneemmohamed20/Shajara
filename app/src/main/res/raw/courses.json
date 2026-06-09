@@ -1,0 +1,756 @@
+{
+  "endpoints": {
+    "get_enrolled_courses": {
+      "description": "Get all enrolled courses — used on Dashboard and Course list",
+      "method": "GET",
+      "moodle_function": "core_enrol_get_users_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_enrol_get_users_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}"
+      },
+      "response": [
+        {
+          "id": 101,
+          "shortname": "CIT-2024",
+          "fullname": "Criminal Investigation Techniques",
+          "progress": 68,
+          "completed": false,
+          "startdate": 1728691200,
+          "enddate": 1732924800,
+          "instructor": "Maj. Ahmed Al-Mansouri",
+          "courseimage": "https://lms.sharjahpolice.ae/pluginfile.php/101/course/overviewfiles/criminal_inv.jpg",
+          "haspassed": false
+        }
+      ]
+    },
+    "get_course_contents": {
+      "description": "Get full course contents (sections + activities) — Course Overview screen",
+      "method": "GET",
+      "moodle_function": "core_course_get_contents",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_get_contents",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "options[0][name]": "includestealthmodules",
+        "options[0][value]": "1",
+        "options[1][name]": "excludemodules",
+        "options[1][value]": "0",
+        "options[2][name]": "excludecontents",
+        "options[2][value]": "0"
+      },
+      "response": [
+        {
+          "id": 1001,
+          "name": "Module 1: Fundamentals of Scene Preservation",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 1,
+          "hiddenbynumsections": 0,
+          "uservisible": true,
+          "modules": [
+            {
+              "id": 201,
+              "url": "https://lms.sharjahpolice.ae/mod/resource/view.php?id=201",
+              "name": "Introduction to Scene Preservation",
+              "instance": 301,
+              "contextid": 501,
+              "description": "",
+              "visible": 1,
+              "uservisible": true,
+              "visibleoncoursepage": 1,
+              "modicon": "https://lms.sharjahpolice.ae/theme/image.php/resource",
+              "modname": "resource",
+              "modplural": "Files",
+              "availability": null,
+              "indent": 0,
+              "onclick": "",
+              "afterlink": null,
+              "customdata": "",
+              "noviewlink": false,
+              "completion": 1,
+              "completiondata": { "state": 1, "timecompleted": 1729000000, "overrideby": null, "valueused": false }
+            }
+          ]
+        },
+        {
+          "id": 1002,
+          "name": "Module 2: Evidence Collection",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 2,
+          "hiddenbynumsections": 0,
+          "uservisible": true,
+          "modules": []
+        },
+        {
+          "id": 1003,
+          "name": "Module 3: Advanced Interview Techniques",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 3,
+          "hiddenbynumsections": 0,
+          "uservisible": true,
+          "modules": [
+            {
+              "id": 202,
+              "name": "Psychology of Suspects",
+              "modname": "url",
+              "modplural": "Videos",
+              "completion": 1,
+              "completiondata": { "state": 1, "timecompleted": 1729050000 },
+              "customfields": [{ "name": "duration", "value": "12 mins" }, { "name": "type", "value": "Video" }]
+            },
+            {
+              "id": 203,
+              "name": "Interrogation Room Setup",
+              "modname": "resource",
+              "completion": 1,
+              "completiondata": { "state": 1, "timecompleted": 1729060000 },
+              "customfields": [{ "name": "duration", "value": "8 mins" }, { "name": "type", "value": "Reading" }]
+            },
+            {
+              "id": 204,
+              "name": "Body Language Analysis",
+              "modname": "url",
+              "completion": 1,
+              "completiondata": { "state": 0, "timecompleted": null },
+              "customfields": [{ "name": "duration", "value": "25 mins" }, { "name": "type", "value": "Video" }]
+            },
+            {
+              "id": 205,
+              "name": "Module 3 Assessment",
+              "modname": "assign",
+              "completion": 1,
+              "completiondata": { "state": 0, "timecompleted": null },
+              "customfields": [{ "name": "type", "value": "Exam" }],
+              "dates": [{ "label": "Due", "timestamp": 1729728000 }]
+            }
+          ]
+        },
+        {
+          "id": 1004,
+          "name": "Module 4: Digital Forensics Basics",
+          "visible": 1,
+          "summary": "",
+          "summaryformat": 1,
+          "section": 4,
+          "hiddenbynumsections": 0,
+          "uservisible": false,
+          "availability": "{\"op\":\"&\",\"c\":[{\"type\":\"completion\",\"cm\":204,\"e\":1}],\"showc\":[true]}",
+          "modules": []
+        }
+      ]
+    },
+    "get_course_completion_status": {
+      "description": "Get course completion status — overall progress percentage",
+      "method": "GET",
+      "moodle_function": "core_completion_get_course_completion_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_completion_get_course_completion_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "completionstatus": {
+          "completed": false,
+          "aggregation": 1,
+          "completions": [
+            { "type": 4, "title": "Course role completion", "status": "Yes", "complete": true, "timecompleted": 0, "details": { "rulename": "Enrolled", "rulevalue": { "status": 1, "description": "User is enrolled" } } },
+            { "type": 6, "title": "Activities completed", "status": "0 of 14", "complete": false, "timecompleted": 0, "details": { "rulename": "Activities", "rulevalue": { "status": 0, "description": "" } } }
+          ]
+        },
+        "warnings": []
+      }
+    },
+    "get_grades": {
+      "description": "Get grades for a course — Grades screen",
+      "method": "GET",
+      "moodle_function": "gradereport_user_get_grade_items",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "gradereport_user_get_grade_items",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "usergrades": [
+          {
+            "courseid": 101,
+            "userid": 42,
+            "userfullname": "Ahmed Al Mansoori",
+            "maxdepth": 2,
+            "gradeitems": [
+              { "id": 1001, "itemname": "Course total", "itemtype": "course", "itemmodule": null, "iteminstance": 101, "itemnumber": 0, "categoryid": null, "outcomeid": null, "scaleid": null, "locked": false, "cmid": null, "weightraw": 1, "weightformatted": "100 %", "graderaw": 92.0, "gradedatesubmitted": 0, "gradedategraded": 0, "gradehiddenbydate": false, "gradeneedsupdate": false, "gradeishidden": false, "gradedatesubmittedformatted": "", "gradedategraded": "", "gradeformatted": "92.00", "grademin": 0.0, "grademax": 100.0, "rangeformatted": "0–100", "percentageformatted": "92 %", "lettergradeformatted": "A", "rank": 0, "numusers": 38, "averageformatted": "78.50", "feedback": "", "feedbackformat": 0 },
+              { "id": 1002, "itemname": "Crime Scene Analysis Report", "itemtype": "mod", "itemmodule": "assign", "iteminstance": 205, "graderaw": null, "gradeformatted": "-", "grademin": 0.0, "grademax": 100.0, "percentageformatted": "-", "locked": false, "cmid": 205 },
+              { "id": 1003, "itemname": "Module 1 Quiz", "itemtype": "mod", "itemmodule": "quiz", "iteminstance": 301, "graderaw": 88.0, "gradeformatted": "88.00", "grademin": 0.0, "grademax": 100.0, "percentageformatted": "88 %", "lettergradeformatted": "B+", "locked": false, "cmid": 301 }
+            ]
+          }
+        ],
+        "warnings": []
+      }
+    },
+    "get_activities": {
+      "description": "Get all activities in a course module",
+      "method": "GET",
+      "moodle_function": "core_course_get_contents",
+      "url": "/webservice/rest/server.php",
+      "note": "Same as get_course_contents; filter by section/module to extract activities.",
+      "request": {
+        "wsfunction": "core_course_get_contents",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "options[0][name]": "sectionid",
+        "options[0][value]": "1003"
+      },
+      "response": "See get_course_contents response — each section's `modules` array contains activities."
+    },
+    "search_courses_by_keyword": {
+      "description": "Search courses by keyword — Dashboard search bar",
+      "method": "GET",
+      "moodle_function": "core_course_search_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_search_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "criterianame": "search",
+        "criteriavalue": "Criminal Investigation",
+        "page": "0",
+        "perpage": "10",
+        "requiredcapabilities": "",
+        "limittoenrolled": "0",
+        "onlywithcompletion": "0"
+      },
+      "response": {
+        "total": 1,
+        "courses": [
+          {
+            "id": 101,
+            "fullname": "Criminal Investigation Techniques",
+            "shortname": "CIT-2024",
+            "displayname": "Criminal Investigation Techniques",
+            "summary": "Learn advanced criminal investigation techniques used in modern law enforcement.",
+            "summaryformat": 1,
+            "categoryid": 5,
+            "categoryname": "Criminal Investigation",
+            "sortorder": 10001,
+            "overviewfiles": [],
+            "contacts": [{ "id": 12, "fullname": "Maj. Ahmed Al-Mansouri" }],
+            "enrollmentmethods": ["manual"],
+            "customfields": [],
+            "showactivitydates": true,
+            "showcompletionconditions": true
+          }
+        ],
+        "warnings": []
+      }
+    },
+    "get_all_sections_modules": {
+      "description": "Get all sections/modules of a course — Course Overview module list",
+      "method": "GET",
+      "moodle_function": "core_course_get_contents",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_get_contents",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101"
+      },
+      "response": "See get_course_contents — returns array of sections each with `modules` array."
+    },
+    "get_single_module_details": {
+      "description": "Get single module details",
+      "method": "GET",
+      "moodle_function": "core_course_get_course_module",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_get_course_module",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "cmid": "204"
+      },
+      "response": {
+        "cm": {
+          "id": 204,
+          "course": 101,
+          "module": 15,
+          "name": "Body Language Analysis",
+          "modname": "url",
+          "instance": 400,
+          "section": 1003,
+          "sectionnum": 3,
+          "groupmode": 0,
+          "groupingid": 0,
+          "completion": 1,
+          "idnumber": "",
+          "added": 1728691200,
+          "score": 0,
+          "indent": 0,
+          "visible": 1,
+          "visibleoncoursepage": 1,
+          "visibleold": 1,
+          "completiongradeitemnumber": null,
+          "completionpassgrade": 0,
+          "completionview": 1,
+          "completionexpected": 0,
+          "showdescription": 0,
+          "downloadcontent": null,
+          "availability": null,
+          "grade": 0,
+          "gradepass": 0,
+          "gradecat": null,
+          "advancedgrading": [],
+          "outcomes": [],
+          "dates": []
+        },
+        "warnings": []
+      }
+    },
+    "get_file_resources_in_course": {
+      "description": "Get file resources in a course — Resources section on Assignment Details",
+      "method": "GET",
+      "moodle_function": "mod_resource_get_resources_by_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_resource_get_resources_by_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseids[0]": "101"
+      },
+      "response": {
+        "resources": [
+          {
+            "id": 301,
+            "coursemodule": 201,
+            "course": 101,
+            "name": "Scene_Photos.zip",
+            "intro": "",
+            "introformat": 1,
+            "introfiles": [],
+            "lang": "",
+            "contentfiles": [
+              {
+                "filename": "Scene_Photos.zip",
+                "filepath": "/",
+                "filesize": 12582912,
+                "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/501/mod_resource/content/1/Scene_Photos.zip?token={{token}}",
+                "timecreated": 1728700000,
+                "timemodified": 1728700000,
+                "sortorder": 1,
+                "mimetype": "application/zip",
+                "isexternalfile": false,
+                "userid": 12,
+                "author": "Maj. Ahmed Al-Mansouri",
+                "license": "allrightsreserved"
+              }
+            ],
+            "display": 0,
+            "displayoptions": "",
+            "filterfiles": 0,
+            "revision": 1,
+            "timemodified": 1728700000,
+            "section": 1003,
+            "visible": 1,
+            "groupmode": 0,
+            "groupingid": 0
+          },
+          {
+            "id": 302,
+            "coursemodule": 202,
+            "course": 101,
+            "name": "Report_Template.pdf",
+            "contentfiles": [
+              {
+                "filename": "Report_Template.pdf",
+                "filepath": "/",
+                "filesize": 2516582,
+                "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/502/mod_resource/content/1/Report_Template.pdf?token={{token}}",
+                "timecreated": 1728700000,
+                "timemodified": 1728700000,
+                "sortorder": 1,
+                "mimetype": "application/pdf",
+                "isexternalfile": false
+              }
+            ],
+            "display": 0,
+            "timemodified": 1728700000,
+            "section": 1003,
+            "visible": 1
+          }
+        ],
+        "warnings": []
+      }
+    },
+    "get_assignments_for_enrolled_courses": {
+      "description": "Get assignments for all enrolled courses — Tasks screen & Dashboard due items",
+      "method": "GET",
+      "moodle_function": "mod_assign_get_assignments",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_get_assignments",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseids[0]": "101",
+        "courseids[1]": "102",
+        "courseids[2]": "103",
+        "capabilities[0]": "mod/assign:view",
+        "includenotenrolledcourses": "0"
+      },
+      "response": {
+        "courses": [
+          {
+            "id": 101,
+            "fullname": "Criminal Investigation Techniques",
+            "timemodified": 1729000000,
+            "assignments": [
+              {
+                "id": 501,
+                "cmid": 205,
+                "course": 101,
+                "name": "Crime Scene Analysis Report",
+                "nosubmissions": 0,
+                "submissiondrafts": 0,
+                "sendnotifications": 1,
+                "sendlatenotifications": 1,
+                "sendstudentnotifications": 1,
+                "duedate": 1729728000,
+                "allowsubmissionsfromdate": 1728691200,
+                "grade": 100,
+                "timemodified": 1728700000,
+                "completionsubmit": 1,
+                "cutoffdate": 0,
+                "gradingduedate": 0,
+                "teamsubmission": 0,
+                "requireallteammemberssubmit": 0,
+                "teamsubmissiongroupingid": 0,
+                "blindmarking": 0,
+                "hidegrader": 0,
+                "revealidentities": 0,
+                "attemptreopenmethod": "none",
+                "maxattempts": 2,
+                "markingworkflow": 0,
+                "markingallocation": 0,
+                "requiresubmissionstatement": 1,
+                "preventsubmissionnotingroup": 0,
+                "submissionstatement": "I confirm this submission follows academy integrity rules and is my original work.",
+                "submissionstatementformat": 1,
+                "configs": [
+                  { "plugin": "file", "subtype": "assignsubmission", "name": "enabled", "value": "1" },
+                  { "plugin": "file", "subtype": "assignsubmission", "name": "maxfilesubmissions", "value": "1" },
+                  { "plugin": "file", "subtype": "assignsubmission", "name": "maxsubmissionsizebytes", "value": "26214400" },
+                  { "plugin": "file", "subtype": "assignsubmission", "name": "filetypeslist", "value": ".pdf,.docx" },
+                  { "plugin": "onlinetext", "subtype": "assignsubmission", "name": "enabled", "value": "1" },
+                  { "plugin": "comments", "subtype": "assignfeedback", "name": "enabled", "value": "1" }
+                ],
+                "intro": "Analyze the provided crime scene photos and submit a comprehensive report detailing potential evidence, suspects, and procedural steps.",
+                "introformat": 1,
+                "introfiles": [],
+                "introattachments": [
+                  {
+                    "filename": "Scene_Photos.zip",
+                    "filepath": "/",
+                    "filesize": 12582912,
+                    "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/501/mod_assign/introattachment/0/Scene_Photos.zip?token={{token}}",
+                    "timecreated": 1728700000,
+                    "timemodified": 1728700000,
+                    "mimetype": "application/zip"
+                  },
+                  {
+                    "filename": "Report_Template.pdf",
+                    "filepath": "/",
+                    "filesize": 2516582,
+                    "fileurl": "https://lms.sharjahpolice.ae/webservice/pluginfile.php/501/mod_assign/introattachment/0/Report_Template.pdf?token={{token}}",
+                    "timecreated": 1728700000,
+                    "timemodified": 1728700000,
+                    "mimetype": "application/pdf"
+                  }
+                ],
+                "activity": "",
+                "activityformat": 1,
+                "activityattachments": [],
+                "timelimit": 0,
+                "submissionattachments": 0
+              }
+            ]
+          }
+        ],
+        "warnings": []
+      }
+    },
+    "get_user_submission_status": {
+      "description": "Get user's submission status for an assignment — Assignment Details (Status: Not submitted yet) & Submission screen",
+      "method": "GET",
+      "moodle_function": "mod_assign_get_submission_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_get_submission_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignid": "501",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "gradingsummary": {
+          "participantcount": 38,
+          "submissiondraftscount": 0,
+          "submissionsenabled": true,
+          "submittedcount": 22,
+          "submissionsneedgradingcount": 5,
+          "warnofungroupedusers": ""
+        },
+        "lastattempt": {
+          "submission": {
+            "id": 0,
+            "userid": 42,
+            "attemptnumber": 0,
+            "timecreated": 0,
+            "timemodified": 0,
+            "timestarted": null,
+            "status": "new",
+            "groupid": 0,
+            "assignment": 501,
+            "latest": true,
+            "plugins": [
+              {
+                "type": "file",
+                "name": "File submissions",
+                "fileareas": [
+                  {
+                    "area": "submission_files",
+                    "files": []
+                  }
+                ]
+              },
+              {
+                "type": "onlinetext",
+                "name": "Online text",
+                "editorfields": [
+                  { "name": "text", "description": "Online text submissions", "text": "", "format": 1 }
+                ]
+              }
+            ]
+          },
+          "teamsubmission": null,
+          "submissiongroup": null,
+          "submissiongroupmemberswhoneedtosubmit": [],
+          "submissionsenabled": true,
+          "locked": false,
+          "graded": false,
+          "canedit": true,
+          "caneditowner": true,
+          "cansubmit": true,
+          "extensionduedate": 0,
+          "timelimit": null,
+          "blindmarking": false,
+          "gradingstatus": "notgraded",
+          "usergroups": []
+        },
+        "feedback": null,
+        "previousattempts": [],
+        "assignmentdata": {
+          "attachments": {
+            "intro": [
+              { "filename": "Scene_Photos.zip", "fileurl": "...", "filesize": 12582912, "mimetype": "application/zip" },
+              { "filename": "Report_Template.pdf", "fileurl": "...", "filesize": 2516582, "mimetype": "application/pdf" }
+            ],
+            "activity": []
+          },
+          "activity": "",
+          "activityformat": 1
+        },
+        "warnings": []
+      }
+    },
+    "save_submit_assignment_text": {
+      "description": "Save or submit assignment online text entry — Text Entry submission type",
+      "method": "POST",
+      "moodle_function": "mod_assign_save_submission",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_save_submission",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignmentid": "501",
+        "plugindata[onlinetext_editor][text]": "<p>Crime Scene Analysis Report...</p>",
+        "plugindata[onlinetext_editor][format]": "1",
+        "plugindata[onlinetext_editor][itemid]": "{{draft_item_id}}"
+      },
+      "response": {
+        "warnings": []
+      }
+    },
+    "save_submit_assignment_files": {
+      "description": "Save assignment file submission (after uploading file to draft area)",
+      "method": "POST",
+      "moodle_function": "mod_assign_save_submission",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_save_submission",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignmentid": "501",
+        "plugindata[files_filemanager]": "{{draft_item_id}}"
+      },
+      "response": {
+        "warnings": []
+      }
+    },
+    "finalize_assignment_submission": {
+      "description": "Finalize/submit assignment — Review & Submit button on Submission screen",
+      "method": "POST",
+      "moodle_function": "mod_assign_submit_for_grading",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_submit_for_grading",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignmentid": "501",
+        "acceptsubmissionstatement": "1"
+      },
+      "response": {
+        "warnings": []
+      }
+    },
+    "upload_file_attachment": {
+      "description": "Upload file to draft area before saving assignment submission",
+      "method": "POST",
+      "moodle_function": "core_files_upload",
+      "url": "/webservice/rest/server.php",
+      "note": "Send file as multipart/form-data. itemid=0 to create new draft; reuse returned itemid for subsequent uploads to the same draft.",
+      "request": {
+        "wsfunction": "core_files_upload",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "component": "user",
+        "filearea": "draft",
+        "itemid": "0",
+        "filepath": "/",
+        "filename": "crime_scene_report_v1.pdf",
+        "filecontent": "{{base64_encoded_file_content}}",
+        "contextlevel": "user",
+        "instanceid": "{{userid}}"
+      },
+      "response": {
+        "contextid": 42,
+        "browser": "user",
+        "area": "draft",
+        "itemid": 987654,
+        "filepath": "/",
+        "filename": "crime_scene_report_v1.pdf",
+        "url": "https://lms.sharjahpolice.ae/draftfile.php/42/user/draft/987654/crime_scene_report_v1.pdf"
+      }
+    },
+    "get_quizzes_for_enrolled_courses": {
+      "description": "Get quizzes for enrolled courses",
+      "method": "GET",
+      "moodle_function": "mod_quiz_get_quizzes_by_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_quiz_get_quizzes_by_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseids[0]": "101",
+        "courseids[1]": "102"
+      },
+      "response": {
+        "quizzes": [
+          {
+            "id": 601,
+            "course": 101,
+            "coursemodule": 301,
+            "name": "Module 1 Quiz",
+            "intro": "Quiz on fundamentals of scene preservation.",
+            "introformat": 1,
+            "introfiles": [],
+            "timeopen": 1728691200,
+            "timeclose": 1729296000,
+            "timelimit": 1800,
+            "preferredbehaviour": "deferredfeedback",
+            "canredoquestions": 0,
+            "attempts": 2,
+            "attemptonlast": 0,
+            "grademethod": 1,
+            "decimalpoints": 2,
+            "questiondecimalpoints": -1,
+            "reviewattempt": 69904,
+            "reviewcorrectness": 4368,
+            "reviewmarks": 4368,
+            "reviewspecificfeedback": 4368,
+            "reviewgeneralfeedback": 4368,
+            "reviewrightanswer": 4368,
+            "reviewoverallfeedback": 4368,
+            "questionsperpage": 1,
+            "navmethod": "free",
+            "shuffleanswers": 1,
+            "sumgrades": "10.00",
+            "grade": "100.00",
+            "timecreated": 1728691200,
+            "timemodified": 1728691200,
+            "password": "",
+            "subnet": "",
+            "browsersecurity": "-",
+            "delay1": 0,
+            "delay2": 0,
+            "showuserpicture": 0,
+            "showblocks": 0,
+            "completionattemptsexhausted": 0,
+            "completionpass": 1,
+            "allowofflineattempts": 0,
+            "autosaveperiod": 60,
+            "hasfeedback": 0,
+            "hasquestions": 1
+          }
+        ],
+        "warnings": []
+      }
+    },
+    "get_grade_items_for_course": {
+      "description": "Get all grade items for a course",
+      "method": "GET",
+      "moodle_function": "gradereport_user_get_grade_items",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "gradereport_user_get_grade_items",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": "See get_grades response above."
+    },
+    "get_overview_grades_all_courses": {
+      "description": "Get overview grades across all enrolled courses — Grades tab",
+      "method": "GET",
+      "moodle_function": "gradereport_overview_get_course_grades",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "gradereport_overview_get_course_grades",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "grades": [
+          { "courseid": 101, "grade": "92.00", "rawgrade": "92.00" },
+          { "courseid": 102, "grade": "87.00", "rawgrade": "87.00" },
+          { "courseid": 103, "grade": "78.00", "rawgrade": "78.00" }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "endpoints": {
+    "open_download_certificate": {
+      "description": "Open or download a certificate — View Certificate / Download buttons on Profile",
+      "method": "GET",
+      "moodle_function": "mod_customcert_view_certificate",
+      "url": "/webservice/rest/server.php",
+      "note": "To download, append &downloadown=1 to the viewurl. For in-app viewing, open the viewurl in a webview or download as PDF.",
+      "request": {
+        "wsfunction": "mod_customcert_view_certificate",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "certificateid": "801"
+      },
+      "response": {
+        "status": true,
+        "warnings": []
+      },
+      "download_url_pattern": "https://{{moodle_base_url}}/mod/customcert/view.php?id={{certificateid}}&downloadown=1&token={{token}}"
+    }
+  }
+}

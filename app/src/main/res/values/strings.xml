@@ -1,3 +1,52 @@
 <resources>
     <string name="app_name">MoodleGovApp</string>
+    <!-- Login -->
+    <string name="login_academy_name">Government Training Academy</string>
+    <string name="login_welcome_title">Welcome Back</string>
+    <string name="login_welcome_subtitle">Sign in to continue your training</string>
+    <string name="login_step">AUTHENTICATION STEP</string>
+    <string name="login_logging_as">Logging in as</string>
+    <string name="login_role_participant">Participant</string>
+    <string name="login_change">Change</string>
+    <string name="login_username">Username</string>
+    <string name="login_username_placeholder">Enter your username</string>
+    <string name="login_password">Password</string>
+    <string name="login_remember_me">Remember me</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_button">Sign In</string>
+    <string name="login_secure_title">Secure Government Portal</string>
+    <string name="login_secure_body">This portal is for authorized personnel only. All access is monitored and logged.</string>
+    <string name="login_need_help">Need help?</string>
+    <string name="login_contact_support">Contact Support</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_overall_progress">OVERALL PROGRESS</string>
+    <string name="dashboard_search_hint">Search training programs...</string>
+    <string name="dashboard_continue_training">Continue Training</string>
+    <string name="dashboard_pick_up">Pick up where you left off</string>
+    <string name="dashboard_active">Active</string>
+    <string name="dashboard_new">New</string>
+    <string name="dashboard_completed">Completed</string>
+    <string name="dashboard_training_schedule">Training Schedule</string>
+    <string name="dashboard_go_to_calendar">Go to Calendar</string>
+    <string name="dashboard_today">Today</string>
+    <string name="dashboard_this_week">This Week</string>
+    <string name="dashboard_this_month">This Month</string>
+    <string name="dashboard_all_programs">All Training Programs</string>
+    <string name="dashboard_enrolled">Enrolled</string>
+    <string name="dashboard_leaderboard">Leaderboard</string>
+    <string name="dashboard_view_all">View All</string>
+    <string name="dashboard_certificates">Certificates</string>
+    <string name="dashboard_achievements">Your Achievements</string>
+
+    <!-- Tab Bar -->
+    <string name="tab_home">Home</string>
+    <string name="tab_courses">Courses</string>
+    <string name="tab_notifications">Alerts</string>
+    <string name="tab_profile">Profile</string>
+
+    <!-- Common -->
+    <string name="loading">Loading...</string>
+    <string name="error_retry">Retry</string>
+    <string name="no_data">No data available</string>
 </resources>

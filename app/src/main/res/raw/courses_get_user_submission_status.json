@@ -1,0 +1,103 @@
+{
+  "endpoints": {
+    "get_user_submission_status": {
+      "description": "Get user's submission status for an assignment — Assignment Details (Status: Not submitted yet) & Submission screen",
+      "method": "GET",
+      "moodle_function": "mod_assign_get_submission_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_get_submission_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignid": "501",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "gradingsummary": {
+          "participantcount": 38,
+          "submissiondraftscount": 0,
+          "submissionsenabled": true,
+          "submittedcount": 22,
+          "submissionsneedgradingcount": 5,
+          "warnofungroupedusers": ""
+        },
+        "lastattempt": {
+          "submission": {
+            "id": 0,
+            "userid": 42,
+            "attemptnumber": 0,
+            "timecreated": 0,
+            "timemodified": 0,
+            "timestarted": null,
+            "status": "new",
+            "groupid": 0,
+            "assignment": 501,
+            "latest": true,
+            "plugins": [
+              {
+                "type": "file",
+                "name": "File submissions",
+                "fileareas": [
+                  {
+                    "area": "submission_files",
+                    "files": []
+                  }
+                ]
+              },
+              {
+                "type": "onlinetext",
+                "name": "Online text",
+                "editorfields": [
+                  {
+                    "name": "text",
+                    "description": "Online text submissions",
+                    "text": "",
+                    "format": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "teamsubmission": null,
+          "submissiongroup": null,
+          "submissiongroupmemberswhoneedtosubmit": [],
+          "submissionsenabled": true,
+          "locked": false,
+          "graded": false,
+          "canedit": true,
+          "caneditowner": true,
+          "cansubmit": true,
+          "extensionduedate": 0,
+          "timelimit": null,
+          "blindmarking": false,
+          "gradingstatus": "notgraded",
+          "usergroups": []
+        },
+        "feedback": null,
+        "previousattempts": [],
+        "assignmentdata": {
+          "attachments": {
+            "intro": [
+              {
+                "filename": "Scene_Photos.zip",
+                "fileurl": "...",
+                "filesize": 12582912,
+                "mimetype": "application/zip"
+              },
+              {
+                "filename": "Report_Template.pdf",
+                "fileurl": "...",
+                "filesize": 2516582,
+                "mimetype": "application/pdf"
+              }
+            ],
+            "activity": []
+          },
+          "activity": "",
+          "activityformat": 1
+        },
+        "warnings": []
+      }
+    }
+  }
+}

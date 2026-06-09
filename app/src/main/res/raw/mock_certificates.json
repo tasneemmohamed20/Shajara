@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "courseTitle": "Advanced Criminal Investigation",
+    "instructorName": "Maj. Ahmed Al-Mansouri",
+    "completionDate": "Oct 12, 2024",
+    "grade": 95,
+    "status": "COMPLETED",
+    "certificateUrl": "https://mock.gov.ae/certificates/1.pdf",
+    "canDownload": true
+  },
+  {
+    "id": 2,
+    "courseTitle": "Cybercrime Fundamentals",
+    "instructorName": "Capt. Sarah Al-Ketbi",
+    "completionDate": "Nov 05, 2024",
+    "grade": 0,
+    "status": "PENDING_APPROVAL",
+    "certificateUrl": "",
+    "canDownload": false
+  }
+]

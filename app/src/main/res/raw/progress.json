@@ -1,0 +1,134 @@
+{
+  "endpoints": {
+    "course_completion": {
+      "description": "Get course completion status — overall progress bar on Course Overview (68%) and Dashboard",
+      "method": "GET",
+      "moodle_function": "core_completion_get_course_completion_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_completion_get_course_completion_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "completionstatus": {
+          "completed": false,
+          "aggregation": 1,
+          "completions": [
+            { "type": 4, "title": "Course role completion", "status": "Yes", "complete": true, "timecompleted": 0, "details": { "rulename": "Enrolled", "rulevalue": { "status": 1, "description": "User is enrolled" } } },
+            { "type": 6, "title": "Activities completed", "status": "9 of 14", "complete": false, "timecompleted": 0, "details": { "rulename": "Activities", "rulevalue": { "status": 0, "description": "" } } }
+          ]
+        },
+        "warnings": [],
+        "_derived_progress_percent": 68
+      }
+    },
+    "activity_completion": {
+      "description": "Get activity completion status for all activities in a course",
+      "method": "GET",
+      "moodle_function": "core_completion_get_activities_completion_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_completion_get_activities_completion_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "statuses": [
+          { "cmid": 201, "modname": "resource", "instance": 301, "state": 1, "timecompleted": 1729000000, "tracking": 1, "overrideby": null, "valueused": false, "hascompletion": true, "isautomatic": false, "istrackeduser": true, "uservisible": true, "details": [] },
+          { "cmid": 202, "modname": "url", "instance": 400, "state": 1, "timecompleted": 1729050000, "tracking": 1, "overrideby": null, "valueused": false, "hascompletion": true, "isautomatic": false, "istrackeduser": true, "uservisible": true, "details": [] },
+          { "cmid": 203, "modname": "resource", "instance": 401, "state": 1, "timecompleted": 1729060000, "tracking": 1, "overrideby": null, "valueused": false, "hascompletion": true, "isautomatic": false, "istrackeduser": true, "uservisible": true, "details": [] },
+          { "cmid": 204, "modname": "url", "instance": 402, "state": 0, "timecompleted": 0, "tracking": 1, "overrideby": null, "valueused": false, "hascompletion": true, "isautomatic": false, "istrackeduser": true, "uservisible": true, "details": [], "_label": "Body Language Analysis — In Progress" },
+          { "cmid": 205, "modname": "assign", "instance": 501, "state": 0, "timecompleted": 0, "tracking": 1, "overrideby": null, "valueused": false, "hascompletion": true, "isautomatic": true, "istrackeduser": true, "uservisible": true, "details": [{ "rulename": "submittedforgrading", "rulevalue": { "status": false, "description": "Receive a grade" } }], "_label": "Module 3 Assessment — Not submitted" }
+        ],
+        "warnings": []
+      }
+    },
+    "quiz_assignment_status": {
+      "description": "Get quiz attempt status and assignment submission status",
+      "quiz": {
+        "description": "Get user's quiz attempts",
+        "method": "GET",
+        "moodle_function": "mod_quiz_get_user_attempts",
+        "url": "/webservice/rest/server.php",
+        "request": {
+          "wsfunction": "mod_quiz_get_user_attempts",
+          "wstoken": "{{token}}",
+          "moodlewsrestformat": "json",
+          "quizid": "601",
+          "userid": "{{userid}}",
+          "status": "all",
+          "includepreviews": "0"
+        },
+        "response": {
+          "attempts": [
+            {
+              "id": 901,
+              "quiz": 601,
+              "userid": 42,
+              "attempt": 1,
+              "uniqueid": 1001,
+              "layout": "1,0",
+              "currentpage": 0,
+              "preview": 0,
+              "state": "finished",
+              "timestart": 1729000000,
+              "timefinish": 1729001800,
+              "timemodified": 1729001800,
+              "timemodifiedoffline": 0,
+              "timecheckstate": null,
+              "sumgrades": "8.80",
+              "gradednotificationsenttime": null
+            }
+          ],
+          "warnings": []
+        }
+      },
+      "assignment": {
+        "description": "Get assignment submission status — see courses.json get_user_submission_status",
+        "moodle_function": "mod_assign_get_submission_status",
+        "note": "Refer to courses.json > get_user_submission_status for full response."
+      }
+    },
+    "submit_report": {
+      "description": "Submit assignment report — Review & Submit button flow",
+      "note": "3-step process: (1) upload_file_attachment → get draft itemid, (2) save_submit_assignment_files with draft itemid, (3) finalize_assignment_submission",
+      "step_1_upload_file": {
+        "moodle_function": "core_files_upload",
+        "note": "See courses.json > upload_file_attachment"
+      },
+      "step_2_save_submission": {
+        "moodle_function": "mod_assign_save_submission",
+        "note": "See courses.json > save_submit_assignment_files"
+      },
+      "step_3_finalize": {
+        "description": "Finalize submission after saving",
+        "method": "POST",
+        "moodle_function": "mod_assign_submit_for_grading",
+        "url": "/webservice/rest/server.php",
+        "request": {
+          "wsfunction": "mod_assign_submit_for_grading",
+          "wstoken": "{{token}}",
+          "moodlewsrestformat": "json",
+          "assignmentid": "501",
+          "acceptsubmissionstatement": "1"
+        },
+        "response": {
+          "warnings": []
+        }
+      },
+      "post_submission_status": {
+        "description": "Expected submission status after successful finalize",
+        "status": "submitted",
+        "timecreated": "{{current_timestamp}}",
+        "timemodified": "{{current_timestamp}}",
+        "gradingstatus": "notgraded",
+        "graded": false
+      }
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "endpoints": {
+    "activity_completion": {
+      "description": "Get activity completion status for all activities in a course",
+      "method": "GET",
+      "moodle_function": "core_completion_get_activities_completion_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_completion_get_activities_completion_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "statuses": [
+          {
+            "cmid": 201,
+            "modname": "resource",
+            "instance": 301,
+            "state": 1,
+            "timecompleted": 1729000000,
+            "tracking": 1,
+            "overrideby": null,
+            "valueused": false,
+            "hascompletion": true,
+            "isautomatic": false,
+            "istrackeduser": true,
+            "uservisible": true,
+            "details": []
+          },
+          {
+            "cmid": 202,
+            "modname": "url",
+            "instance": 400,
+            "state": 1,
+            "timecompleted": 1729050000,
+            "tracking": 1,
+            "overrideby": null,
+            "valueused": false,
+            "hascompletion": true,
+            "isautomatic": false,
+            "istrackeduser": true,
+            "uservisible": true,
+            "details": []
+          },
+          {
+            "cmid": 203,
+            "modname": "resource",
+            "instance": 401,
+            "state": 1,
+            "timecompleted": 1729060000,
+            "tracking": 1,
+            "overrideby": null,
+            "valueused": false,
+            "hascompletion": true,
+            "isautomatic": false,
+            "istrackeduser": true,
+            "uservisible": true,
+            "details": []
+          },
+          {
+            "cmid": 204,
+            "modname": "url",
+            "instance": 402,
+            "state": 0,
+            "timecompleted": 0,
+            "tracking": 1,
+            "overrideby": null,
+            "valueused": false,
+            "hascompletion": true,
+            "isautomatic": false,
+            "istrackeduser": true,
+            "uservisible": true,
+            "details": [],
+            "_label": "Body Language Analysis — In Progress"
+          },
+          {
+            "cmid": 205,
+            "modname": "assign",
+            "instance": 501,
+            "state": 0,
+            "timecompleted": 0,
+            "tracking": 1,
+            "overrideby": null,
+            "valueused": false,
+            "hascompletion": true,
+            "isautomatic": true,
+            "istrackeduser": true,
+            "uservisible": true,
+            "details": [
+              {
+                "rulename": "submittedforgrading",
+                "rulevalue": {
+                  "status": false,
+                  "description": "Receive a grade"
+                }
+              }
+            ],
+            "_label": "Module 3 Assessment — Not submitted"
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

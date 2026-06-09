@@ -1,0 +1,50 @@
+{
+  "endpoints": {
+    "get_user_preferences": {
+      "description": "Get user preferences (language, notifications toggle)",
+      "method": "GET",
+      "moodle_function": "core_user_get_user_preferences",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_user_get_user_preferences",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "name": "",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "preferences": [
+          {
+            "name": "lang",
+            "value": "en"
+          },
+          {
+            "name": "auth_forcepasswordchange",
+            "value": "0"
+          },
+          {
+            "name": "email_bounce_count",
+            "value": "0"
+          },
+          {
+            "name": "notification_enabled",
+            "value": "1"
+          },
+          {
+            "name": "message_provider_moodle_instantmessage_enabled",
+            "value": "popup,email"
+          },
+          {
+            "name": "message_provider_moodle_instantmessage_loggedin",
+            "value": "popup"
+          },
+          {
+            "name": "message_provider_moodle_instantmessage_loggedoff",
+            "value": "email"
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

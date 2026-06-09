@@ -1,0 +1,40 @@
+{
+  "endpoints": {
+    "submit_report": {
+      "description": "Submit assignment report — Review & Submit button flow",
+      "note": "3-step process: (1) upload_file_attachment → get draft itemid, (2) save_submit_assignment_files with draft itemid, (3) finalize_assignment_submission",
+      "step_1_upload_file": {
+        "moodle_function": "core_files_upload",
+        "note": "See courses.json > upload_file_attachment"
+      },
+      "step_2_save_submission": {
+        "moodle_function": "mod_assign_save_submission",
+        "note": "See courses.json > save_submit_assignment_files"
+      },
+      "step_3_finalize": {
+        "description": "Finalize submission after saving",
+        "method": "POST",
+        "moodle_function": "mod_assign_submit_for_grading",
+        "url": "/webservice/rest/server.php",
+        "request": {
+          "wsfunction": "mod_assign_submit_for_grading",
+          "wstoken": "{{token}}",
+          "moodlewsrestformat": "json",
+          "assignmentid": "501",
+          "acceptsubmissionstatement": "1"
+        },
+        "response": {
+          "warnings": []
+        }
+      },
+      "post_submission_status": {
+        "description": "Expected submission status after successful finalize",
+        "status": "submitted",
+        "timecreated": "{{current_timestamp}}",
+        "timemodified": "{{current_timestamp}}",
+        "gradingstatus": "notgraded",
+        "graded": false
+      }
+    }
+  }
+}

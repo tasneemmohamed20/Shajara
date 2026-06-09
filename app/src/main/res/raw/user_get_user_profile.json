@@ -1,0 +1,76 @@
+{
+  "endpoints": {
+    "get_user_profile": {
+      "description": "Get user profile — shown on Profile screen (name, avatar, level, XP, rank, badges, certificates, settings)",
+      "method": "GET",
+      "moodle_function": "core_user_get_users_by_field",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_user_get_users_by_field",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "field": "id",
+        "values[0]": "{{userid}}"
+      },
+      "response": [
+        {
+          "id": 42,
+          "username": "ahmed.almansoori",
+          "fullname": "Ahmed Al Mansoori",
+          "email": "ahmed@sharjahpolice.ae",
+          "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f1",
+          "profileimageurlsmall": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f2",
+          "department": "Criminal Investigation",
+          "institution": "Sharjah Police Academy",
+          "city": "Sharjah",
+          "country": "AE",
+          "lang": "en",
+          "customfields": [
+            {
+              "name": "batch",
+              "shortname": "batch",
+              "value": "Batch 42",
+              "type": "text"
+            },
+            {
+              "name": "rank",
+              "shortname": "rank",
+              "value": "Cadet",
+              "type": "text"
+            },
+            {
+              "name": "rank_number",
+              "shortname": "rank_number",
+              "value": "12",
+              "type": "text"
+            },
+            {
+              "name": "level",
+              "shortname": "level",
+              "value": "5",
+              "type": "text"
+            },
+            {
+              "name": "total_xp",
+              "shortname": "total_xp",
+              "value": "1250",
+              "type": "text"
+            },
+            {
+              "name": "xp_to_next_level",
+              "shortname": "xp_to_next_level",
+              "value": "120",
+              "type": "text"
+            }
+          ],
+          "preferences": [
+            {
+              "name": "auth_forcepasswordchange",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

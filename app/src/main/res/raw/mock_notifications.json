@@ -1,0 +1,29 @@
+[
+  {
+    "id": 9001,
+    "title": "Assignment due reminder",
+    "message": "Crime Scene Analysis Report is due in 2 days",
+    "timeCreated": 1729555200,
+    "isRead": false,
+    "type": "ASSIGNMENT",
+    "iconUrl": ""
+  },
+  {
+    "id": 9002,
+    "title": "Training Session",
+    "message": "Community Engagement Workshop tomorrow at 10:00 AM",
+    "timeCreated": 1729468800,
+    "isRead": true,
+    "type": "SCHEDULE",
+    "iconUrl": ""
+  },
+  {
+    "id": 9003,
+    "title": "Certificate Available",
+    "message": "Your certificate for Advanced Criminal Investigation is ready",
+    "timeCreated": 1729382400,
+    "isRead": false,
+    "type": "CERTIFICATE",
+    "iconUrl": ""
+  }
+]

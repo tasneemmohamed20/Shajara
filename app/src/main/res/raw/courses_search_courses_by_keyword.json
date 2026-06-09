@@ -1,0 +1,52 @@
+{
+  "endpoints": {
+    "search_courses_by_keyword": {
+      "description": "Search courses by keyword — Dashboard search bar",
+      "method": "GET",
+      "moodle_function": "core_course_search_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_search_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "criterianame": "search",
+        "criteriavalue": "Criminal Investigation",
+        "page": "0",
+        "perpage": "10",
+        "requiredcapabilities": "",
+        "limittoenrolled": "0",
+        "onlywithcompletion": "0"
+      },
+      "response": {
+        "total": 1,
+        "courses": [
+          {
+            "id": 101,
+            "fullname": "Criminal Investigation Techniques",
+            "shortname": "CIT-2024",
+            "displayname": "Criminal Investigation Techniques",
+            "summary": "Learn advanced criminal investigation techniques used in modern law enforcement.",
+            "summaryformat": 1,
+            "categoryid": 5,
+            "categoryname": "Criminal Investigation",
+            "sortorder": 10001,
+            "overviewfiles": [],
+            "contacts": [
+              {
+                "id": 12,
+                "fullname": "Maj. Ahmed Al-Mansouri"
+              }
+            ],
+            "enrollmentmethods": [
+              "manual"
+            ],
+            "customfields": [],
+            "showactivitydates": true,
+            "showcompletionconditions": true
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "endpoints": {
+    "save_submit_assignment_files": {
+      "description": "Save assignment file submission (after uploading file to draft area)",
+      "method": "POST",
+      "moodle_function": "mod_assign_save_submission",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_save_submission",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignmentid": "501",
+        "plugindata[files_filemanager]": "{{draft_item_id}}"
+      },
+      "response": {
+        "warnings": []
+      }
+    }
+  }
+}

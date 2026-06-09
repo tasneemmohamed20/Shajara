@@ -1,0 +1,231 @@
+{
+  "endpoints": {
+    "get_user_profile": {
+      "description": "Get user profile — shown on Profile screen (name, avatar, level, XP, rank, badges, certificates, settings)",
+      "method": "GET",
+      "moodle_function": "core_user_get_users_by_field",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_user_get_users_by_field",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "field": "id",
+        "values[0]": "{{userid}}"
+      },
+      "response": [
+        {
+          "id": 42,
+          "username": "ahmed.almansoori",
+          "fullname": "Ahmed Al Mansoori",
+          "email": "ahmed@sharjahpolice.ae",
+          "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f1",
+          "profileimageurlsmall": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f2",
+          "department": "Criminal Investigation",
+          "institution": "Sharjah Police Academy",
+          "city": "Sharjah",
+          "country": "AE",
+          "lang": "en",
+          "customfields": [
+            { "name": "batch", "shortname": "batch", "value": "Batch 42", "type": "text" },
+            { "name": "rank", "shortname": "rank", "value": "Cadet", "type": "text" },
+            { "name": "rank_number", "shortname": "rank_number", "value": "12", "type": "text" },
+            { "name": "level", "shortname": "level", "value": "5", "type": "text" },
+            { "name": "total_xp", "shortname": "total_xp", "value": "1250", "type": "text" },
+            { "name": "xp_to_next_level", "shortname": "xp_to_next_level", "value": "120", "type": "text" }
+          ],
+          "preferences": [
+            { "name": "auth_forcepasswordchange", "value": "0" }
+          ]
+        }
+      ]
+    },
+    "get_enrolled_courses": {
+      "description": "Get enrolled courses — shown on Dashboard (Continue Training, All Training Programs sections)",
+      "method": "GET",
+      "moodle_function": "core_enrol_get_users_courses",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_enrol_get_users_courses",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}",
+        "returnusercount": "0"
+      },
+      "response": [
+        {
+          "id": 101,
+          "shortname": "CIT-2024",
+          "fullname": "Criminal Investigation Techniques",
+          "displayname": "Criminal Investigation Techniques",
+          "enrolledusercount": 38,
+          "idnumber": "CIT-2024-B42",
+          "visible": 1,
+          "summary": "Learn advanced criminal investigation techniques used in modern law enforcement.",
+          "summaryformat": 1,
+          "format": "topics",
+          "courseimage": "https://lms.sharjahpolice.ae/pluginfile.php/101/course/overviewfiles/criminal_inv.jpg",
+          "progress": 68,
+          "completed": false,
+          "startdate": 1728691200,
+          "enddate": 1732924800,
+          "marker": 3,
+          "lastaccess": 1729123456,
+          "isfavourite": false,
+          "hidden": false,
+          "overviewfiles": [],
+          "showactivitydates": true,
+          "showcompletionconditions": true,
+          "instructor": "Maj. Ahmed Al-Mansouri",
+          "category": "Criminal Investigation",
+          "haspassed": false,
+          "hasCertificate": true
+        },
+        {
+          "id": 102,
+          "shortname": "TLE-2024",
+          "fullname": "Traffic Law & Enforcement",
+          "displayname": "Traffic Law & Enforcement",
+          "enrolledusercount": 45,
+          "idnumber": "TLE-2024-B42",
+          "visible": 1,
+          "summary": "Comprehensive study of traffic laws and enforcement procedures.",
+          "summaryformat": 1,
+          "format": "topics",
+          "courseimage": "https://lms.sharjahpolice.ae/pluginfile.php/102/course/overviewfiles/traffic.jpg",
+          "progress": 40,
+          "completed": false,
+          "startdate": 1728691200,
+          "enddate": 1732924800,
+          "marker": 2,
+          "lastaccess": 1729023456,
+          "isfavourite": false,
+          "hidden": false,
+          "overviewfiles": [],
+          "instructor": "Lt. Fatima Al-Zaabi",
+          "category": "Traffic",
+          "haspassed": false,
+          "hasCertificate": false,
+          "dueLabel": "Due tomorrow"
+        },
+        {
+          "id": 103,
+          "shortname": "CP-2024",
+          "fullname": "Community Policing",
+          "displayname": "Community Policing",
+          "enrolledusercount": 52,
+          "idnumber": "CP-2024-B42",
+          "visible": 1,
+          "summary": "Strategies for building positive community-police relationships.",
+          "summaryformat": 1,
+          "format": "topics",
+          "courseimage": "https://lms.sharjahpolice.ae/pluginfile.php/103/course/overviewfiles/community.jpg",
+          "progress": 45,
+          "completed": false,
+          "startdate": 1728691200,
+          "enddate": 1732924800,
+          "marker": 2,
+          "lastaccess": 1728923456,
+          "isfavourite": false,
+          "hidden": false,
+          "overviewfiles": [],
+          "instructor": "Lt. Col. Saeed Al-Nuyami",
+          "category": "Community",
+          "haspassed": false,
+          "hasCertificate": false,
+          "dueLabel": "Due in 5 days"
+        }
+      ]
+    },
+    "get_user_preferences": {
+      "description": "Get user preferences (language, notifications toggle)",
+      "method": "GET",
+      "moodle_function": "core_user_get_user_preferences",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_user_get_user_preferences",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "name": "",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "preferences": [
+          { "name": "lang", "value": "en" },
+          { "name": "auth_forcepasswordchange", "value": "0" },
+          { "name": "email_bounce_count", "value": "0" },
+          { "name": "notification_enabled", "value": "1" },
+          { "name": "message_provider_moodle_instantmessage_enabled", "value": "popup,email" },
+          { "name": "message_provider_moodle_instantmessage_loggedin", "value": "popup" },
+          { "name": "message_provider_moodle_instantmessage_loggedoff", "value": "email" }
+        ],
+        "warnings": []
+      }
+    },
+    "get_leaderboard": {
+      "description": "Get leaderboard — shown on Dashboard (Leaderboard section with rank and XP)",
+      "method": "GET",
+      "moodle_function": "block_xp_get_leaderboard",
+      "url": "/webservice/rest/server.php",
+      "note": "Requires XP block plugin. Fallback: use custom local plugin endpoint.",
+      "request": {
+        "wsfunction": "block_xp_get_leaderboard",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "0",
+        "limit": "10"
+      },
+      "response": {
+        "leaderboard": [
+          { "rank": 1, "userid": 55, "fullname": "Ahmed Al-Hashimi", "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/55/user/icon/f1", "xp": 1850, "level": 6, "course": "Criminal Investigation", "xp_this_week": 0 },
+          { "rank": 2, "userid": 67, "fullname": "Mariam Al-Zaabi", "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/67/user/icon/f1", "xp": 1720, "level": 6, "course": null, "xp_this_week": 0 },
+          { "rank": 3, "userid": 71, "fullname": "Khalid Al-Nuermi", "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/71/user/icon/f1", "xp": 1580, "level": 5, "course": "Community Policing", "xp_this_week": 0 },
+          { "rank": 4, "userid": 33, "fullname": "Sara Al-Mansoori", "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/33/user/icon/f1", "xp": 1420, "level": 5, "course": null, "xp_this_week": 0 },
+          { "rank": 5, "userid": 28, "fullname": "Mohammed Al-Rashidi", "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/28/user/icon/f1", "xp": 1380, "level": 5, "course": null, "xp_this_week": 0 },
+          { "rank": 12, "userid": 42, "fullname": "Ahmed Al Mansoori", "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f1", "xp": 1250, "level": 5, "course": null, "xp_this_week": 32, "is_current_user": true }
+        ],
+        "total_participants": 38,
+        "current_user_rank": 12
+      }
+    },
+    "post_user_preferences": {
+      "description": "Save user preferences (language, notification settings)",
+      "method": "POST",
+      "moodle_function": "core_user_update_user_preferences",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_user_update_user_preferences",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "userid": "{{userid}}",
+        "preferences[0][name]": "lang",
+        "preferences[0][value]": "ar",
+        "preferences[1][name]": "notification_enabled",
+        "preferences[1][value]": "1"
+      },
+      "response": {
+        "saved": true,
+        "warnings": []
+      }
+    },
+    "post_profile_picture": {
+      "description": "Upload and set profile picture",
+      "method": "POST",
+      "moodle_function": "core_user_update_picture",
+      "url": "/webservice/rest/server.php",
+      "note": "First upload file via core_files_upload, then pass draftitemid here.",
+      "request": {
+        "wsfunction": "core_user_update_picture",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "draftitemid": "{{draft_item_id}}",
+        "delete": "0",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "success": true,
+        "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f1?rev=2",
+        "warnings": []
+      }
+    }
+  }
+}

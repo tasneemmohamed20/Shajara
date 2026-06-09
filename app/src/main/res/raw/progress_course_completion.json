@@ -1,0 +1,55 @@
+{
+  "endpoints": {
+    "course_completion": {
+      "description": "Get course completion status — overall progress bar on Course Overview (68%) and Dashboard",
+      "method": "GET",
+      "moodle_function": "core_completion_get_course_completion_status",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_completion_get_course_completion_status",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "completionstatus": {
+          "completed": false,
+          "aggregation": 1,
+          "completions": [
+            {
+              "type": 4,
+              "title": "Course role completion",
+              "status": "Yes",
+              "complete": true,
+              "timecompleted": 0,
+              "details": {
+                "rulename": "Enrolled",
+                "rulevalue": {
+                  "status": 1,
+                  "description": "User is enrolled"
+                }
+              }
+            },
+            {
+              "type": 6,
+              "title": "Activities completed",
+              "status": "9 of 14",
+              "complete": false,
+              "timecompleted": 0,
+              "details": {
+                "rulename": "Activities",
+                "rulevalue": {
+                  "status": 0,
+                  "description": ""
+                }
+              }
+            }
+          ]
+        },
+        "warnings": [],
+        "_derived_progress_percent": 68
+      }
+    }
+  }
+}

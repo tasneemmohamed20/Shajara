@@ -1,0 +1,24 @@
+{
+  "endpoints": {
+    "post_profile_picture": {
+      "description": "Upload and set profile picture",
+      "method": "POST",
+      "moodle_function": "core_user_update_picture",
+      "url": "/webservice/rest/server.php",
+      "note": "First upload file via core_files_upload, then pass draftitemid here.",
+      "request": {
+        "wsfunction": "core_user_update_picture",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "draftitemid": "{{draft_item_id}}",
+        "delete": "0",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "success": true,
+        "profileimageurl": "https://lms.sharjahpolice.ae/pluginfile.php/42/user/icon/f1?rev=2",
+        "warnings": []
+      }
+    }
+  }
+}

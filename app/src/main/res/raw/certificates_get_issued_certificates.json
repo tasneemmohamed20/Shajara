@@ -1,0 +1,59 @@
+{
+  "endpoints": {
+    "get_issued_certificates": {
+      "description": "Get all certificates issued to user — Profile screen (Certificates section)",
+      "method": "GET",
+      "moodle_function": "mod_certificate_get_issued_certificates",
+      "url": "/webservice/rest/server.php",
+      "note": "Requires mod_certificate or mod_customcert plugin. Use mod_customcert_get_issued_certificates if using Custom Certificate plugin.",
+      "request_certificate_plugin": {
+        "wsfunction": "mod_certificate_get_issued_certificates",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "certificateid": "0"
+      },
+      "request_customcert_plugin": {
+        "wsfunction": "mod_customcert_get_issued_certificates",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "templateid": "0"
+      },
+      "response": {
+        "issues": [
+          {
+            "id": 701,
+            "certificateid": 801,
+            "userid": 42,
+            "courseid": 201,
+            "coursename": "Advanced Criminal Investigation",
+            "certificatename": "Advanced Criminal Investigation",
+            "timecreated": 1728691200,
+            "timecreatedformatted": "Oct 12, 2024",
+            "code": "SPA-2024-ACI-042",
+            "status": "completed",
+            "approvalstatus": "approved",
+            "downloadurl": "https://lms.sharjahpolice.ae/mod/customcert/view.php?id=801&downloadown=1&token={{token}}",
+            "viewurl": "https://lms.sharjahpolice.ae/mod/customcert/view.php?id=801"
+          },
+          {
+            "id": 702,
+            "certificateid": 802,
+            "userid": 42,
+            "courseid": 202,
+            "coursename": "Cybercrime Fundamentals",
+            "certificatename": "Cybercrime Fundamentals",
+            "timecreated": 1730764800,
+            "timecreatedformatted": "Nov 05, 2024",
+            "code": "SPA-2024-CF-042",
+            "status": "completed",
+            "approvalstatus": "pending",
+            "downloadurl": null,
+            "viewurl": null,
+            "availableafter": "Final approval by department head"
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

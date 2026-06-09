@@ -1,0 +1,22 @@
+{
+  "endpoints": {
+    "save_submit_assignment_text": {
+      "description": "Save or submit assignment online text entry — Text Entry submission type",
+      "method": "POST",
+      "moodle_function": "mod_assign_save_submission",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "mod_assign_save_submission",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "assignmentid": "501",
+        "plugindata[onlinetext_editor][text]": "<p>Crime Scene Analysis Report...</p>",
+        "plugindata[onlinetext_editor][format]": "1",
+        "plugindata[onlinetext_editor][itemid]": "{{draft_item_id}}"
+      },
+      "response": {
+        "warnings": []
+      }
+    }
+  }
+}

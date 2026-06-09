@@ -1,0 +1,92 @@
+{
+  "endpoints": {
+    "get_grades": {
+      "description": "Get grades for a course — Grades screen",
+      "method": "GET",
+      "moodle_function": "gradereport_user_get_grade_items",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "gradereport_user_get_grade_items",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": {
+        "usergrades": [
+          {
+            "courseid": 101,
+            "userid": 42,
+            "userfullname": "Ahmed Al Mansoori",
+            "maxdepth": 2,
+            "gradeitems": [
+              {
+                "id": 1001,
+                "itemname": "Course total",
+                "itemtype": "course",
+                "itemmodule": null,
+                "iteminstance": 101,
+                "itemnumber": 0,
+                "categoryid": null,
+                "outcomeid": null,
+                "scaleid": null,
+                "locked": false,
+                "cmid": null,
+                "weightraw": 1,
+                "weightformatted": "100 %",
+                "graderaw": 92.0,
+                "gradedatesubmitted": 0,
+                "gradedategraded": "",
+                "gradehiddenbydate": false,
+                "gradeneedsupdate": false,
+                "gradeishidden": false,
+                "gradedatesubmittedformatted": "",
+                "gradeformatted": "92.00",
+                "grademin": 0.0,
+                "grademax": 100.0,
+                "rangeformatted": "0–100",
+                "percentageformatted": "92 %",
+                "lettergradeformatted": "A",
+                "rank": 0,
+                "numusers": 38,
+                "averageformatted": "78.50",
+                "feedback": "",
+                "feedbackformat": 0
+              },
+              {
+                "id": 1002,
+                "itemname": "Crime Scene Analysis Report",
+                "itemtype": "mod",
+                "itemmodule": "assign",
+                "iteminstance": 205,
+                "graderaw": null,
+                "gradeformatted": "-",
+                "grademin": 0.0,
+                "grademax": 100.0,
+                "percentageformatted": "-",
+                "locked": false,
+                "cmid": 205
+              },
+              {
+                "id": 1003,
+                "itemname": "Module 1 Quiz",
+                "itemtype": "mod",
+                "itemmodule": "quiz",
+                "iteminstance": 301,
+                "graderaw": 88.0,
+                "gradeformatted": "88.00",
+                "grademin": 0.0,
+                "grademax": 100.0,
+                "percentageformatted": "88 %",
+                "lettergradeformatted": "B+",
+                "locked": false,
+                "cmid": 301
+              }
+            ]
+          }
+        ],
+        "warnings": []
+      }
+    }
+  }
+}

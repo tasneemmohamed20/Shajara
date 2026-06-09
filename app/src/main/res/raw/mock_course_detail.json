@@ -1,0 +1,113 @@
+{
+  "id": 101,
+  "title": "Criminal Investigation Techniques",
+  "category": "CIT-2024",
+  "imageUrl": "",
+  "instructorName": "Maj. Ahmed Al-Mansouri",
+  "instructorImage": "",
+  "progress": 68,
+  "dueIn": "2 days",
+  "dueDate": "Oct 24, 2024",
+  "startDate": "Oct 12, 2024",
+  "endDate": "Dec 15, 2024",
+  "status": "IN_PROGRESS",
+  "tasks": 3,
+  "totalModules": 8,
+  "certificates": 0,
+  "isFavorite": false,
+  "modules": [
+    {
+      "id": 1001,
+      "moduleNumber": 1,
+      "title": "Fundamentals of Scene Preservation",
+      "isCompleted": true,
+      "totalActivities": 3,
+      "xpReward": 50,
+      "progress": 100,
+      "isExpanded": false,
+      "isLocked": false,
+      "activities": [
+        {
+          "id": 201,
+          "title": "Introduction to Scene Preservation",
+          "type": "READING",
+          "duration": "15 mins",
+          "isCompleted": true,
+          "isLocked": false,
+          "contentUrl": ""
+        },
+        {
+          "id": 202,
+          "title": "Evidence Handling Basics",
+          "type": "VIDEO",
+          "duration": "12 mins",
+          "isCompleted": true,
+          "isLocked": false,
+          "contentUrl": ""
+        },
+        {
+          "id": 203,
+          "title": "Module 1 Quiz",
+          "type": "QUIZ",
+          "duration": "10 mins",
+          "isCompleted": true,
+          "isLocked": false,
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "id": 1002,
+      "moduleNumber": 2,
+      "title": "Evidence Collection",
+      "isCompleted": false,
+      "totalActivities": 4,
+      "xpReward": 75,
+      "progress": 50,
+      "isExpanded": false,
+      "isLocked": false,
+      "activities": [
+        {
+          "id": 204,
+          "title": "Physical Evidence Types",
+          "type": "READING",
+          "duration": "20 mins",
+          "isCompleted": true,
+          "isLocked": false,
+          "contentUrl": ""
+        },
+        {
+          "id": 205,
+          "title": "Crime Scene Analysis Report",
+          "type": "ASSIGNMENT",
+          "duration": "Due Oct 24",
+          "isCompleted": false,
+          "isLocked": false,
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "id": 1003,
+      "moduleNumber": 3,
+      "title": "Advanced Interview Techniques",
+      "isCompleted": false,
+      "totalActivities": 3,
+      "xpReward": 100,
+      "progress": 0,
+      "isExpanded": false,
+      "isLocked": true,
+      "activities": [
+        {
+          "id": 206,
+          "title": "Psychology of Suspects",
+          "type": "VIDEO",
+          "duration": "12 mins",
+          "isCompleted": false,
+          "isLocked": true,
+          "contentUrl": ""
+        }
+      ]
+    }
+  ]
+}

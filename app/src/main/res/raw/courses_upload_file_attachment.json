@@ -1,0 +1,33 @@
+{
+  "endpoints": {
+    "upload_file_attachment": {
+      "description": "Upload file to draft area before saving assignment submission",
+      "method": "POST",
+      "moodle_function": "core_files_upload",
+      "url": "/webservice/rest/server.php",
+      "note": "Send file as multipart/form-data. itemid=0 to create new draft; reuse returned itemid for subsequent uploads to the same draft.",
+      "request": {
+        "wsfunction": "core_files_upload",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "component": "user",
+        "filearea": "draft",
+        "itemid": "0",
+        "filepath": "/",
+        "filename": "crime_scene_report_v1.pdf",
+        "filecontent": "{{base64_encoded_file_content}}",
+        "contextlevel": "user",
+        "instanceid": "{{userid}}"
+      },
+      "response": {
+        "contextid": 42,
+        "browser": "user",
+        "area": "draft",
+        "itemid": 987654,
+        "filepath": "/",
+        "filename": "crime_scene_report_v1.pdf",
+        "url": "https://lms.sharjahpolice.ae/draftfile.php/42/user/draft/987654/crime_scene_report_v1.pdf"
+      }
+    }
+  }
+}

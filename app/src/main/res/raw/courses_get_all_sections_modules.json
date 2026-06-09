@@ -1,0 +1,17 @@
+{
+  "endpoints": {
+    "get_all_sections_modules": {
+      "description": "Get all sections/modules of a course — Course Overview module list",
+      "method": "GET",
+      "moodle_function": "core_course_get_contents",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "core_course_get_contents",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101"
+      },
+      "response": "See get_course_contents — returns array of sections each with `modules` array."
+    }
+  }
+}

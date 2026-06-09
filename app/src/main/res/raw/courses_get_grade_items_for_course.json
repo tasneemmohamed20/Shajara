@@ -1,0 +1,18 @@
+{
+  "endpoints": {
+    "get_grade_items_for_course": {
+      "description": "Get all grade items for a course",
+      "method": "GET",
+      "moodle_function": "gradereport_user_get_grade_items",
+      "url": "/webservice/rest/server.php",
+      "request": {
+        "wsfunction": "gradereport_user_get_grade_items",
+        "wstoken": "{{token}}",
+        "moodlewsrestformat": "json",
+        "courseid": "101",
+        "userid": "{{userid}}"
+      },
+      "response": "See get_grades response above."
+    }
+  }
+}
