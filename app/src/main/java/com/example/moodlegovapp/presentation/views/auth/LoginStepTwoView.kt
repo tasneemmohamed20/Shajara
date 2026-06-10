@@ -18,7 +18,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -27,8 +26,7 @@ import androidx.compose.ui.unit.*
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
-import com.example.moodlegovapp.presentation.views.auth.components.AcademyHeader
-import com.example.moodlegovapp.ui.theme.AppColors
+import com.example.moodlegovapp.presentation.views.auth.components.LoginHeader
 import com.example.moodlegovapp.ui.theme.AppColors.Navy
 import com.example.moodlegovapp.ui.theme.AppColors.NavyDark
 import com.example.moodlegovapp.ui.theme.AppColors.NavyGradient
@@ -36,7 +34,7 @@ import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 
 @Composable
-fun LoginScreen(
+fun LoginStepTwoView(
     onLoginSuccess: () -> Unit, assembly: DependencyContainer
 ) {
     val vm: LoginViewModel = remember { assembly.makeLoginViewModel() }
@@ -130,7 +128,7 @@ private fun LoginHeaderBanner() {
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            AcademyHeader(
+            LoginHeader(
                 showBackButton = true,
                 onBackClick = { /* Handle navigation back */ }
             )

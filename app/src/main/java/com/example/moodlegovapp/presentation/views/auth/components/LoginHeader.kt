@@ -27,7 +27,7 @@ import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 
 @Composable
-fun AcademyHeader(
+fun LoginHeader(
     showBackButton: Boolean,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
