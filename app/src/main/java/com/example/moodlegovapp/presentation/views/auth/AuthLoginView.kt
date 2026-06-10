@@ -18,36 +18,33 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
+import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
-import com.example.moodlegovapp.ui.theme.SpColors
-import com.example.moodlegovapp.ui.theme.SpTypography
-import com.example.moodlegovapp.R
+import com.example.moodlegovapp.presentation.views.auth.components.AcademyHeader
+import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.AppColors.Navy
 import com.example.moodlegovapp.ui.theme.AppColors.NavyDark
 import com.example.moodlegovapp.ui.theme.AppColors.NavyGradient
-
-// ─────────────────────────────────────────────
-// LOGIN SCREEN
-// mirrors iOS AuthLoginView exactly
-// ─────────────────────────────────────────────
+import com.example.moodlegovapp.ui.theme.SpColors
+import com.example.moodlegovapp.ui.theme.SpTypography
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    assembly: DependencyContainer
+    onLoginSuccess: () -> Unit, assembly: DependencyContainer
 ) {
     val vm: LoginViewModel = remember { assembly.makeLoginViewModel() }
 
     // Collect each StateFlow from the ViewModel individually
-    val username     by vm.username.collectAsState()
-    val password     by vm.password.collectAsState()
-    val isLoading    by vm.isLoading.collectAsState()
+    val username by vm.username.collectAsState()
+    val password by vm.password.collectAsState()
+    val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
 
     // Password visibility is purely UI state — ViewModel doesn't own it
@@ -80,32 +77,31 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+//                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp)
                     .padding(bottom = 40.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                RoleCard()
+//                RoleCard()
 
                 FormCard(
-                    username          = username,
-                    password          = password,
+                    username = username,
+                    password = password,
                     isPasswordVisible = isPasswordVisible,
-                    isLoading         = isLoading,
-                    errorMessage      = errorMessage,
-                    rememberMe        = rememberMe,
-                    onUsernameChange  = vm::onUsernameChange,
-                    onPasswordChange  = vm::onPasswordChange,
-                    onTogglePassword  = { isPasswordVisible = !isPasswordVisible },
-                    onRememberMe      = { rememberMe = !rememberMe },
-                    onForgotPassword  = { /* TODO */ },
-                    onLogin           = {
+                    isLoading = isLoading,
+                    errorMessage = errorMessage,
+                    rememberMe = rememberMe,
+                    onUsernameChange = vm::onUsernameChange,
+                    onPasswordChange = vm::onPasswordChange,
+                    onTogglePassword = { isPasswordVisible = !isPasswordVisible },
+                    onRememberMe = { rememberMe = !rememberMe },
+                    onForgotPassword = { /* TODO */ },
+                    onLogin = {
                         focusManager.clearFocus()
                         vm.login()
-                    }
-                )
+                    })
 
-                SecureNotice()
+//                SecureNotice()
 
                 SupportLink()
             }
@@ -131,51 +127,68 @@ private fun LoginHeaderBanner() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 52.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.15f))
-                        .clickable { },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.ChevronLeft,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    //change with image
-                    Icon(
-                        Icons.Default.Shield,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.9f),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.login_academy_name),
-                        style = SpTypography.label(),
-                        color = Color.White,
-                        letterSpacing = 0.5.sp
-                    )
-                }
-            }
+            AcademyHeader(
+                showBackButton = true,
+                onBackClick = { /* Handle navigation back */ }
+            )
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 52.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+////                        .padding(top = 52.dp), // Matches your existing top padding
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(40.dp)
+//                            .clip(CircleShape)
+//                            .background(Color.White.copy(alpha = 0.15f))
+//                            .clickable { /* Handle back */ }, contentAlignment = Alignment.Center
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.icon_back),
+//                            contentDescription = null,
+//                            tint = Color.White,
+//                            modifier = Modifier.size(18.dp)
+//                        )
+//                    }
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+//                    ) {
+//                        Box(
+//                            modifier = Modifier
+//                                .size(32.dp)
+//                                .clip(CircleShape)
+//                                .background(Color.White.copy(alpha = 0.15f)),
+//                            contentAlignment = Alignment.Center
+//                        ) {
+//                            Icon(
+//                                painter = painterResource(id = R.drawable.shield),
+//                                contentDescription = null,
+//                                tint = AppColors.Gold,
+//                                modifier = Modifier.size(18.dp)
+//                            )
+//                        }
+//                        Text(
+//                            text = stringResource(R.string.login_academy_name),
+//                            style = SpTypography.label(),
+//                            color = Color.White,
+//                            letterSpacing = 0.5.sp
+//                        )
+//                    }
+//
+//                }
+//            }
 
             Column(
                 modifier = Modifier.padding(top = 12.dp),
@@ -204,7 +217,7 @@ private fun LoginHeaderBanner() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = stringResource(R.string.login_step),
+                        text = stringResource(R.string.auth_step_2),
                         style = SpTypography.labelCategory(),
                         color = Color.White.copy(alpha = 0.7f),
                         letterSpacing = 1.sp
@@ -253,8 +266,7 @@ private fun RoleCard() {
             modifier = Modifier
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.12f)),
-            contentAlignment = Alignment.Center
+                .background(Color.White.copy(alpha = 0.12f)), contentAlignment = Alignment.Center
         ) {
             //replace image
             Icon(
@@ -325,6 +337,7 @@ private fun FormCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 24.dp)
             .shadow(
                 elevation = 8.dp,
                 shape = RoundedCornerShape(18.dp),
@@ -364,20 +377,17 @@ private fun FormCard(
                 textStyle = SpTypography.bodyPrimary().copy(color = SpColors.DarkBrown),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                ),
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor      = SpColors.NavyBlue,
-                    unfocusedBorderColor    = SpColors.BorderColor,
-                    focusedContainerColor   = SpColors.White,
+                    focusedBorderColor = SpColors.NavyBlue,
+                    unfocusedBorderColor = SpColors.BorderColor,
+                    focusedContainerColor = SpColors.White,
                     unfocusedContainerColor = SpColors.White
-                )
-            )
+                ))
         }
 
         // ── Password Field ────────────────────
@@ -415,15 +425,14 @@ private fun FormCard(
                 textStyle = SpTypography.bodyPrimary().copy(color = SpColors.DarkBrown),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
+                    keyboardType = KeyboardType.Password, imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(onDone = { onLogin() }),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor      = SpColors.NavyBlue,
-                    unfocusedBorderColor    = SpColors.BorderColor,
-                    focusedContainerColor   = SpColors.White,
+                    focusedBorderColor = SpColors.NavyBlue,
+                    unfocusedBorderColor = SpColors.BorderColor,
+                    focusedContainerColor = SpColors.White,
                     unfocusedContainerColor = SpColors.White
                 )
             )
@@ -433,9 +442,7 @@ private fun FormCard(
         AnimatedVisibility(visible = errorMessage != null) {
             errorMessage?.let { err ->
                 Text(
-                    text = err,
-                    style = SpTypography.bodySecondary(),
-                    color = SpColors.Error
+                    text = err, style = SpTypography.bodySecondary(), color = SpColors.Error
                 )
             }
         }
@@ -463,8 +470,7 @@ private fun FormCard(
                         .background(
                             if (rememberMe) SpColors.NavyBlue.copy(alpha = 0.1f)
                             else Color.Transparent
-                        ),
-                    contentAlignment = Alignment.Center
+                        ), contentAlignment = Alignment.Center
                 ) {
                     if (rememberMe) {
                         Icon(
@@ -500,15 +506,13 @@ private fun FormCard(
             enabled = !isLoading,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor         = SpColors.Gold,
+                containerColor = SpColors.Gold,
                 disabledContainerColor = SpColors.Gold.copy(alpha = 0.6f)
             )
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(22.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
+                    modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.dp
                 )
             } else {
                 Text(
@@ -576,7 +580,7 @@ private fun SupportLink() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
+            .padding(top = 24.dp, bottom = 24.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -592,7 +596,6 @@ private fun SupportLink() {
                 textDecoration = TextDecoration.Underline
             ),
             color = Navy,
-            modifier = Modifier.clickable { }
-        )
+            modifier = Modifier.clickable { })
     }
 }

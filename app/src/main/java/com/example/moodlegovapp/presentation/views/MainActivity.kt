@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
@@ -61,7 +62,7 @@ fun AppRoot(assembly: DependencyContainer) {
     } else {
         LoginScreen(
             onLoginSuccess = { /* StateFlow update triggers recompose */ },
-            assembly       = assembly
+            assembly = assembly
         )
     }
 }
@@ -71,11 +72,23 @@ fun AppRoot(assembly: DependencyContainer) {
 // mirrors iOS MainTabView — 4 tabs
 // ─────────────────────────────────────────────
 
-sealed class Tab(val route: String, val labelRes: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
-    object Home          : Tab("home",          R.string.tab_home,          Icons.Default.Home,         Icons.Default.Home)
-    object Courses       : Tab("courses",       R.string.tab_courses,       Icons.Default.Book,         Icons.Default.Book)
-    object Notifications : Tab("notifications", R.string.tab_notifications, Icons.Default.Notifications,Icons.Default.Notifications)
-    object Profile       : Tab("profile",       R.string.tab_profile,       Icons.Default.Person,       Icons.Default.Person)
+sealed class Tab(
+    val route: String,
+    val labelRes: Int,
+    val icon: ImageVector,
+    val selectedIcon: ImageVector
+) {
+    object Home : Tab("home", R.string.tab_home, Icons.Default.Home, Icons.Default.Home)
+    object Courses : Tab("courses", R.string.tab_courses, Icons.Default.Book, Icons.Default.Book)
+    object Notifications : Tab(
+        "notifications",
+        R.string.tab_notifications,
+        Icons.Default.Notifications,
+        Icons.Default.Notifications
+    )
+
+    object Profile :
+        Tab("profile", R.string.tab_profile, Icons.Default.Person, Icons.Default.Person)
 
     companion object {
         val all = listOf(Home, Courses, Notifications, Profile)
@@ -97,22 +110,34 @@ fun MainTabView(assembly: DependencyContainer) {
                 Tab.all.forEach { tab ->
                     val isSelected = currentRoute == tab.route
                     NavigationBarItem(
-                        selected  = isSelected,
-                        onClick   = {
+                        selected = isSelected,
+                        onClick = {
                             navController.navigate(tab.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         },
-                        icon      = { Icon(if (isSelected) tab.selectedIcon else tab.icon, contentDescription = null) },
-                        label     = { Text(stringResource(tab.labelRes), style = SpTypography.small()) },
-                        colors    = NavigationBarItemDefaults.colors(
-                            selectedIconColor   = SpColors.NavyBlue,
-                            selectedTextColor   = SpColors.NavyBlue,
+                        icon = {
+                            Icon(
+                                if (isSelected) tab.selectedIcon else tab.icon,
+                                contentDescription = null
+                            )
+                        },
+                        label = {
+                            Text(
+                                stringResource(tab.labelRes),
+                                style = SpTypography.small()
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = SpColors.NavyBlue,
+                            selectedTextColor = SpColors.NavyBlue,
                             unselectedIconColor = SpColors.DarkGray,
                             unselectedTextColor = SpColors.DarkGray,
-                            indicatorColor      = SpColors.NavyBlue.copy(alpha = 0.1f)
+                            indicatorColor = SpColors.NavyBlue.copy(alpha = 0.1f)
                         )
                     )
                 }
@@ -120,13 +145,13 @@ fun MainTabView(assembly: DependencyContainer) {
         }
     ) { innerPadding ->
         NavHost(
-            navController    = navController,
+            navController = navController,
             startDestination = Tab.Home.route,
-            modifier         = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(Tab.Home.route) {
                 DashboardScreen(
-                    assembly      = assembly,
+                    assembly = assembly,
                     onCourseClick = { courseId ->
                         navController.navigate("course_detail/$courseId")
                     }
@@ -172,11 +197,11 @@ private fun PlaceholderScreen(label: String) {
 fun MoodleGovAppTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = lightColorScheme(
-            primary    = SpColors.NavyBlue,
-            secondary  = SpColors.Gold,
+            primary = SpColors.NavyBlue,
+            secondary = SpColors.Gold,
             background = SpColors.LightGray,
-            surface    = SpColors.White,
-            error      = SpColors.Error
+            surface = SpColors.White,
+            error = SpColors.Error
         ),
         content = content
     )

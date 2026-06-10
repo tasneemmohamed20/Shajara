@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">MoodleGovApp</string>
     <!-- Login -->
-    <string name="login_academy_name">Government Training Academy</string>
+    <string name="login_academy_name">Sharjah Police Academy</string>
     <string name="login_welcome_title">Welcome Back</string>
     <string name="login_welcome_subtitle">Sign in to continue your training</string>
     <string name="login_step">AUTHENTICATION STEP</string>
+    <string name="auth_step_1">STEP 1 OF 2</string>
+    <string name="auth_step_2">STEP 2 OF 2</string>
     <string name="login_logging_as">Logging in as</string>
     <string name="login_role_participant">Participant</string>
     <string name="login_change">Change</string>
