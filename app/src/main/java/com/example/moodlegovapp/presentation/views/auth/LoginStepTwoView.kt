@@ -35,7 +35,8 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 
 @Composable
 fun LoginStepTwoView(
-    onLoginSuccess: () -> Unit, assembly: DependencyContainer
+    onLoginSuccess: () -> Unit, assembly: DependencyContainer,
+    onBackClicked: () -> Unit
 ) {
     val vm: LoginViewModel = remember { assembly.makeLoginViewModel() }
 
@@ -69,7 +70,7 @@ fun LoginStepTwoView(
         Column(modifier = Modifier.fillMaxSize()) {
 
             // ── Header Banner ─────────────────────────────
-            LoginHeaderBanner()
+            LoginHeaderBanner(onBackClicked)
 
             // ── Scrollable Form Area ──────────────────────
             Column(
@@ -112,7 +113,9 @@ fun LoginStepTwoView(
 // ─────────────────────────────────────────────
 
 @Composable
-private fun LoginHeaderBanner() {
+private fun LoginHeaderBanner(
+    onBackClicked: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,63 +133,8 @@ private fun LoginHeaderBanner() {
         ) {
             LoginHeader(
                 showBackButton = true,
-                onBackClick = { /* Handle navigation back */ }
+                onBackClick = onBackClicked
             )
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 52.dp),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-////                        .padding(top = 52.dp), // Matches your existing top padding
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Box(
-//                        modifier = Modifier
-//                            .size(40.dp)
-//                            .clip(CircleShape)
-//                            .background(Color.White.copy(alpha = 0.15f))
-//                            .clickable { /* Handle back */ }, contentAlignment = Alignment.Center
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.icon_back),
-//                            contentDescription = null,
-//                            tint = Color.White,
-//                            modifier = Modifier.size(18.dp)
-//                        )
-//                    }
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-//                    ) {
-//                        Box(
-//                            modifier = Modifier
-//                                .size(32.dp)
-//                                .clip(CircleShape)
-//                                .background(Color.White.copy(alpha = 0.15f)),
-//                            contentAlignment = Alignment.Center
-//                        ) {
-//                            Icon(
-//                                painter = painterResource(id = R.drawable.shield),
-//                                contentDescription = null,
-//                                tint = AppColors.Gold,
-//                                modifier = Modifier.size(18.dp)
-//                            )
-//                        }
-//                        Text(
-//                            text = stringResource(R.string.login_academy_name),
-//                            style = SpTypography.label(),
-//                            color = Color.White,
-//                            letterSpacing = 0.5.sp
-//                        )
-//                    }
-//
-//                }
-//            }
 
             Column(
                 modifier = Modifier.padding(top = 12.dp),

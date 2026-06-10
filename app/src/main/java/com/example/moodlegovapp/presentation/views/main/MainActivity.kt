@@ -113,7 +113,8 @@ fun NavGraphBuilder.authGraph(
     composable(ScreensRoute.LoginStepTwo.route) {
         LoginStepTwoView(
             onLoginSuccess = onLoginSuccess,
-            assembly = DependencyContainer.getInstance(LocalContext.current)
+            assembly = DependencyContainer.getInstance(LocalContext.current),
+            onBackClicked = { navController.popBackStack()}
         )
     }
 }

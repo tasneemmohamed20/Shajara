@@ -12,9 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.R
@@ -34,70 +37,77 @@ fun LoginStepOneView(
             .fillMaxSize()
             .background(AppColors.Background)
     ) {
-        // Dark Navy Header Container (Using your premium gradient)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight(0.4f) // Constrained to 30% of screen height
                 .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 .background(AppColors.NavyGradient)
-                .padding(bottom = 32.dp, start = 24.dp, end = 24.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp) // Reduced bottom padding from 32.dp to 16.dp
         ) {
-            Column {
-                // Integrated custom LoginHeader component
-                LoginHeader(
-                    showBackButton = showBackButton,
-                    onBackClick = onBackClick,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Welcome Text
-                Text(
-                    text = "Welcome to\nTraining Platform",
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 34.sp
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "Choose your preferred language to continue and review important platform information.",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Progress Indicator Section
-                Text(
-                    text = "STEP 1 OF 2",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    LinearProgressIndicator(
-                        progress = { 0.5f },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(4.dp)
-                            .clip(RoundedCornerShape(50)),
-                        color = AppColors.Gold,
-                        trackColor = Color.White.copy(alpha = 0.24f),
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween // Helps dynamically distribute items if space allows
+            ) {
+                Column {
+                    // Integrated custom LoginHeader component
+                    LoginHeader(
+                        showBackButton = showBackButton,
+                        onBackClick = onBackClick,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Spacer(modifier = Modifier.height(12.dp)) // Reduced from 24.dp
+
+                    // Welcome Text
                     Text(
-                        text = "50%",
+                        text = "Welcome to\nTraining Platform",
                         color = Color.White,
-                        fontSize = 12.sp
+                        fontSize = 24.sp, // Slightly reduced from 28.sp to ensure 2 lines fit comfortably
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 28.sp
                     )
+
+                    Spacer(modifier = Modifier.height(6.dp)) // Reduced from 12.dp
+
+                    Text(
+                        text = "Choose your preferred language to continue and review important platform information.",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp
+                    )
+                }
+
+                // Pushed to the very bottom of the 30% box dynamically
+                Column {
+                    // Progress Indicator Section
+                    Text(
+                        text = "STEP 1 OF 2",
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        LinearProgressIndicator(
+                            progress = { 0.5f },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(4.dp),
+                            color = AppColors.Gold,
+                            trackColor = Color.White.copy(alpha = 0.24f),
+                            gapSize = 0.dp,
+                            drawStopIndicator = {}
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "50%",
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
             }
         }
@@ -191,17 +201,18 @@ fun LanguageSelectionCard() {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_back), // Swap out with a language drawable when ready
+                    painter = painterResource(id = R.drawable.language_icon),
                     contentDescription = "Language",
                     tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Language",
                     color = Color.White,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 22.sp
                 )
             }
 
@@ -211,7 +222,7 @@ fun LanguageSelectionCard() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .height(40.dp)
                     .clip(RoundedCornerShape(50))
                     .background(AppColors.Surface)
             ) {
@@ -268,21 +279,23 @@ fun BottomActionSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(64.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(1.dp, AppColors.Border, RoundedCornerShape(16.dp))
                 .background(AppColors.Surface)
-                .padding(16.dp),
+                // Adjusted vertical padding so inner components (like the 36dp icon) don't clip
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
                     .background(AppColors.Success),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.shield), // Swap out with a lock asset when ready
+                    painter = painterResource(id = R.drawable.lock_icon),
                     contentDescription = "Security",
                     tint = Color.White,
                     modifier = Modifier.size(18.dp)
@@ -291,17 +304,24 @@ fun BottomActionSection(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = "SECURITY & PRIVACY",
-                    fontSize = 13.sp,
+                    fontSize = 12.sp, // Slightly reduced to guarantee layout fit
                     fontWeight = FontWeight.SemiBold,
-                    color = AppColors.TextPrimary
+                    color = AppColors.TextPrimary,
+                    lineHeight = 16.sp
                 )
                 Text(
                     text = "Encrypted and monitored by SP IT Security",
-                    fontSize = 12.sp,
-                    color = AppColors.TextSecondary
+                    fontSize = 10.sp,
+                    color = AppColors.TextSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Visible,
+                    lineHeight = 14.sp // Controls the exact vertical gap between the 2 lines
                 )
             }
         }
@@ -313,7 +333,7 @@ fun BottomActionSection(
             onClick = onContinueClicked,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(54.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = AppColors.Gold)
         ) {
@@ -325,7 +345,7 @@ fun BottomActionSection(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

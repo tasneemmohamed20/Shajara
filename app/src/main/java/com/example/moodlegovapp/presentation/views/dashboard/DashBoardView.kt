@@ -27,10 +27,6 @@ import com.example.moodlegovapp.domain.models.User
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.example.moodlegovapp.R
-// ─────────────────────────────────────────────
-// DASHBOARD SCREEN
-// mirrors iOS DashboardView
-// ─────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
