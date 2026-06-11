@@ -133,6 +133,11 @@ fun DashboardScreen(
 
     val leaderboardData by vm.leaderboard.collectAsState()
 
+    val onLeaderboardClick = {
+        // Navigate to full leaderboard screen
+        // e.g., navController.navigate("leaderboard")
+    }
+
     LaunchedEffect(Unit) {
         vm.loadAll()
         user?.let { Log.i("dashboard", it.profileImageUrl) }
@@ -205,7 +210,6 @@ fun DashboardScreen(
 
                 // ── All Training Programs ─────────────
                 item {
-//                    AllCoursesHeader(count = enrolledCourses.size)
                     SectionHeader(title = stringResource(R.string.dashboard_all_programs), count = enrolledCourses.size)
                 }
 
@@ -254,10 +258,19 @@ fun DashboardScreen(
                     }
                 }
 
-                item{
+                item {
+                    Spacer(Modifier.height(16.dp))
                     DashboardLeaderboardWidget(
-                        response = leaderboardData
+                        leaderboard = leaderboardData,
+                        isLoading = isLoading && leaderboardData == null,
+                        onViewAllClick = onLeaderboardClick,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                item {
+                    SectionHeader(title = stringResource(R.string.completed), color = AppColors.Success)
                 }
                 // ── Error Message ─────────────────────
                 errorMessage?.let { err ->

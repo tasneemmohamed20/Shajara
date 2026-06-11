@@ -2,9 +2,17 @@ package com.example.moodlegovapp.presentation.views.dashboard.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,26 +29,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.LeaderboardEntry
-import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.ui.theme.AppColors
 
 @Composable
 fun DashboardLeaderboardWidget(
-    response: LeaderboardResponse?,
+    leaderboard: LeaderboardData?,
+    isLoading: Boolean,
     onViewAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .background(AppColors.Surface, shape = RoundedCornerShape(28.dp))
             .border(1.dp, AppColors.Border, shape = RoundedCornerShape(28.dp))
             .padding(20.dp)
     ) {
-        // --- Header Section ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,61 +87,69 @@ fun DashboardLeaderboardWidget(
             }
         }
 
-        // --- Layout States Handling ---
         when {
-            response?.data == null -> {
+            isLoading && leaderboard == null -> {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
+                        .height(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = AppColors.Navy)
                 }
             }
-            else -> {
-                val data = response.data
-                val topThree = data.leaderboard.filter { it.rank <= 3 }
-                val remainingUsers = data.leaderboard.filter { it.rank > 3 }
-                val currentUserEntry = data.leaderboard.find { it.isCurrentUser }
 
-                // Main List
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            leaderboard == null || leaderboard.leaderboard.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(topThree, key = { it.userId }) { entry ->
+                    Text(
+                        text = "No leaderboard data available",
+                        fontSize = 14.sp,
+                        color = AppColors.TextSecondary
+                    )
+                }
+            }
+
+            else -> {
+                val topThree = leaderboard.leaderboard.filter { it.rank <= 3 }
+                val currentUserEntry = leaderboard.leaderboard.find { it.isCurrentUser }
+                val remainingUsers = leaderboard.leaderboard.filter { it.rank > 3 && !it.isCurrentUser }
+
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    topThree.forEach { entry ->
                         TopRankCard(entry = entry)
                     }
 
                     if (topThree.isNotEmpty() && remainingUsers.isNotEmpty()) {
-                        item {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 4.dp),
-                                color = AppColors.Border
-                            )
-                        }
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            color = AppColors.Border
+                        )
                     }
 
-                    items(remainingUsers, key = { it.userId }) { entry ->
+                    remainingUsers.forEach { entry ->
                         StandardRankRow(entry = entry)
                     }
                 }
 
-                // Sticky Current User Bottom Footer Frame
-                currentUserEntry?.let { entry ->
+                currentUserEntry?.takeIf { it.rank > 3 }?.let { entry ->
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 12.dp),
                         color = AppColors.Border
                     )
-                    CurrentUserCard(entry = entry)
+                    CurrentUserCard(
+                        entry = entry,
+                        totalParticipants = leaderboard.totalParticipants
+                    )
                 }
             }
         }
     }
 }
-
-// --- Internal Layout Variations ---
 
 @Composable
 private fun TopRankCard(entry: LeaderboardEntry) {
@@ -143,73 +162,70 @@ private fun TopRankCard(entry: LeaderboardEntry) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, AppColors.Border, RoundedCornerShape(20.dp))
-            .padding(16.dp),
+            .border(2.dp, AppColors.Border, RoundedCornerShape(20.dp))
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Image Profile with Rank Badge Badge Overlay
-        Box(modifier = Modifier.size(64.dp)) {
+        Box(
+            modifier = Modifier.size(48.dp)
+        ) {
             AsyncImage(
-                model = entry.profileImageUrl,
+//                model = entry.profileImageUrl,
+                model = "https://m.media-amazon.com/images/I/615JjV818kL._AC_SL1500_.jpg",
                 contentDescription = entry.fullName,
                 modifier = Modifier
-                    .size(58.dp)
+                    .size(40.dp)
+                    // Align it to the bottom-left so the badge can neatly anchor over the top-right
                     .align(Alignment.BottomStart)
                     .clip(CircleShape)
                     .border(1.dp, AppColors.Border, CircleShape),
                 contentScale = ContentScale.Crop
             )
+
+            // The Rank Badge
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(18.dp) // Slightly decreased badge size from 22.dp to match the smaller 40.dp avatar scale balance
                     .background(rankColor, CircleShape)
                     .align(Alignment.TopEnd),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center // Center ensures text is perfectly dead-center vertically and horizontally
             ) {
                 Text(
                     text = entry.rank.toString(),
                     color = Color.White,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 10.sp, // Dropped to 10.sp so digits don't clip inside the 18.dp container
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Label Info Columns
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = entry.fullName,
-                fontSize = 18.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = AppColors.TextPrimary
+                color = AppColors.TextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             entry.course?.let {
                 Text(
                     text = it,
-                    fontSize = 14.sp,
+                    fontSize = 10.sp,
                     color = AppColors.TextSecondary
                 )
             }
         }
 
-        // XP Counters
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = String.format("%,d", entry.xp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (entry.rank == 1) AppColors.Gold else AppColors.darkBlue
-            )
-            Text(
-                text = " XP",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                color = AppColors.TextSecondary,
-                modifier = Modifier.padding(bottom = 3.dp, start = 2.dp)
-            )
-        }
+        Text(
+            text = "${String.format("%,d", entry.xp)} XP",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (entry.rank == 1) AppColors.Gold else AppColors.darkBlue
+        )
     }
 }
 
@@ -221,10 +237,9 @@ private fun StandardRankRow(entry: LeaderboardEntry) {
             .padding(vertical = 6.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Rank Index Circle Indicator
         Box(
             modifier = Modifier
-                .size(28.dp)
+                .size(20.dp)
                 .background(AppColors.Background, CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -238,63 +253,61 @@ private fun StandardRankRow(entry: LeaderboardEntry) {
 
         Spacer(modifier = Modifier.width(14.dp))
 
-        // Avatar
         AsyncImage(
-            model = entry.profileImageUrl,
+//            model = entry.profileImageUrl,
+            model = "https://m.media-amazon.com/images/I/615JjV818kL._AC_SL1500_.jpg",
             contentDescription = entry.fullName,
             modifier = Modifier
-                .size(44.dp)
+                .size(32.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.width(14.dp))
 
-        // Name Tag Layout
         Text(
             text = entry.fullName,
-            fontSize = 15.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             color = AppColors.TextPrimary,
             modifier = Modifier.weight(1f)
         )
 
-        // Point Metric
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = String.format("%,d", entry.xp),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = AppColors.TextPrimary
-            )
-            Text(
-                text = " XP",
-                fontSize = 11.sp,
-                color = AppColors.TextSecondary,
-                modifier = Modifier.padding(bottom = 2.dp, start = 2.dp)
-            )
-        }
+        Text(
+            text = "${String.format("%,d", entry.xp)} XP",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = AppColors.TextPrimary
+        )
     }
 }
 
 @Composable
-private fun CurrentUserCard(entry: LeaderboardEntry) {
+private fun CurrentUserCard(
+    entry: LeaderboardEntry,
+    totalParticipants: Int
+) {
+    val rankMessage = when {
+        entry.rank <= 10 -> "You're in the top 10!"
+        else -> "Keep going to reach top 10!"
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, AppColors.Border, RoundedCornerShape(20.dp))
-            .padding(16.dp),
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(24.dp)
                 .background(AppColors.Navy, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = entry.rank.toString(),
-                fontSize = 14.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -305,30 +318,23 @@ private fun CurrentUserCard(entry: LeaderboardEntry) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "You are ranked #${entry.rank}",
-                fontSize = 15.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppColors.TextPrimary
             )
             Text(
-                text = "Keep going to reach top 10!",
-                fontSize = 13.sp,
+                text = rankMessage,
+                fontSize = 11.sp,
                 color = AppColors.TextSecondary
             )
+
         }
 
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = String.format("%,d", entry.xp),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = AppColors.Gold
-            )
-            Text(
-                text = " XP",
-                fontSize = 11.sp,
-                color = AppColors.TextSecondary,
-                modifier = Modifier.padding(bottom = 2.dp, start = 2.dp)
-            )
-        }
+        Text(
+            text = "${String.format("%,d", entry.xp)} XP",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = AppColors.Gold
+        )
     }
 }

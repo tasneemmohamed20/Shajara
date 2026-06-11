@@ -22,7 +22,8 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
-    count: Int? = null
+    count: Int? = null,
+    color: Color = AppColors.darkBlue
 ) {
     Row(
         modifier = modifier
@@ -41,7 +42,7 @@ fun SectionHeader(
                     .width(4.dp)
                     .height(24.dp)
                     .clip(RoundedCornerShape(1.dp))
-                    .background(AppColors.darkBlue)
+                    .background(color)
             )
 
             Text(
