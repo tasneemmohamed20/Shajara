@@ -40,6 +40,7 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
 import com.example.moodlegovapp.ui.theme.AppColors
@@ -64,7 +65,7 @@ fun DashboardScreen(
     val unreadCount = notifications.count { !it.isRead }
     var currentFilter by remember { mutableStateOf(TrainingFilter.ACTIVE) }
     val pullState = rememberPullToRefreshState()
-
+    val dueActivities = enrolledCourses.size - (user?.overallProgress ?: 10)
     LaunchedEffect(Unit) { vm.loadAll()
         user?.let { Log.i("dashboard", it.profileImageUrl) }
     }
@@ -113,9 +114,18 @@ fun DashboardScreen(
                     ContinueTrainingSectionCard(
                         enrolledCourses = enrolledCourses,
                         onCourseClick = { selectedCourse ->
-                            onCourseClick(selectedCourse.id) // Maps the intent cleanly up to the controller
+                            onCourseClick(selectedCourse.id)
                         },
-                        modifier = Modifier.padding(16.dp) // Handles cleaner outer edge presentation spacing
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                item {
+                    DashboardMetricsRow(
+                        activeCoursesCount = enrolledCourses.size,
+                        dueActivitiesCount = dueActivities,
+                        completedCount = user?.overallProgress ?: 10,
+//                        modifier =  Modifier.padding(16.dp)
                     )
                 }
 
