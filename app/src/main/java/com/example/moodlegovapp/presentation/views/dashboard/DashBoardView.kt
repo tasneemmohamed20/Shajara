@@ -39,6 +39,7 @@ import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
+import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
 import com.example.moodlegovapp.ui.theme.AppColors
@@ -108,6 +109,15 @@ fun DashboardScreen(
                     )
                 }
 
+                item {
+                    ContinueTrainingSectionCard(
+                        enrolledCourses = enrolledCourses,
+                        onCourseClick = { selectedCourse ->
+                            onCourseClick(selectedCourse.id) // Maps the intent cleanly up to the controller
+                        },
+                        modifier = Modifier.padding(16.dp) // Handles cleaner outer edge presentation spacing
+                    )
+                }
 
                 // ── All Training Programs ─────────────
                 item {
