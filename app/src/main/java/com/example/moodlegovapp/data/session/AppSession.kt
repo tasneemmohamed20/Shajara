@@ -5,7 +5,7 @@ import com.example.moodlegovapp.data.repository.AuthRepository
 import com.example.moodlegovapp.data.repository.UserRepository
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.domain.models.AuthToken
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
@@ -18,8 +18,8 @@ class AppSession(
     private val _authToken = MutableLiveData<AuthToken?>(null)
     val authToken: LiveData<AuthToken?> = _authToken
 
-    private val _currentUser = MutableLiveData<User?>(null)
-    val currentUser: LiveData<User?> = _currentUser
+    private val _currentUser = MutableLiveData<UserProfile?>(null)
+    val currentUser: LiveData<UserProfile?> = _currentUser
 
     // mirrors iOS: var isAuthenticated
     val isAuthenticated: Boolean get() = _authToken.value != null

@@ -7,14 +7,14 @@ import com.example.moodlegovapp.domain.models.LeaderboardEntry
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.repositoryinterface.UserRepositoryProtocol
 
 class UserRepository(
     private val api: ApiServiceProtocol
 ) : UserRepositoryProtocol {
 
-    override suspend fun getUserProfile(): AppResult<User> = api.getUserProfile()
+    override suspend fun getUserProfile(): AppResult<UserProfile> = api.getUserProfile()
     override suspend fun getPerformanceOverview(): AppResult<PerformanceOverview> = api.getPerformanceOverview()
     override suspend fun getBadges(): AppResult<List<Badge>> = api.getBadges()
     override suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>> = api.getLeaderboard(courseId)

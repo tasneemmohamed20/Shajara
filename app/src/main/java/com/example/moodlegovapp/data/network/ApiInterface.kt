@@ -13,7 +13,8 @@ import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.domain.models.UserResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -23,7 +24,7 @@ interface ApiServiceProtocol {
     suspend fun login(username: String, password: String): AppResult<AuthToken>
 
     // USER
-    suspend fun getUserProfile(): AppResult<User>
+    suspend fun getUserProfile(): AppResult<UserProfile>
     suspend fun getPerformanceOverview(): AppResult<PerformanceOverview>
 
     // COURSES
@@ -78,7 +79,7 @@ interface RetrofitApiService {
     @GET("user/profile")
     suspend fun getUserProfile(
         @Query("id") userId: Int
-    ): Response<User>
+    ): Response<UserResponse>
 
     @GET("progress/overview")
     suspend fun getPerformanceOverview(

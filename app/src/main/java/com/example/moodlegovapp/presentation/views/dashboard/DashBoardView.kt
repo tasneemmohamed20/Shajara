@@ -1,6 +1,7 @@
 package com.example.moodlegovapp.presentation.views.dashboard
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -66,13 +67,17 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
+import com.example.moodlegovapp.presentation.views.dashboard.components.CohortRankCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.XpProgressCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.CourseListCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
+import com.example.moodlegovapp.presentation.views.dashboard.components.DetailedMetricsCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ScheduleEvent
 import com.example.moodlegovapp.presentation.views.dashboard.components.SchedulePeriod
+import com.example.moodlegovapp.presentation.views.dashboard.components.SectionHeader
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingScheduleSection
@@ -99,7 +104,7 @@ fun DashboardScreen(
     val pullState = rememberPullToRefreshState()
     var activeSchedulePeriod by remember { mutableStateOf(SchedulePeriod.TODAY) }
 
-    val dueActivities = enrolledCourses.size - (user?.overallProgress ?: 10)
+    val dueActivities = enrolledCourses.size - (user?.performance?.overallProgress ?: 10)
     val rawNotifications by vm.notifications.collectAsState()
 
     val formattedEvents = remember(rawNotifications) {
@@ -182,7 +187,7 @@ fun DashboardScreen(
                     DashboardMetricsRow(
                         activeCoursesCount = enrolledCourses.size,
                         dueActivitiesCount = dueActivities,
-                        completedCount = user?.overallProgress ?: 10,
+                        completedCount = user?.performance?.overallProgress ?: 10,
 //                        modifier =  Modifier.padding(16.dp)
                     )
                 }
@@ -201,7 +206,8 @@ fun DashboardScreen(
 
                 // ── All Training Programs ─────────────
                 item {
-                    AllCoursesHeader(count = enrolledCourses.size)
+//                    AllCoursesHeader(count = enrolledCourses.size)
+                    SectionHeader(title = stringResource(R.string.dashboard_all_programs), count = enrolledCourses.size)
                 }
 
                 items(enrolledCourses) { course ->
@@ -212,6 +218,40 @@ fun DashboardScreen(
                     )
                 }
 
+                item {
+
+                    SectionHeader("Your Achievements")
+                }
+
+                user?.let { userProfile -> // Ensures your UserProfile data isn't null before rendering
+                    item {
+                        XpProgressCard(
+                            userProfile = userProfile,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    item {
+                        CohortRankCard(
+                            userProfile = userProfile,
+                            onRankCardClick = {
+                                // Navigate to your Leaderboard screen here
+                                // e.g., navController.navigate("leaderboard")
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    item {
+                        DetailedMetricsCard(
+                            userProfile = userProfile,
+                            onViewAllBadgesClick = {
+                                // Navigate to all badges grid
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
                 // ── Error Message ─────────────────────
                 errorMessage?.let { err ->
                     item {
@@ -246,7 +286,7 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl: String) {
+private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -327,7 +367,7 @@ private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl: String) {
             }
             Spacer(Modifier.height(16.dp))
             OverallProgressCard(
-                progress = user?.overallProgress ?: 0,
+                progress = user?.performance?.overallProgress ?: 0,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }
@@ -373,150 +413,6 @@ private fun OverallProgressCard(progress: Int, modifier: Modifier = Modifier) {
     }
 }
 
-// ─────────────────────────────────────────────
-// ALL COURSES HEADER
-// ─────────────────────────────────────────────
-
-@Composable
-private fun AllCoursesHeader(count: Int?) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // The vertical navy blue indicator line
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .height(24.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(Color(0xFF1A3550))
-            )
-
-            Text(
-                text = stringResource(R.string.dashboard_all_programs),
-                style = SpTypography.titleCard(),
-                color = SpColors.DarkBrown,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Text(
-            text = "$count ${stringResource(R.string.dashboard_enrolled)}",
-            style = SpTypography.caption(),
-            color = SpColors.DarkGray.copy(alpha = 0.8f) // Soft gray tint matching the design asset
-        )
-    }
-}
-
-// ─────────────────────────────────────────────
-// COURSE LIST CARD
-// mirrors iOS CourseListCard
-// ─────────────────────────────────────────────
-
-//@Composable
-//private fun CourseListCard(
-//    course: Course, onClick: () -> Unit, modifier: Modifier = Modifier
-//) {
-//    val animatedProgress by animateFloatAsState(
-//        targetValue = course.progress / 100f,
-//        animationSpec = tween(800, easing = EaseOut),
-//        label = "cardProgress"
-//    )
-//
-//    Card(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .clickable(onClick = onClick),
-//        shape = RoundedCornerShape(12.dp),
-//        colors = CardDefaults.cardColors(containerColor = SpColors.White),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-//    ) {
-//        Column {
-//            // Image area with gradient
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(120.dp)
-//                    .background(
-//                        Brush.linearGradient(listOf(Color(0xFF2F5D8A), Color(0xFF1A3550)))
-//                    )
-//                    .padding(16.dp), contentAlignment = Alignment.BottomStart
-//            ) {
-//                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-//                    ) {
-//                        Icon(
-//                            Icons.Default.Person,
-//                            contentDescription = null,
-//                            tint = Color.White.copy(alpha = 0.9f),
-//                            modifier = Modifier.size(12.dp)
-//                        )
-//                        Text(
-//                            text = course.instructorName,
-//                            style = SpTypography.caption(),
-//                            color = Color.White.copy(alpha = 0.9f),
-//                            maxLines = 1,
-//                            overflow = TextOverflow.Ellipsis
-//                        )
-//                    }
-//                    Text(
-//                        text = course.dueIn,
-//                        style = SpTypography.caption(),
-//                        color = SpColors.Warning
-//                    )
-//                }
-//            }
-//
-//            // Course info
-//            Column(
-//                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
-//            ) {
-//                Text(
-//                    text = course.title,
-//                    style = SpTypography.label(),
-//                    color = SpColors.DarkBrown,
-//                    fontWeight = FontWeight.SemiBold,
-//                    maxLines = 2,
-//                    overflow = TextOverflow.Ellipsis
-//                )
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                ) {
-//                    LinearProgressIndicator(
-//                        progress = { animatedProgress },
-//                        modifier = Modifier
-//                            .weight(1f)
-//                            .height(6.dp)
-//                            .clip(RoundedCornerShape(3.dp)),
-//                        color = SpColors.Gold,
-//                        trackColor = SpColors.ProgressBg
-//                    )
-//                    Text(
-//                        text = "${course.progress}%",
-//                        style = SpTypography.caption(),
-//                        color = SpColors.DarkGray,
-//                        modifier = Modifier.width(36.dp)
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}
-
-// ─────────────────────────────────────────────
-// EMPTY & LOADING STATES
-// ─────────────────────────────────────────────
 
 @Composable
 fun EmptyStateView(message: String, modifier: Modifier = Modifier) {

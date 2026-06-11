@@ -14,7 +14,8 @@ import  com.example.moodlegovapp.domain.models.LeaderboardEntry
 import  com.example.moodlegovapp.domain.models.PerformanceOverview
 import  com.example.moodlegovapp.domain.models.TrainingEvent
 import  com.example.moodlegovapp.domain.models.TrainingStats
-import  com.example.moodlegovapp.domain.models.User
+import  com.example.moodlegovapp.domain.models.UserProfile
+import  com.example.moodlegovapp.domain.models.UserResponse
 import  com.example.moodlegovapp.domain.models.AuthToken
 
 class RealApiService(
@@ -51,9 +52,13 @@ class RealApiService(
     }
 
     // ── USER ──────────────────────────────────
-    override suspend fun getUserProfile(): AppResult<User> {
-        // mirrors iOS RemoteUser mapping
-        return safeCall { retrofit.getUserProfile(userId()) }
+    override suspend fun getUserProfile(): AppResult<UserProfile> {
+        return when (val result = safeCall { retrofit.getUserProfile(userId()) }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     override suspend fun getPerformanceOverview(): AppResult<PerformanceOverview> {

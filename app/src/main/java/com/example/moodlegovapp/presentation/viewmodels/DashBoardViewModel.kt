@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.Notification
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.repositoryinterface.CoursesRepositoryProtocol
 import com.example.moodlegovapp.domain.repositoryinterface.NotificationsRepositoryProtocol
 import com.example.moodlegovapp.domain.repositoryinterface.UserRepositoryProtocol
@@ -23,8 +23,8 @@ class DashboardViewModel(
     private val notificationsRepository: NotificationsRepositoryProtocol
 ) : ViewModel() {
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user
+    private val _user = MutableStateFlow<UserProfile?>(null)
+    val user: StateFlow<UserProfile?> = _user
 
     private val _enrolledCourses = MutableStateFlow<List<Course>>(emptyList())
     val enrolledCourses: StateFlow<List<Course>> = _enrolledCourses
