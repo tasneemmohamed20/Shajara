@@ -7,6 +7,8 @@ import com.example.moodlegovapp.presentation.viewmodels.CourseDetailViewModel
 import com.example.moodlegovapp.presentation.viewmodels.CoursesViewModel
 import com.example.moodlegovapp.presentation.viewmodels.DashboardViewModel
 import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
+import com.example.moodlegovapp.presentation.viewmodels.NotificationsViewModel
+import com.example.moodlegovapp.presentation.viewmodels.ProfileViewModel
 
 class DependencyContainer private constructor(private val deps: AppDependencies) {
 
@@ -51,13 +53,12 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
             coursesRepository = deps.coursesRepository
         )
 
-//    fun makeNotificationsViewModel(): NotificationsViewModel =
-//        NotificationsViewModel(notificationsRepository = deps.notificationsRepository)
-//
-//    fun makeProfileViewModel(): ProfileViewModel =
-//        ProfileViewModel(
-//            userRepository        = deps.userRepository,
-//            certificatesRepository = deps.certificatesRepository,
-//            session               = sharedSession
-//        )
+    fun makeNotificationsViewModel(): NotificationsViewModel =
+        NotificationsViewModel(notificationsRepository = deps.notificationsRepository)
+
+    fun makeProfileViewModel(): ProfileViewModel =
+        ProfileViewModel(
+            userRepository         = deps.userRepository,
+            certificatesRepository = deps.certificatesRepository
+        )
 }

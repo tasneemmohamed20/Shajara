@@ -1,6 +1,5 @@
 package com.example.moodlegovapp.presentation.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moodlegovapp.data.network.AppResult
@@ -12,7 +11,10 @@ import com.example.moodlegovapp.domain.repositoryinterface.NotificationsReposito
 import com.example.moodlegovapp.domain.repositoryinterface.UserRepositoryProtocol
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(
@@ -30,6 +32,10 @@ class DashboardViewModel(
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications
 
+    val unreadCount: StateFlow<Int> = _notifications
+        .map { list -> list.count { !it.isRead } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = 0)
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -39,32 +45,44 @@ class DashboardViewModel(
     fun loadAll() {
         viewModelScope.launch {
             _isLoading.value = true
+            _errorMessage.value = null
 
             try {
-                val userDeferred = async { userRepository.getUserProfile() }
-                val coursesDeferred = async { coursesRepository.getEnrolledCourses() }
+                val userDeferred          = async { userRepository.getUserProfile() }
+                val coursesDeferred       = async { coursesRepository.getEnrolledCourses() }
                 val notificationsDeferred = async { notificationsRepository.getNotifications() }
 
-                val userResult = userDeferred.await()
-                val coursesResult = coursesDeferred.await()
-                val notificationsResult = notificationsDeferred.await()
-                Log.i("dashboardVM", userResult.let {
-                    user.value?.profileImageUrl ?: "null url"
-                })
-                if (userResult is AppResult.Success) {
-                    _user.value = userResult.data
+                when (val result = userDeferred.await()) {
+                    is AppResult.Success -> _user.value = result.data
+                    is AppResult.Failure -> _errorMessage.value = result.error.errorDescription
+                    else -> Unit
                 }
 
-                if (coursesResult is AppResult.Success) {
-                    _enrolledCourses.value = coursesResult.data
+                when (val result = coursesDeferred.await()) {
+                    is AppResult.Success -> _enrolledCourses.value = result.data
+                    is AppResult.Failure -> if (_errorMessage.value == null) _errorMessage.value = result.error.errorDescription
+                    else -> Unit
                 }
 
-                if (notificationsResult is AppResult.Success) {
-                    _notifications.value = notificationsResult.data
+                when (val result = notificationsDeferred.await()) {
+                    is AppResult.Success -> _notifications.value = result.data
+                    is AppResult.Failure -> if (_errorMessage.value == null) _errorMessage.value = result.error.errorDescription
+                    else -> Unit
                 }
 
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun refresh() = loadAll()
+
+    fun markNotificationRead(notificationId: Int) {
+        viewModelScope.launch {
+            notificationsRepository.markAsRead(notificationId)
+            _notifications.value = _notifications.value.map {
+                if (it.id == notificationId) it.copy(isRead = true) else it
             }
         }
     }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -67,12 +66,16 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.domain.models.Course
+import com.example.moodlegovapp.domain.models.NotificationType
 import com.example.moodlegovapp.domain.models.User
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
+import com.example.moodlegovapp.presentation.views.dashboard.components.ScheduleEvent
+import com.example.moodlegovapp.presentation.views.dashboard.components.SchedulePeriod
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
+import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingScheduleSection
 import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
@@ -87,16 +90,40 @@ fun DashboardScreen(
     // Collect each StateFlow from the ViewModel individually
     val user by vm.user.collectAsState()
     val enrolledCourses by vm.enrolledCourses.collectAsState()
-    val notifications by vm.notifications.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
+    val unreadCount by vm.unreadCount.collectAsState()
     val profileUrl = "https://m.media-amazon.com/images/I/615JjV818kL._AC_SL1500_.jpg"
     var searchQuery by remember { mutableStateOf("") }
-    // Derived values — computed from VM state, not from VM directly
-    val unreadCount = notifications.count { !it.isRead }
     var currentFilter by remember { mutableStateOf(TrainingFilter.ACTIVE) }
     val pullState = rememberPullToRefreshState()
+    var activeSchedulePeriod by remember { mutableStateOf(SchedulePeriod.TODAY) }
+
     val dueActivities = enrolledCourses.size - (user?.overallProgress ?: 10)
+    val rawNotifications by vm.notifications.collectAsState()
+
+    // Map database notifications into explicit view components models cleanly
+    val formattedEvents = remember(rawNotifications) {
+        rawNotifications.map { notif ->
+            val resourceId = when (notif.type) {
+                NotificationType.ASSIGNMENT -> R.drawable.ic_tasks
+                NotificationType.CERTIFICATE -> R.drawable.ic_completed
+                NotificationType.ACHIEVEMENT -> R.drawable.ic_completed
+                NotificationType.COURSE -> R.drawable.ic_courses
+                NotificationType.SCHEDULE -> R.drawable.notification_icon
+            }
+            ScheduleEvent(
+                id = notif.id,
+                title = notif.title,
+                type = notif.type.name.replace('_', ' '),
+                category = notif.message,
+                timeAndDate = "Today, 10:00 AM", // Replace with raw time format if needed
+                location = "Room 204",            // Fallback context mapping
+                instructor = "Lt. Al-Nuaimi",     // Fallback context mapping
+                iconRes = resourceId
+            )
+        }
+    }
     LaunchedEffect(Unit) {
         vm.loadAll()
         user?.let { Log.i("dashboard", it.profileImageUrl) }
@@ -114,7 +141,6 @@ fun DashboardScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // ── Header ────────────────────────────
                 item {
@@ -153,6 +179,18 @@ fun DashboardScreen(
                         dueActivitiesCount = dueActivities,
                         completedCount = user?.overallProgress ?: 10,
 //                        modifier =  Modifier.padding(16.dp)
+                    )
+                }
+
+
+                item {
+                    TrainingScheduleSection(
+                        currentPeriod = activeSchedulePeriod,
+                        onPeriodChange = { activeSchedulePeriod = it },
+                        upcomingEventsList = formattedEvents,
+                        onEventClick = { },
+                        onGoToCalendarClick = { /* Handle Navigation Intent */ },
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
 
@@ -573,7 +611,8 @@ fun TrainingSearchBar(
                     onSearch = {
                         focusManager.clearFocus() // Closes keyboard on search click
                     }),
-                modifier = Modifier.fillMaxWidth())
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
