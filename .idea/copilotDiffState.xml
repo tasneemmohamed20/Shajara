@@ -3,6 +3,24 @@
   <component name="CopilotDiffPersistence">
     <option name="pendingDiffs">
       <map>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/moodlegovapp/domain/models/PerformanceOverview.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/moodlegovapp/domain/models/PerformanceOverview.kt" />
+              <option name="originalContent" value="package com.example.moodlegovapp.domain.models&#10;&#10;data class PerformanceOverview(&#10;    val overallProgress: Int,&#10;    val averageGrade: Int,&#10;    val taskCompletion: Int&#10;)&#10;&#10;" />
+              <option name="updatedContent" value="package com.example.moodlegovapp.domain.models&#10;&#10;import android.content.Context&#10;&#10;data class PerformanceOverview(&#10;    val overallProgress: Int = 0,&#10;    val averageGrade: Int = 0,&#10;    val taskCompletion: Int = 0&#10;)&#10;&#10;{&#10;    companion object {&#10;        fun default(context: Context): PerformanceOverview = com.example.moodlegovapp.data.network.DefaultModelProvider.defaultPerformanceOverview(context)&#10;    }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/moodlegovapp/domain/models/TrainingStats.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/moodlegovapp/domain/models/TrainingStats.kt" />
+              <option name="originalContent" value="package com.example.moodlegovapp.domain.models&#10;&#10;data class TrainingStats(&#10;    val activeCourses: Int,&#10;    val activitiesDue: Int,&#10;    val completedCourses: Int&#10;)&#10;" />
+              <option name="updatedContent" value="package com.example.moodlegovapp.domain.models&#10;&#10;import android.content.Context&#10;&#10;data class TrainingStats(&#10;    val activeCourses: Int = 0,&#10;    val activitiesDue: Int = 0,&#10;    val completedCourses: Int = 0&#10;)&#10;&#10;{&#10;    companion object {&#10;        fun default(context: Context): TrainingStats = com.example.moodlegovapp.data.network.DefaultModelProvider.defaultTrainingStats(context)&#10;    }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/gov/moodleapp/presentation/auth/LoginViewModel.kt">
           <value>
             <PendingDiffInfo>

@@ -1,22 +1,29 @@
 package com.example.moodlegovapp.data.network
 
 import com.example.moodlegovapp.data.service.DataStoreManager
-import retrofit2.Response
-import  com.example.moodlegovapp.domain.models.Assignment
-import  com.example.moodlegovapp.domain.models.AssignmentSubmission
-import  com.example.moodlegovapp.domain.models.Notification
-import  com.example.moodlegovapp.domain.models.Badge
-import  com.example.moodlegovapp.domain.models.Certificate
-import  com.example.moodlegovapp.domain.models.Course
-import  com.example.moodlegovapp.domain.models.CourseModule
-import  com.example.moodlegovapp.domain.models.CourseResource
-import  com.example.moodlegovapp.domain.models.LeaderboardEntry
-import  com.example.moodlegovapp.domain.models.PerformanceOverview
-import  com.example.moodlegovapp.domain.models.TrainingEvent
-import  com.example.moodlegovapp.domain.models.TrainingStats
-import  com.example.moodlegovapp.domain.models.User
-import  com.example.moodlegovapp.domain.models.AuthToken
+import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AuthToken
+import com.example.moodlegovapp.domain.models.Badge
+import com.example.moodlegovapp.domain.models.Certificate
+import com.example.moodlegovapp.domain.models.Course
+import com.example.moodlegovapp.domain.models.CourseModule
+import com.example.moodlegovapp.domain.models.CourseResource
+import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.Notification
+import com.example.moodlegovapp.domain.models.PerformanceOverview
+import com.example.moodlegovapp.domain.models.TrainingEvent
+import com.example.moodlegovapp.domain.models.TrainingStats
+import com.example.moodlegovapp.domain.models.User
 
+/**
+ * DEPRECATED: Use RemoteDataSource instead.
+ * This class is kept for backward compatibility but should not be used for new code.
+ */
+@Deprecated(
+    message = "Use RemoteDataSource instead",
+    replaceWith = ReplaceWith("RemoteDataSource")
+)
 class RealApiService(
     private val retrofit: RetrofitApiService,
     private val dataStoreManager: DataStoreManager
@@ -25,34 +32,19 @@ class RealApiService(
     private fun userId() = dataStoreManager.userIdState.value?.toInt()?: 101
 
     // ── Safe call helper ──────────────────────
-    // mirrors iOS request<T>() generic function
-    private suspend fun <T> safeCall(call: suspend () -> Response<T>): AppResult<T> {
-        return try {
-            val response = call()
-            when {
-                response.isSuccessful -> {
-                    val body = response.body()
-                    if (body != null) AppResult.Success(body)
-                    else AppResult.Failure(AppError.DecodingError)
-                }
-                response.code() == 401 -> AppResult.Failure(AppError.Unauthorized)
-                response.code() == 404 -> AppResult.Failure(AppError.NotFound)
-                else -> AppResult.Failure(AppError.ServerError(response.code()))
-            }
-        } catch (e: Exception) {
-            AppResult.Failure(AppError.NetworkError(e.localizedMessage ?: "Unknown error"))
-        }
+    private suspend inline fun <T> safeCall(
+        crossinline call: suspend () -> retrofit2.Response<T>
+    ): AppResult<T> {
+        return NetworkCallHandler.executeCall { call() }
     }
 
     // ── AUTH ──────────────────────────────────
     override suspend fun login(username: String, password: String): AppResult<AuthToken> {
-        // mirrors iOS: if useMock && useRemoteMock → call /auth/login
         return safeCall { retrofit.login(username, password) }
     }
 
     // ── USER ──────────────────────────────────
     override suspend fun getUserProfile(): AppResult<User> {
-        // mirrors iOS RemoteUser mapping
         return safeCall { retrofit.getUserProfile(userId()) }
     }
 
@@ -87,7 +79,6 @@ class RealApiService(
     }
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {
-        // mirrors iOS: return .success(())
         return AppResult.Success(Unit)
     }
 
