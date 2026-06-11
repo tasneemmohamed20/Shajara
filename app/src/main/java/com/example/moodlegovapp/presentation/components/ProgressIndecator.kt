@@ -17,14 +17,15 @@ import com.example.moodlegovapp.ui.theme.AppColors
 @Composable
 fun ProgressIndicator(
     progress : Float,
-    percentage : String
+    percentage : String,
+    height : Int = 4
 ){
     Row(verticalAlignment = Alignment.CenterVertically) {
         LinearProgressIndicator(
             progress = {progress},
             modifier = Modifier
                 .weight(1f)
-                .height(4.dp),
+                .height(height.dp),
             color = AppColors.Gold,
             trackColor = Color.White.copy(alpha = 0.24f),
             gapSize = 0.dp,
