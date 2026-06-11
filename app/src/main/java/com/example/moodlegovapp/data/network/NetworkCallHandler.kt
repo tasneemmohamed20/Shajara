@@ -51,15 +51,11 @@ object NetworkCallHandler {
                 response.code() == 401 -> AppResult.Failure(AppError.Unauthorized)
                 response.code() == 403 -> AppResult.Failure(AppError.Forbidden)
                 response.code() == 404 -> AppResult.Failure(AppError.NotFound)
-                response.code() == 422 -> {
-                    // Handle validation errors (Unprocessable Entity)
-                    AppResult.Failure(AppError.ValidationError(emptyMap()))
-                }
-                response.code() in 500..599 -> {
-                    val message = response.message()
-                    AppResult.Failure(AppError.ServerError(response.code(), message))
-                }
+                response.code() == 422 -> AppResult.Failure(AppError.ValidationError(emptyMap()))
                 response.code() == 503 -> AppResult.Failure(AppError.ServiceUnavailable)
+                response.code() in 500..599 -> {
+                    AppResult.Failure(AppError.ServerError(response.code(), response.message()))
+                }
                 else -> AppResult.Failure(AppError.ServerError(response.code(), response.message()))
             }
         } catch (e: SocketTimeoutException) {

@@ -5,12 +5,29 @@ import com.example.moodlegovapp.data.network.MockApiService
 import com.example.moodlegovapp.data.network.NetworkConfig
 import com.example.moodlegovapp.data.network.RetrofitClient
 import com.example.moodlegovapp.data.network.RetryPolicy
+import com.example.moodlegovapp.data.network.datasource.ActivityDataSource
+import com.example.moodlegovapp.data.network.datasource.AssignmentsDataSource
+import com.example.moodlegovapp.data.network.datasource.AuthDataSource
+import com.example.moodlegovapp.data.network.datasource.BadgesDataSource
+import com.example.moodlegovapp.data.network.datasource.CertificatesDataSource
+import com.example.moodlegovapp.data.network.datasource.CoursesDataSource
+import com.example.moodlegovapp.data.network.datasource.EventsDataSource
+import com.example.moodlegovapp.data.network.datasource.LeaderboardDataSource
+import com.example.moodlegovapp.data.network.datasource.NotificationsDataSource
 import com.example.moodlegovapp.data.network.datasource.RemoteDataSource
+import com.example.moodlegovapp.data.network.datasource.SearchDataSource
+import com.example.moodlegovapp.data.network.datasource.StatsDataSource
+import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import com.example.moodlegovapp.data.service.DataStoreManager
 
 /**
  * Dependency injection container using Service Locator pattern.
  * Manages creation and caching of all data sources, repositories, and services.
+ *
+ * Data source routing:
+ *  - USE_MOCK=false            → RemoteDataSource  (real Moodle API)
+ *  - USE_MOCK=true, USE_REMOTE_MOCK=true  → RemoteDataSource  (Postman mock server)
+ *  - USE_MOCK=true, USE_REMOTE_MOCK=false → MockApiService    (local JSON assets)
  *
  * Future: Migrate to Hilt for compile-time dependency injection.
  */
@@ -32,75 +49,76 @@ class AppDependencies private constructor(context: Context) {
     private val defaultRetryPolicy: RetryPolicy = RetryPolicy.DEFAULT
     private val aggressiveRetryPolicy: RetryPolicy = RetryPolicy.AGGRESSIVE
 
-    // ── Local Mock (for fallback) ─────────────────────────────────
+    // ── Local Mock (local JSON files — no network) ────────────────
     private val localMock: MockApiService by lazy {
         MockApiService(context, dataStoreManager)
     }
 
-    // ── Retrofit Service ──────────────────────────────────────────
-    private val retrofitService by lazy {
-        when {
-            NetworkConfig.USE_MOCK && NetworkConfig.USE_REMOTE_MOCK -> {
-                RetrofitClient.create(dataStoreManager, isDebug = true)
-            }
-            NetworkConfig.USE_MOCK -> {
-                // Local mock doesn't need Retrofit
-                RetrofitClient.create(dataStoreManager, isDebug = false)
-            }
-            else -> {
-                // Real Moodle API
-                RetrofitClient.create(dataStoreManager, isDebug = false)
-            }
-        }
-    }
-
-    // ── Remote Data Source ────────────────────────────────────────
+    // ── Remote Data Source (Retrofit — network required) ──────────
     private val remoteDataSource: RemoteDataSource by lazy {
+        val isDebug = NetworkConfig.USE_MOCK && NetworkConfig.USE_REMOTE_MOCK
         RemoteDataSource(
-            retrofit = retrofitService,
+            retrofit = RetrofitClient.create(dataStoreManager, isDebug = isDebug),
             dataStoreManager = dataStoreManager,
-            retryPolicy = if (NetworkConfig.USE_MOCK) aggressiveRetryPolicy else defaultRetryPolicy
+            retryPolicy = defaultRetryPolicy
         )
     }
+
+    // ── Active Data Source: local mock OR remote ──────────────────
+    // When USE_MOCK=true and USE_REMOTE_MOCK=false, all repos use local JSON.
+    private val useLocalMock: Boolean
+        get() = NetworkConfig.USE_MOCK && !NetworkConfig.USE_REMOTE_MOCK
+
+    private val activeAuthSource: AuthDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeUserSource: UserDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeCoursesSource: CoursesDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeAssignmentsSource: AssignmentsDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeNotificationsSource: NotificationsDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeCertificatesSource: CertificatesDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeLeaderboardSource: LeaderboardDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeBadgesSource: BadgesDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeEventsSource: EventsDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeStatsSource: StatsDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeSearchSource: SearchDataSource get() = if (useLocalMock) localMock else remoteDataSource
+    private val activeActivitySource: ActivityDataSource get() = if (useLocalMock) localMock else remoteDataSource
 
     // ── Repositories ──────────────────────────────────────────────
 
     val authRepository: AuthRepository by lazy {
         AuthRepository(
-            remoteDataSource = remoteDataSource,
-            dataStoreManager = dataStoreManager,
-            localMock = if (NetworkConfig.USE_REMOTE_MOCK) localMock else null
+            remoteDataSource = activeAuthSource,
+            dataStoreManager = dataStoreManager
         )
     }
 
     val userRepository: UserRepository by lazy {
         UserRepository(
-            userDataSource = remoteDataSource,
-            badgesDataSource = remoteDataSource,
-            leaderboardDataSource = remoteDataSource,
-            eventsDataSource = remoteDataSource,
-            statsDataSource = remoteDataSource
+            userDataSource = activeUserSource,
+            badgesDataSource = activeBadgesSource,
+            leaderboardDataSource = activeLeaderboardSource,
+            eventsDataSource = activeEventsSource,
+            statsDataSource = activeStatsSource
         )
     }
 
     val coursesRepository: CoursesRepository by lazy {
         CoursesRepository(
-            coursesDataSource = remoteDataSource,
-            assignmentsDataSource = remoteDataSource,
-            searchDataSource = remoteDataSource,
-            activityDataSource = remoteDataSource
+            coursesDataSource = activeCoursesSource,
+            assignmentsDataSource = activeAssignmentsSource,
+            searchDataSource = activeSearchSource,
+            activityDataSource = activeActivitySource
         )
     }
 
     val notificationsRepository: NotificationsRepository by lazy {
         NotificationsRepository(
-            notificationsDataSource = remoteDataSource
+            notificationsDataSource = activeNotificationsSource
         )
     }
 
     val certificatesRepository: CertificatesRepository by lazy {
         CertificatesRepository(
-            certificatesDataSource = remoteDataSource
+            certificatesDataSource = activeCertificatesSource
         )
     }
 }
