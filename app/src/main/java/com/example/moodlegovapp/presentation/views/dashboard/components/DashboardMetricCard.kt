@@ -1,9 +1,19 @@
 package com.example.moodlegovapp.presentation.views.dashboard.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -20,7 +30,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.R
-import com.example.moodlegovapp.domain.models.User
 import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 
@@ -34,8 +43,10 @@ fun MetricCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.aspectRatio(0.85f)
-            .height(122.dp).width(108.dp),
+        modifier = modifier
+            .aspectRatio(0.85f)
+            .height(122.dp)
+            .width(108.dp),
 //        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = SpColors.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -47,7 +58,6 @@ fun MetricCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // 1. Circular Icon Wrapper Box
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -65,7 +75,6 @@ fun MetricCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 2. Large Value Text (e.g., "5", "12")
             Text(
                 text = value,
                 color = SpColors.blackLabel,
@@ -74,9 +83,7 @@ fun MetricCard(
                 textAlign = TextAlign.Center
             )
 
-//            Spacer(modifier = Modifier.height(4.dp))
 
-            // 3. Descriptive Label Text (e.g., "Courses Active")
             Text(
                 text = label,
                 color = SpColors.DarkGray,

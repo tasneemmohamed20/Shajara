@@ -1,21 +1,52 @@
 package com.example.moodlegovapp.presentation.views.dashboard
 
 import android.util.Log
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,27 +60,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.User
-import com.example.moodlegovapp.ui.theme.SpColors
-import com.example.moodlegovapp.ui.theme.SpTypography
-import com.example.moodlegovapp.R
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
 import com.example.moodlegovapp.ui.theme.AppColors
+import com.example.moodlegovapp.ui.theme.SpColors
+import com.example.moodlegovapp.ui.theme.SpTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    assembly: DependencyContainer,
-    onCourseClick: (Int) -> Unit
+    assembly: DependencyContainer, onCourseClick: (Int) -> Unit
 ) {
     val vm = remember { assembly.makeDashboardViewModel() }
 
@@ -66,7 +97,8 @@ fun DashboardScreen(
     var currentFilter by remember { mutableStateOf(TrainingFilter.ACTIVE) }
     val pullState = rememberPullToRefreshState()
     val dueActivities = enrolledCourses.size - (user?.overallProgress ?: 10)
-    LaunchedEffect(Unit) { vm.loadAll()
+    LaunchedEffect(Unit) {
+        vm.loadAll()
         user?.let { Log.i("dashboard", it.profileImageUrl) }
     }
 
@@ -80,15 +112,12 @@ fun DashboardScreen(
             DashboardLoadingState()
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 100.dp)
+                modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 100.dp)
             ) {
                 // ── Header ────────────────────────────
                 item {
                     DashboardHeader(
-                        user = user,
-                        unreadCount = unreadCount,
-                        profileUrl = profileUrl
+                        user = user, unreadCount = unreadCount, profileUrl = profileUrl
                     )
                 }
 
@@ -102,21 +131,17 @@ fun DashboardScreen(
 
                 item {
                     TrainingFilterRow(
-                        selectedFilter = currentFilter,
-                        onFilterChange = { clickedFilter ->
+                        selectedFilter = currentFilter, onFilterChange = { clickedFilter ->
                             currentFilter = clickedFilter
                             // TODO: Trigger any viewmodel filter updates here
-                        }
-                    )
+                        })
                 }
 
                 item {
                     ContinueTrainingSectionCard(
-                        enrolledCourses = enrolledCourses,
-                        onCourseClick = { selectedCourse ->
+                        enrolledCourses = enrolledCourses, onCourseClick = { selectedCourse ->
                             onCourseClick(selectedCourse.id)
-                        },
-                        modifier = Modifier.padding(16.dp)
+                        }, modifier = Modifier.padding(16.dp)
                     )
                 }
 
@@ -176,7 +201,7 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl : String) {
+private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,8 +228,7 @@ private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl : String) 
                         .border(2.dp, AppColors.Gold, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    @OptIn(ExperimentalGlideComposeApi::class)
-                    GlideImage(
+                    @OptIn(ExperimentalGlideComposeApi::class) GlideImage(
                         model = profileUrl,
                         contentDescription = "User Profile Picture",
                         modifier = Modifier.size(48.dp),
@@ -234,11 +258,10 @@ private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl : String) 
                             .size(40.dp)
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = 0.15f))
-                            .clickable { /* Handle click */ },
-                        contentAlignment = Alignment.Center
+                            .clickable { /* Handle click */ }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painterResource(R.drawable.notification_icon) ,
+                            painterResource(R.drawable.notification_icon),
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
@@ -289,8 +312,7 @@ private fun OverallProgressCard(progress: Int, modifier: Modifier = Modifier) {
 //        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             Text(
@@ -340,9 +362,7 @@ private fun AllCoursesHeader(count: Int) {
 
 @Composable
 private fun CourseListCard(
-    course: Course,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    course: Course, onClick: () -> Unit, modifier: Modifier = Modifier
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = course.progress / 100f,
@@ -367,8 +387,7 @@ private fun CourseListCard(
                     .background(
                         Brush.linearGradient(listOf(Color(0xFF2F5D8A), Color(0xFF1A3550)))
                     )
-                    .padding(16.dp),
-                contentAlignment = Alignment.BottomStart
+                    .padding(16.dp), contentAlignment = Alignment.BottomStart
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(
@@ -399,8 +418,7 @@ private fun CourseListCard(
 
             // Course info
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = course.title,
@@ -456,9 +474,7 @@ fun EmptyStateView(message: String, modifier: Modifier = Modifier) {
             modifier = Modifier.size(48.dp)
         )
         Text(
-            text = message,
-            style = SpTypography.bodyPrimary(),
-            color = SpColors.DarkGray
+            text = message, style = SpTypography.bodyPrimary(), color = SpColors.DarkGray
         )
     }
 }
@@ -471,8 +487,7 @@ fun DashboardLoadingState() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CircularProgressIndicator(
-                color = SpColors.NavyBlue,
-                modifier = Modifier.size(48.dp)
+                color = SpColors.NavyBlue, modifier = Modifier.size(48.dp)
             )
             Text(
                 text = stringResource(R.string.loading),
@@ -500,8 +515,7 @@ fun TrainingSearchBar(
             .clip(RoundedCornerShape(14.dp))
             .border(1.dp, AppColors.Border, RoundedCornerShape(14.dp))
             .background(AppColors.Surface)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         // Search Icon
         Icon(
@@ -515,8 +529,7 @@ fun TrainingSearchBar(
 
         // Text Field Input Area
         Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
+            modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart
         ) {
             // Placeholder management
             if (query.isEmpty()) {
@@ -532,9 +545,7 @@ fun TrainingSearchBar(
                 value = query,
                 onValueChange = onQueryChange,
                 textStyle = TextStyle(
-                    color = AppColors.TextPrimary,
-                    fontSize = 15.sp,
-                    letterSpacing = 0.3.sp
+                    color = AppColors.TextPrimary, fontSize = 15.sp, letterSpacing = 0.3.sp
                 ),
                 singleLine = true,
                 cursorBrush = SolidColor(AppColors.Navy),
@@ -544,10 +555,8 @@ fun TrainingSearchBar(
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         focusManager.clearFocus() // Closes keyboard on search click
-                    }
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
+                    }),
+                modifier = Modifier.fillMaxWidth())
         }
     }
 }
