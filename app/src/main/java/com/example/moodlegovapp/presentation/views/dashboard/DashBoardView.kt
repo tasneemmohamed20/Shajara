@@ -67,6 +67,7 @@ import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.CohortRankCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.CourseListCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardLeaderboardWidget
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
 import com.example.moodlegovapp.presentation.views.dashboard.components.DetailedMetricsCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ScheduleEvent
@@ -129,6 +130,9 @@ fun DashboardScreen(
             )
         }
     }
+
+    val leaderboardData by vm.leaderboard.collectAsState()
+
     LaunchedEffect(Unit) {
         vm.loadAll()
         user?.let { Log.i("dashboard", it.profileImageUrl) }
@@ -248,6 +252,12 @@ fun DashboardScreen(
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
+                }
+
+                item{
+                    DashboardLeaderboardWidget(
+                        response = leaderboardData
+                    )
                 }
                 // ── Error Message ─────────────────────
                 errorMessage?.let { err ->
