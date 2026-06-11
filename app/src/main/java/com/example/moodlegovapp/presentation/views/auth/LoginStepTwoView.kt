@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
+import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
 import com.example.moodlegovapp.presentation.views.auth.components.LoginHeader
 import com.example.moodlegovapp.ui.theme.AppColors.Navy
@@ -158,36 +159,15 @@ private fun LoginHeaderBanner(
                     .padding(horizontal = 8.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.auth_step_2),
-                        style = SpTypography.labelCategory(),
-                        color = Color.White.copy(alpha = 0.7f),
-                        letterSpacing = 1.sp
-                    )
-                    Text(
-                        text = "100%",
-                        style = SpTypography.labelCategory(),
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(Color.White.copy(alpha = 0.2f))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .background(SpColors.Gold)
-                    )
-                }
+
+                Text(
+                    text = stringResource(R.string.auth_step_2),
+                    style = SpTypography.labelCategory(),
+                    color = Color.White.copy(alpha = 0.7f),
+                    letterSpacing = 1.sp
+                )
+                ProgressIndicator(1f, "100%")
+
             }
         }
     }
@@ -333,7 +313,8 @@ private fun FormCard(
                     unfocusedBorderColor = SpColors.BorderColor,
                     focusedContainerColor = SpColors.White,
                     unfocusedContainerColor = SpColors.White
-                ))
+                )
+            )
         }
 
         // ── Password Field ────────────────────

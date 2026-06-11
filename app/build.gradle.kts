@@ -42,10 +42,12 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation("androidx.compose.runtime:runtime-livedata")
     implementation(libs.androidx.core.ktx)
@@ -75,4 +77,8 @@ dependencies {
 
     // Google Tink for Encryption
     implementation(libs.tink.android) // Use the latest stable version
+    
+    //Glide
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta09")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }

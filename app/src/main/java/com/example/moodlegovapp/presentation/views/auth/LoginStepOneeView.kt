@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.R
+import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 
@@ -40,7 +41,7 @@ fun LoginStepOneView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.4f) // Constrained to 30% of screen height
+                .fillMaxHeight(0.4f)
                 .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 .background(AppColors.NavyGradient)
                 .padding(start = 24.dp, end = 24.dp, bottom = 16.dp) // Reduced bottom padding from 32.dp to 16.dp
@@ -90,24 +91,7 @@ fun LoginStepOneView(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        LinearProgressIndicator(
-                            progress = { 0.5f },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(4.dp),
-                            color = AppColors.Gold,
-                            trackColor = Color.White.copy(alpha = 0.24f),
-                            gapSize = 0.dp,
-                            drawStopIndicator = {}
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "50%",
-                            color = Color.White,
-                            fontSize = 12.sp
-                        )
-                    }
+                    ProgressIndicator(0.5f, "50%")
                 }
             }
         }
