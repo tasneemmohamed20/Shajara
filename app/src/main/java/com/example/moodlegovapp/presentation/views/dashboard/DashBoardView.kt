@@ -112,7 +112,9 @@ fun DashboardScreen(
             DashboardLoadingState()
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 100.dp)
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // ── Header ────────────────────────────
                 item {
@@ -341,16 +343,31 @@ private fun AllCoursesHeader(count: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(R.string.dashboard_all_programs),
-            style = SpTypography.titleCard(),
-            color = SpColors.DarkBrown,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // The vertical navy blue indicator line
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(1.dp))
+                    .background(Color(0xFF1A3550))
+            )
+
+            Text(
+                text = stringResource(R.string.dashboard_all_programs),
+                style = SpTypography.titleCard(),
+                color = SpColors.DarkBrown,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
         Text(
             text = "$count ${stringResource(R.string.dashboard_enrolled)}",
             style = SpTypography.caption(),
-            color = SpColors.DarkGray
+            color = SpColors.DarkGray.copy(alpha = 0.8f) // Soft gray tint matching the design asset
         )
     }
 }
