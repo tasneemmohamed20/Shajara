@@ -33,7 +33,7 @@ class DashboardViewModel(
     val notifications: StateFlow<List<Notification>> = _notifications
 
     val unreadCount: StateFlow<Int> = _notifications
-        .map { list -> list.count { !it.isRead } }
+        .map { list -> list.count { !it.read } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = 0)
 
     private val _isLoading = MutableStateFlow(false)
@@ -82,7 +82,7 @@ class DashboardViewModel(
         viewModelScope.launch {
             notificationsRepository.markAsRead(notificationId)
             _notifications.value = _notifications.value.map {
-                if (it.id == notificationId) it.copy(isRead = true) else it
+                if (it.id == notificationId) it.copy(read = true) else it
             }
         }
     }

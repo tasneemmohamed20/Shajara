@@ -22,7 +22,7 @@ class NotificationsViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    val unreadCount: Int get() = _notifications.value.count { !it.isRead }
+    val unreadCount: Int get() = _notifications.value.count { !it.read }
 
     fun load() {
         viewModelScope.launch {
@@ -43,7 +43,7 @@ class NotificationsViewModel(
         viewModelScope.launch {
             notificationsRepository.markAsRead(notificationId)
             _notifications.value = _notifications.value.map {
-                if (it.id == notificationId) it.copy(isRead = true) else it
+                if (it.id == notificationId) it.copy(read = true) else it
             }
         }
     }

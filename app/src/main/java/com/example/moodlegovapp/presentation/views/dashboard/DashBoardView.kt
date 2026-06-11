@@ -66,10 +66,10 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.NotificationType
 import com.example.moodlegovapp.domain.models.User
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.CourseListCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
 import com.example.moodlegovapp.presentation.views.dashboard.components.ScheduleEvent
 import com.example.moodlegovapp.presentation.views.dashboard.components.SchedulePeriod
@@ -102,25 +102,30 @@ fun DashboardScreen(
     val dueActivities = enrolledCourses.size - (user?.overallProgress ?: 10)
     val rawNotifications by vm.notifications.collectAsState()
 
-    // Map database notifications into explicit view components models cleanly
     val formattedEvents = remember(rawNotifications) {
         rawNotifications.map { notif ->
-            val resourceId = when (notif.type) {
-                NotificationType.ASSIGNMENT -> R.drawable.ic_tasks
-                NotificationType.CERTIFICATE -> R.drawable.ic_completed
-                NotificationType.ACHIEVEMENT -> R.drawable.ic_completed
-                NotificationType.COURSE -> R.drawable.ic_courses
-                NotificationType.SCHEDULE -> R.drawable.notification_icon
+            val resourceId = when (notif.iconType.lowercase()) {
+                "assignment"  -> R.drawable.ic_tasks
+                "certificate" -> R.drawable.ic_completed
+                "achievement" -> R.drawable.ic_completed
+                "course"      -> R.drawable.ic_courses
+                else          -> R.drawable.notification_icon
+            }
+            val timeAndDate = when {
+                notif.sessionDate.isNotBlank() && notif.sessionTime.isNotBlank() ->
+                    "${notif.sessionDate} · ${notif.sessionTime}"
+                notif.sessionDate.isNotBlank() -> notif.sessionDate
+                else -> notif.createdAtFormatted
             }
             ScheduleEvent(
-                id = notif.id,
-                title = notif.title,
-                type = notif.type.name.replace('_', ' '),
-                category = notif.message,
-                timeAndDate = "Today, 10:00 AM", // Replace with raw time format if needed
-                location = "Room 204",            // Fallback context mapping
-                instructor = "Lt. Al-Nuaimi",     // Fallback context mapping
-                iconRes = resourceId
+                id          = notif.id,
+                title       = notif.title,
+                type        = notif.notificationType,
+                category    = notif.shortBody.ifBlank { notif.body },
+                timeAndDate = timeAndDate,
+                location    = notif.location,
+                instructor  = "Maj. Ahmed Al-Mansouri",
+                iconRes     = resourceId
             )
         }
     }
@@ -373,7 +378,7 @@ private fun OverallProgressCard(progress: Int, modifier: Modifier = Modifier) {
 // ─────────────────────────────────────────────
 
 @Composable
-private fun AllCoursesHeader(count: Int) {
+private fun AllCoursesHeader(count: Int?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -415,99 +420,99 @@ private fun AllCoursesHeader(count: Int) {
 // mirrors iOS CourseListCard
 // ─────────────────────────────────────────────
 
-@Composable
-private fun CourseListCard(
-    course: Course, onClick: () -> Unit, modifier: Modifier = Modifier
-) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = course.progress / 100f,
-        animationSpec = tween(800, easing = EaseOut),
-        label = "cardProgress"
-    )
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = SpColors.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
-        Column {
-            // Image area with gradient
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(
-                        Brush.linearGradient(listOf(Color(0xFF2F5D8A), Color(0xFF1A3550)))
-                    )
-                    .padding(16.dp), contentAlignment = Alignment.BottomStart
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.9f),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = course.instructorName,
-                            style = SpTypography.caption(),
-                            color = Color.White.copy(alpha = 0.9f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Text(
-                        text = course.dueIn,
-                        style = SpTypography.caption(),
-                        color = SpColors.Warning
-                    )
-                }
-            }
-
-            // Course info
-            Column(
-                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = course.title,
-                    style = SpTypography.label(),
-                    color = SpColors.DarkBrown,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    LinearProgressIndicator(
-                        progress = { animatedProgress },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
-                        color = SpColors.Gold,
-                        trackColor = SpColors.ProgressBg
-                    )
-                    Text(
-                        text = "${course.progress}%",
-                        style = SpTypography.caption(),
-                        color = SpColors.DarkGray,
-                        modifier = Modifier.width(36.dp)
-                    )
-                }
-            }
-        }
-    }
-}
+//@Composable
+//private fun CourseListCard(
+//    course: Course, onClick: () -> Unit, modifier: Modifier = Modifier
+//) {
+//    val animatedProgress by animateFloatAsState(
+//        targetValue = course.progress / 100f,
+//        animationSpec = tween(800, easing = EaseOut),
+//        label = "cardProgress"
+//    )
+//
+//    Card(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .clickable(onClick = onClick),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = SpColors.White),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+//    ) {
+//        Column {
+//            // Image area with gradient
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(120.dp)
+//                    .background(
+//                        Brush.linearGradient(listOf(Color(0xFF2F5D8A), Color(0xFF1A3550)))
+//                    )
+//                    .padding(16.dp), contentAlignment = Alignment.BottomStart
+//            ) {
+//                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+//                    ) {
+//                        Icon(
+//                            Icons.Default.Person,
+//                            contentDescription = null,
+//                            tint = Color.White.copy(alpha = 0.9f),
+//                            modifier = Modifier.size(12.dp)
+//                        )
+//                        Text(
+//                            text = course.instructorName,
+//                            style = SpTypography.caption(),
+//                            color = Color.White.copy(alpha = 0.9f),
+//                            maxLines = 1,
+//                            overflow = TextOverflow.Ellipsis
+//                        )
+//                    }
+//                    Text(
+//                        text = course.dueIn,
+//                        style = SpTypography.caption(),
+//                        color = SpColors.Warning
+//                    )
+//                }
+//            }
+//
+//            // Course info
+//            Column(
+//                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
+//            ) {
+//                Text(
+//                    text = course.title,
+//                    style = SpTypography.label(),
+//                    color = SpColors.DarkBrown,
+//                    fontWeight = FontWeight.SemiBold,
+//                    maxLines = 2,
+//                    overflow = TextOverflow.Ellipsis
+//                )
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                ) {
+//                    LinearProgressIndicator(
+//                        progress = { animatedProgress },
+//                        modifier = Modifier
+//                            .weight(1f)
+//                            .height(6.dp)
+//                            .clip(RoundedCornerShape(3.dp)),
+//                        color = SpColors.Gold,
+//                        trackColor = SpColors.ProgressBg
+//                    )
+//                    Text(
+//                        text = "${course.progress}%",
+//                        style = SpTypography.caption(),
+//                        color = SpColors.DarkGray,
+//                        modifier = Modifier.width(36.dp)
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
 // ─────────────────────────────────────────────
 // EMPTY & LOADING STATES
