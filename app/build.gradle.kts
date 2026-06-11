@@ -65,7 +65,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.2")
     implementation(libs.androidx.material3)
     implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation(libs.androidx.tv.material)
+//    implementation(libs.androidx.tv.material)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

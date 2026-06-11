@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,8 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material3.Card
@@ -31,11 +30,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.moodlegovapp.R
 import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.presentation.components.ProgressIndicator
+import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 
 @Composable
@@ -65,40 +70,42 @@ fun XpProgressCard(
         ) {
             // Top Row Setup
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
+//                    .background(Color.Cyan),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
-                            .background(SpColors.Gold.copy(alpha = 0.2f)),
+                            .background(SpColors.Gold),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.MilitaryTech,
+                            painterResource(R.drawable.militarytech),
                             contentDescription = null,
-                            tint = SpColors.Gold,
+                            tint = SpColors.White,
                             modifier = Modifier.size(28.dp)
                         )
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = userProfile.rank, // e.g., "Top Performer"
-                            color = Color(0xFF111111),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "Top Performer",
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "${userProfile.performance.averageGrade}% Average Grade",
                             color = SpColors.DarkGray,
-                            fontSize = 14.sp
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -109,8 +116,8 @@ fun XpProgressCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF1A3550))
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(AppColors.Navy)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
@@ -125,34 +132,38 @@ fun XpProgressCard(
                         Text(
                             text = "%,d".format(userProfile.totalXP),
                             color = SpColors.Gold,
-                            fontSize = 22.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = " XP",
                             color = SpColors.DarkGray,
-                            fontSize = 13.sp,
-                            modifier = Modifier.padding(bottom = 2.dp)
+                            fontSize = 12.sp,
+//                            modifier = Modifier.padding(bottom = 1.dp)
+                        )
+                    }
+
+                    // Green Weekly XP Label
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .clip(RoundedCornerShape(50))
+                            .background(AppColors.Success.copy(alpha = 0.1f))
+                            .padding(horizontal = 2.dp, vertical = 2.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "+${userProfile.xpToNextLevel} XP this week",
+                            color = Color(0xFF2E7D32),
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1
                         )
                     }
                 }
             }
 
-            // Green Weekly XP Label
-            Box(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .clip(RoundedCornerShape(50))
-                    .background(Color(0xFFE8F8EF))
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = userProfile.performance.taskCompletionLabel, // e.g., "+120 XP this week"
-                    color = Color(0xFF2E7D32),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
 
             // XP Slider Sub-container
             Box(
@@ -161,7 +172,7 @@ fun XpProgressCard(
                     .border(1.dp, SpColors.DarkGray.copy(alpha = 0.1f), RoundedCornerShape(20.dp))
                     .padding(16.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -170,14 +181,14 @@ fun XpProgressCard(
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 "Level ${userProfile.level}",
-                                fontSize = 14.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF111111)
                             )
                             Text("➔", fontSize = 12.sp, color = SpColors.DarkGray)
                             Text(
                                 "Level ${userProfile.level + 1}",
-                                fontSize = 14.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF111111)
                             )
@@ -186,21 +197,16 @@ fun XpProgressCard(
                         Text(
                             text = "${userProfile.xpToNextLevel} XP to Level ${userProfile.level + 1}",
                             color = SpColors.Gold,
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
+                            letterSpacing = 0.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
 
-                    LinearProgressIndicator(
-                        progress = { animatedLevelProgress },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .clip(RoundedCornerShape(50)),
-                        color = SpColors.Gold,
-                        trackColor = Color(0xFFF5F5F5),
-                        gapSize = 0.dp,
-                        drawStopIndicator = {}
+                    ProgressIndicator(
+                        animatedLevelProgress,
+                        "",
+                        height = 10
                     )
 
                     Row(
@@ -208,7 +214,7 @@ fun XpProgressCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "${userProfile.totalXP} XP Total",
+                            text = "${userProfile.totalXP} / ${userProfile.totalXP + userProfile.xpToNextLevel} XP",
                             color = SpColors.DarkGray,
                             fontSize = 13.sp
                         )
@@ -248,13 +254,13 @@ fun CohortRankCard(
         Row(
             modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2F5D8A)),
+                    .background(AppColors.Navy),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -265,29 +271,35 @@ fun CohortRankCard(
                 )
             }
 
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
+            Column {
                 Text(
                     text = "Rank #${userProfile.rankNumber} in cohort",
-                    color = Color(0xFF111111),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.sp
                 )
                 Text(
-                    text = "Keep advancing to reach the Top 10",
+                    text = "${userProfile.xpToNextLevel} reach the Top 10",
                     color = SpColors.DarkGray,
-                    fontSize = 14.sp
+                    fontSize = 12.sp
                 )
             }
+            Spacer(modifier = Modifier.weight(1f)) // <--- Pushes everything after it to the end
 
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-                contentDescription = null,
-                tint = Color(0xFF111111),
-                modifier = Modifier.size(24.dp)
-            )
+            Box(
+                modifier = Modifier
+                // Remove .align(Alignment.End) from here
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.icon_back),
+                    contentDescription = null,
+                    tint = Color(0xFF111111),
+                    modifier = Modifier
+                        .size(12.dp)
+                        .scale(scaleX = -1f, scaleY = 1f)
+                )
+            }
         }
     }
 }
@@ -309,7 +321,7 @@ fun DetailedMetricsCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             // Badges Horizontal Header Row
@@ -328,12 +340,12 @@ fun DetailedMetricsCard(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(SpColors.Gold.copy(alpha = 0.15f)),
+                                .border(2.dp, AppColors.Gold, CircleShape)
+                                .background(Color.White),
                             contentAlignment = Alignment.Center
                         ) {
-                            // Using a fallback placeholder if standard network image composables aren't needed
                             Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.MilitaryTech,
+                                imageVector = Icons.Default.MilitaryTech,
                                 contentDescription = badge.name,
                                 tint = SpColors.Gold,
                                 modifier = Modifier.size(22.dp)
@@ -350,14 +362,16 @@ fun DetailedMetricsCard(
                     Text(
                         "View All",
                         color = Color(0xFF2F5D8A),
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Icon(
-                        Icons.AutoMirrored.Filled.ArrowRight,
-                        null,
-                        tint = Color(0xFF2F5D8A),
-                        modifier = Modifier.size(16.dp)
+                        painter = painterResource(R.drawable.icon_back),
+                        contentDescription = null,
+                        tint = Color(0xFF111111),
+                        modifier = Modifier
+                            .size(12.dp)
+                            .scale(scaleX = -1f, scaleY = 1f)
                     )
                 }
             }
@@ -373,14 +387,16 @@ fun DetailedMetricsCard(
                     tint = SpColors.Gold,
                     modifier = Modifier.size(18.dp)
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Next Badge Target:", color = SpColors.DarkGray, fontSize = 14.sp)
+                Row {
+                    Text("Next:", color = SpColors.DarkGray, fontSize = 10.sp)
+
                     Text(
                         "Elite Performer",
                         color = Color(0xFF111111),
-                        fontSize = 14.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    Text("• Complete 2 more courses", color = SpColors.DarkGray, fontSize = 10.sp)
                 }
             }
 
@@ -390,21 +406,20 @@ fun DetailedMetricsCard(
                     label = "Overall Progress",
                     percentage = userProfile.performance.overallProgress,
                     barColor = SpColors.Gold,
-                    extraLabel = userProfile.performance.overallProgressLabel
+                    extraLabel = "+50 XP"
                 )
 
                 PerformanceMetricRow(
                     label = "Average Grade",
                     percentage = userProfile.performance.averageGrade,
                     barColor = Color(0xFF2E7D32),
-                    extraLabel = userProfile.performance.averageGradeLabel
                 )
 
                 PerformanceMetricRow(
                     label = "Assignment Completion Rate",
                     percentage = userProfile.performance.taskCompletion,
                     barColor = SpColors.Gold,
-                    extraLabel = userProfile.performance.taskCompletionLabel,
+//                    extraLabel = "+120 XP this week",
                     extraLabelColor = Color(0xFF2E7D32)
                 )
             }
@@ -435,7 +450,7 @@ private fun PerformanceMetricRow(
             Text(
                 text = label,
                 color = Color(0xFF111111),
-                fontSize = 15.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -447,14 +462,14 @@ private fun PerformanceMetricRow(
                     Text(
                         text = extraLabel,
                         color = extraLabelColor,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Thin
                     )
                 }
                 Text(
                     text = "$percentage%",
                     color = barColor,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }

@@ -1,7 +1,6 @@
 package com.example.moodlegovapp.presentation.views.dashboard
 
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -31,13 +30,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -59,18 +56,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
-import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.CohortRankCard
-import com.example.moodlegovapp.presentation.views.dashboard.components.XpProgressCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.CourseListCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
@@ -81,6 +75,7 @@ import com.example.moodlegovapp.presentation.views.dashboard.components.SectionH
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingScheduleSection
+import com.example.moodlegovapp.presentation.views.dashboard.components.XpProgressCard
 import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
@@ -232,6 +227,7 @@ fun DashboardScreen(
                     }
 
                     item {
+                        Spacer(Modifier.height(16.dp))
                         CohortRankCard(
                             userProfile = userProfile,
                             onRankCardClick = {
@@ -243,6 +239,7 @@ fun DashboardScreen(
                     }
 
                     item {
+                        Spacer(Modifier.height(16.dp))
                         DetailedMetricsCard(
                             userProfile = userProfile,
                             onViewAllBadgesClick = {
@@ -278,11 +275,6 @@ fun DashboardScreen(
 
     }
 }
-
-// ─────────────────────────────────────────────
-// DASHBOARD HEADER
-// mirrors iOS DashboardHeaderView
-// ─────────────────────────────────────────────
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
