@@ -10,7 +10,8 @@ import  com.example.moodlegovapp.domain.models.Certificate
 import  com.example.moodlegovapp.domain.models.Course
 import  com.example.moodlegovapp.domain.models.CourseModule
 import  com.example.moodlegovapp.domain.models.CourseResource
-import  com.example.moodlegovapp.domain.models.LeaderboardEntry
+import  com.example.moodlegovapp.domain.models.LeaderboardData
+import  com.example.moodlegovapp.domain.models.LeaderboardResponse
 import  com.example.moodlegovapp.domain.models.PerformanceOverview
 import  com.example.moodlegovapp.domain.models.TrainingEvent
 import  com.example.moodlegovapp.domain.models.TrainingStats
@@ -115,8 +116,13 @@ class RealApiService(
     }
 
     // ── LEADERBOARD ───────────────────────────
-    override suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>> {
-        return safeCall { retrofit.getLeaderboard(courseId) }
+    override suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData> {
+        return when (val result = safeCall { retrofit.getLeaderboard(courseId) }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     // ── BADGES ────────────────────────────────

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.domain.models.Course
+import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.repositoryinterface.CoursesRepositoryProtocol
@@ -32,6 +33,9 @@ class DashboardViewModel(
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications
 
+    private val _leaderboard = MutableStateFlow<LeaderboardData?>(null)
+    val leaderboard: StateFlow<LeaderboardData?> = _leaderboard
+
     val unreadCount: StateFlow<Int> = _notifications
         .map { list -> list.count { !it.read } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = 0)
@@ -51,6 +55,7 @@ class DashboardViewModel(
                 val userDeferred          = async { userRepository.getUserProfile() }
                 val coursesDeferred       = async { coursesRepository.getEnrolledCourses() }
                 val notificationsDeferred = async { notificationsRepository.getNotifications() }
+                val leaderboardDeferred   = async { userRepository.getLeaderboard(courseId = 0) }
 
                 when (val result = userDeferred.await()) {
                     is AppResult.Success -> _user.value = result.data
@@ -66,6 +71,12 @@ class DashboardViewModel(
 
                 when (val result = notificationsDeferred.await()) {
                     is AppResult.Success -> _notifications.value = result.data
+                    is AppResult.Failure -> if (_errorMessage.value == null) _errorMessage.value = result.error.errorDescription
+                    else -> Unit
+                }
+
+                when (val result = leaderboardDeferred.await()) {
+                    is AppResult.Success -> _leaderboard.value = result.data
                     is AppResult.Failure -> if (_errorMessage.value == null) _errorMessage.value = result.error.errorDescription
                     else -> Unit
                 }

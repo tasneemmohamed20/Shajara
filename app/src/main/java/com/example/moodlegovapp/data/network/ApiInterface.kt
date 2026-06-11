@@ -8,7 +8,8 @@ import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.LeaderboardData
+import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
@@ -47,7 +48,7 @@ interface ApiServiceProtocol {
     suspend fun getCertificateDownloadUrl(certificateId: Int): AppResult<String>
 
     // LEADERBOARD
-    suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>>
+    suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData>
 
     // BADGES
     suspend fun getBadges(): AppResult<List<Badge>>
@@ -135,11 +136,10 @@ interface RetrofitApiService {
     ): Response<List<Certificate>>
 
     // LEADERBOARD
-    @GET("courses")
+    @GET("leaderboard")
     suspend fun getLeaderboard(
-        @Query("courseId")    courseId: Int,
-        @Query("leaderboard") leaderboard: String = "true"
-    ): Response<List<LeaderboardEntry>>
+        @Query("courseId") courseId: Int
+    ): Response<LeaderboardResponse>
 
     // BADGES
     @GET("user/preferences")

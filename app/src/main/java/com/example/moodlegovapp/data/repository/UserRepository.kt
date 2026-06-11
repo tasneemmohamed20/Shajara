@@ -3,7 +3,7 @@ package com.example.moodlegovapp.data.repository
 import com.example.moodlegovapp.data.network.ApiServiceProtocol
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.domain.models.Badge
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
@@ -17,7 +17,7 @@ class UserRepository(
     override suspend fun getUserProfile(): AppResult<UserProfile> = api.getUserProfile()
     override suspend fun getPerformanceOverview(): AppResult<PerformanceOverview> = api.getPerformanceOverview()
     override suspend fun getBadges(): AppResult<List<Badge>> = api.getBadges()
-    override suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>> = api.getLeaderboard(courseId)
+    override suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData> = api.getLeaderboard(courseId)
     override suspend fun getTrainingStats(): AppResult<TrainingStats> = api.getTrainingStats()
     override suspend fun getUpcomingEvents(): AppResult<List<TrainingEvent>> = api.getUpcomingEvents()
 }
