@@ -41,6 +41,7 @@
       {
         "id": "cert_1",
         "courseName": "Advanced Criminal Investigation",
+        "instructorName": "Maj. Ahmed Al-Mansouri",
         "status": "completed",
         "approvalStatus": "approved",
         "completedAtFormatted": "Oct 10, 2024",
@@ -51,6 +52,7 @@
       {
         "id": "cert_2",
         "courseName": "Community Engagement Workshop",
+        "instructorName": "Lt. Sara Al-Mansoori",
         "status": "pending",
         "approvalStatus": "pending_approval",
         "completedAtFormatted": "Oct 20, 2024",

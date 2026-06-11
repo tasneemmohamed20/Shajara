@@ -50,6 +50,7 @@ data class UserBadge(
 data class UserCertificate(
     val id: String,
     val courseName: String,
+    val instructorName: String? = null,
     val status: String,
     val approvalStatus: String,
     val completedAtFormatted: String,

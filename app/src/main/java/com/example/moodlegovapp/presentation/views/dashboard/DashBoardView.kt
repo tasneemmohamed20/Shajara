@@ -65,6 +65,7 @@ import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.views.dashboard.components.CohortRankCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.CompletedCourseCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.CourseListCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardLeaderboardWidget
@@ -132,6 +133,9 @@ fun DashboardScreen(
     }
 
     val leaderboardData by vm.leaderboard.collectAsState()
+    val completedCertificates = remember(user?.certificates) {
+        user?.certificates?.take(3).orEmpty()
+    }
 
     val onLeaderboardClick = {
         // Navigate to full leaderboard screen
@@ -270,7 +274,30 @@ fun DashboardScreen(
                 }
 
                 item {
-                    SectionHeader(title = stringResource(R.string.completed), color = AppColors.Success)
+                    SectionHeader(
+                        title = stringResource(R.string.completed),
+                        count = user?.certificates?.size,
+                        color = AppColors.Success
+                    )
+                }
+
+                if (completedCertificates.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No completed courses yet",
+                            style = SpTypography.bodySecondary(),
+                            color = AppColors.TextSecondary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                } else {
+                    items(completedCertificates, key = { it.id }) { certificate ->
+                        CompletedCourseCard(
+                            certificate = certificate,
+                            onViewCertificateClick = { /* Open certificate URL */ },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
                 }
                 // ── Error Message ─────────────────────
                 errorMessage?.let { err ->
