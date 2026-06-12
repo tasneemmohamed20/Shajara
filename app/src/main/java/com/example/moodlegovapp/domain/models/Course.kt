@@ -23,6 +23,5 @@ data class Course(
     val tasks: Int,
     val totalModules: Int,
     val certificates: Int,
-    val isFavorite: Boolean,
-    val modules: List<CourseModule>
+    val isFavorite: Boolean
 )

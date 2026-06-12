@@ -46,7 +46,6 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
     fun makeCoursesViewModel(): CoursesViewModel =
         CoursesViewModel(coursesRepository = deps.coursesRepository)
 
-    // mirrors iOS: public func makeCourseDetailViewModel(courseId:) -> CourseDetailViewModelDI
     fun makeCourseDetailViewModel(courseId: Int): CourseDetailViewModel =
         CourseDetailViewModel(
             courseId = courseId,

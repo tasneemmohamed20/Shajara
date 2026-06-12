@@ -85,7 +85,10 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    assembly: DependencyContainer, onCourseClick: (Int) -> Unit
+    assembly: DependencyContainer,
+    onCourseClick: (Int) -> Unit,
+    onLeaderboardClick: () -> Unit,
+
 ) {
     val vm = remember { assembly.makeDashboardViewModel() }
 
