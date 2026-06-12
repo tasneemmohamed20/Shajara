@@ -1,6 +1,7 @@
 package com.example.moodlegovapp.data.network
 
 import com.example.moodlegovapp.data.service.DataStoreManager
+
 import retrofit2.Response
 import  com.example.moodlegovapp.domain.models.Assignment
 import  com.example.moodlegovapp.domain.models.AssignmentSubmission
@@ -29,28 +30,14 @@ class RealApiService(
     private fun userId() = dataStoreManager.userIdState.value?.toInt()?: 101
 
     // ── Safe call helper ──────────────────────
-    // mirrors iOS request<T>() generic function
-    private suspend fun <T> safeCall(call: suspend () -> Response<T>): AppResult<T> {
-        return try {
-            val response = call()
-            when {
-                response.isSuccessful -> {
-                    val body = response.body()
-                    if (body != null) AppResult.Success(body)
-                    else AppResult.Failure(AppError.DecodingError)
-                }
-                response.code() == 401 -> AppResult.Failure(AppError.Unauthorized)
-                response.code() == 404 -> AppResult.Failure(AppError.NotFound)
-                else -> AppResult.Failure(AppError.ServerError(response.code()))
-            }
-        } catch (e: Exception) {
-            AppResult.Failure(AppError.NetworkError(e.localizedMessage ?: "Unknown error"))
-        }
+    private suspend inline fun <T> safeCall(
+        crossinline call: suspend () -> retrofit2.Response<T>
+    ): AppResult<T> {
+        return NetworkCallHandler.executeCall { call() }
     }
 
     // ── AUTH ──────────────────────────────────
     override suspend fun login(username: String, password: String): AppResult<AuthToken> {
-        // mirrors iOS: if useMock && useRemoteMock → call /auth/login
         return safeCall { retrofit.login(username, password) }
     }
 
@@ -104,7 +91,6 @@ class RealApiService(
     }
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {
-        // mirrors iOS: return .success(())
         return AppResult.Success(Unit)
     }
 
