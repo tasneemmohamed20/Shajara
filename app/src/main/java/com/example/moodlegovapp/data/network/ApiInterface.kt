@@ -18,55 +18,35 @@ import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.models.UserResponse
+import com.example.moodlegovapp.data.network.datasource.ActivityDataSource
+import com.example.moodlegovapp.data.network.datasource.AssignmentsDataSource
+import com.example.moodlegovapp.data.network.datasource.AuthDataSource
+import com.example.moodlegovapp.data.network.datasource.BadgesDataSource
+import com.example.moodlegovapp.data.network.datasource.CertificatesDataSource
+import com.example.moodlegovapp.data.network.datasource.CoursesDataSource
+import com.example.moodlegovapp.data.network.datasource.EventsDataSource
+import com.example.moodlegovapp.data.network.datasource.LeaderboardDataSource
+import com.example.moodlegovapp.data.network.datasource.NotificationsDataSource
+import com.example.moodlegovapp.data.network.datasource.SearchDataSource
+import com.example.moodlegovapp.data.network.datasource.StatsDataSource
+import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ApiServiceProtocol {
-    // AUTH
-    suspend fun login(username: String, password: String): AppResult<AuthToken>
-
-    // USER
-    suspend fun getUserProfile(): AppResult<UserProfile>
-    suspend fun getPerformanceOverview(): AppResult<PerformanceOverview>
-
-    // COURSES
-    suspend fun getEnrolledCourses(): AppResult<List<Course>>
-    suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail>
-    suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>>
-    suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>>
-
-    // ASSIGNMENTS
-    suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>>
-    suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment>
-    suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit>
-
-    // NOTIFICATIONS
-    suspend fun getNotifications(): AppResult<List<Notification>>
-    suspend fun markNotificationRead(notificationId: Int): AppResult<Unit>
-
-    // CERTIFICATES
-    suspend fun getCertificates(): AppResult<List<Certificate>>
-    suspend fun getCertificateDownloadUrl(certificateId: Int): AppResult<String>
-
-    // LEADERBOARD
-    suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData>
-
-    // BADGES
-    suspend fun getBadges(): AppResult<List<Badge>>
-
-    // SCHEDULE
-    suspend fun getUpcomingEvents(): AppResult<List<TrainingEvent>>
-
-    // STATS
-    suspend fun getTrainingStats(): AppResult<TrainingStats>
-
-    // SEARCH
-    suspend fun searchCourses(query: String): AppResult<List<Course>>
-
-    // ACTIVITY
-    suspend fun updateActivityCompletion(activityId: Int, completed: Boolean): AppResult<Unit>
-}
+interface ApiServiceProtocol :
+    AuthDataSource,
+    UserDataSource,
+    CoursesDataSource,
+    AssignmentsDataSource,
+    NotificationsDataSource,
+    CertificatesDataSource,
+    LeaderboardDataSource,
+    BadgesDataSource,
+    EventsDataSource,
+    StatsDataSource,
+    SearchDataSource,
+    ActivityDataSource
 
 
 interface RetrofitApiService {

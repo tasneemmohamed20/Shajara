@@ -19,7 +19,7 @@ object RetrofitClient {
     fun create(
         dataStoreManager: DataStoreManager,
         isDebug: Boolean = false,
-        stripJsonComments: Boolean = NetworkConfig.USE_MOCK && NetworkConfig.USE_REMOTE_MOCK
+        stripJsonComments: Boolean = NetworkConfig.USE_REMOTE_MOCK
     ): RetrofitApiService {
 
         // ── Auth interceptor: attaches token ──

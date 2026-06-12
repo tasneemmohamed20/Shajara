@@ -43,7 +43,7 @@ class RealApiService(
 
     // ── USER ──────────────────────────────────
     override suspend fun getUserProfile(): AppResult<UserProfile> {
-        return when (val result = safeCall { retrofit.getUserProfile(userId()) }) {
+        return when (val result = safeCall<UserResponse> { retrofit.getUserProfile(userId()) }) {
             is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
                                     ?: AppResult.Failure(AppError.DecodingError)
             is AppResult.Failure -> result

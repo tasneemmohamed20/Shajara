@@ -1,5 +1,6 @@
 package com.example.moodlegovapp.data.network.datasource
 
+import com.example.moodlegovapp.data.network.AppError
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.data.network.NetworkCallHandler
 import com.example.moodlegovapp.data.network.RetrofitApiService
@@ -11,14 +12,19 @@ import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
+import com.example.moodlegovapp.domain.models.CourseDetail
+import com.example.moodlegovapp.domain.models.CourseDetailsResponse
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
+import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.domain.models.UserResponse
 
 /**
  * Remote data source implementation that wraps Retrofit calls.
@@ -53,9 +59,14 @@ class RemoteDataSource(
 
     // ── USER ──────────────────────────────────────────────────────
 
-    override suspend fun getUserProfile(): AppResult<User> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
+    override suspend fun getUserProfile(): AppResult<UserProfile> {
+        return when (val result = NetworkCallHandler.safeCall(retryPolicy) {
             retrofit.getUserProfile(getCurrentUserId())
+        }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 
@@ -73,9 +84,14 @@ class RemoteDataSource(
         }
     }
 
-    override suspend fun getCourseDetail(courseId: Int): AppResult<Course> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
+    override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> {
+        return when (val result = NetworkCallHandler.safeCall<CourseDetailsResponse>(retryPolicy) {
             retrofit.getCourseDetail(courseId)
+        }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 
@@ -135,9 +151,14 @@ class RemoteDataSource(
 
     // ── LEADERBOARD ────────────────────────────────────────────────
 
-    override suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
+    override suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData> {
+        return when (val result = NetworkCallHandler.safeCall<LeaderboardResponse>(retryPolicy) {
             retrofit.getLeaderboard(courseId)
+        }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 

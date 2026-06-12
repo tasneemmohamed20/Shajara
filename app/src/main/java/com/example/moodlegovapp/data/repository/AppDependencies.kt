@@ -59,10 +59,10 @@ class AppDependencies private constructor(context: Context) {
     }
 
     val notificationsRepository: NotificationsRepository by lazy {
-        NotificationsRepository(api = apiService)
+        NotificationsRepository(notificationsDataSource = apiService)
     }
 
     val certificatesRepository: CertificatesRepository by lazy {
-        CertificatesRepository(api = apiService)
+        CertificatesRepository(certificatesDataSource = apiService)
     }
 }
