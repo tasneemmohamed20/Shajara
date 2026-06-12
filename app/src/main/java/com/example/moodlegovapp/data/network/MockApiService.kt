@@ -23,12 +23,14 @@ import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.LeaderboardData
+import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.domain.models.UserResponse
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
@@ -75,10 +77,12 @@ class MockApiService(
         }
     }
 
-    override suspend fun getUserProfile(): AppResult<User> {
+    override suspend fun getUserProfile(): AppResult<UserProfile> {
         fakeDelay()
         return try {
-            AppResult.Success(readJson(R.raw.mock_user_profile, object : TypeToken<User>() {}))
+            val response = readJson(R.raw.mock_user_profile, object : TypeToken<UserResponse>() {})
+            response.data?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.DecodingError)
         } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
@@ -187,9 +191,15 @@ class MockApiService(
         return AppResult.Success("https://mock.gov.ae/certificates/$certificateId.pdf")
     }
 
-    override suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>> {
+    override suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData> {
         fakeDelay()
-        return AppResult.Success(emptyList())
+        return try {
+            val response = readJson(R.raw.mock_leaderboard, object : TypeToken<LeaderboardResponse>() {})
+            response.data?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.DecodingError)
+        } catch (_: Exception) {
+            AppResult.Failure(AppError.DecodingError)
+        }
     }
 
     override suspend fun getBadges(): AppResult<List<Badge>> {

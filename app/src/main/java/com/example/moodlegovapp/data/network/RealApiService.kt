@@ -1,29 +1,25 @@
 package com.example.moodlegovapp.data.network
 
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.Assignment
-import com.example.moodlegovapp.domain.models.AssignmentSubmission
-import com.example.moodlegovapp.domain.models.AuthToken
-import com.example.moodlegovapp.domain.models.Badge
-import com.example.moodlegovapp.domain.models.Certificate
-import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
-import com.example.moodlegovapp.domain.models.Notification
-import com.example.moodlegovapp.domain.models.PerformanceOverview
-import com.example.moodlegovapp.domain.models.TrainingEvent
-import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
 
-/**
- * DEPRECATED: Use RemoteDataSource instead.
- * This class is kept for backward compatibility but should not be used for new code.
- */
-@Deprecated(
-    message = "Use RemoteDataSource instead",
-    replaceWith = ReplaceWith("RemoteDataSource")
-)
+import retrofit2.Response
+import  com.example.moodlegovapp.domain.models.Assignment
+import  com.example.moodlegovapp.domain.models.AssignmentSubmission
+import  com.example.moodlegovapp.domain.models.Notification
+import  com.example.moodlegovapp.domain.models.Badge
+import  com.example.moodlegovapp.domain.models.Certificate
+import  com.example.moodlegovapp.domain.models.Course
+import  com.example.moodlegovapp.domain.models.CourseModule
+import  com.example.moodlegovapp.domain.models.CourseResource
+import  com.example.moodlegovapp.domain.models.LeaderboardData
+import  com.example.moodlegovapp.domain.models.LeaderboardResponse
+import  com.example.moodlegovapp.domain.models.PerformanceOverview
+import  com.example.moodlegovapp.domain.models.TrainingEvent
+import  com.example.moodlegovapp.domain.models.TrainingStats
+import  com.example.moodlegovapp.domain.models.UserProfile
+import  com.example.moodlegovapp.domain.models.UserResponse
+import  com.example.moodlegovapp.domain.models.AuthToken
+
 class RealApiService(
     private val retrofit: RetrofitApiService,
     private val dataStoreManager: DataStoreManager
@@ -44,8 +40,13 @@ class RealApiService(
     }
 
     // ── USER ──────────────────────────────────
-    override suspend fun getUserProfile(): AppResult<User> {
-        return safeCall { retrofit.getUserProfile(userId()) }
+    override suspend fun getUserProfile(): AppResult<UserProfile> {
+        return when (val result = safeCall { retrofit.getUserProfile(userId()) }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     override suspend fun getPerformanceOverview(): AppResult<PerformanceOverview> {
@@ -101,8 +102,13 @@ class RealApiService(
     }
 
     // ── LEADERBOARD ───────────────────────────
-    override suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>> {
-        return safeCall { retrofit.getLeaderboard(courseId) }
+    override suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData> {
+        return when (val result = safeCall { retrofit.getLeaderboard(courseId) }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     // ── BADGES ────────────────────────────────

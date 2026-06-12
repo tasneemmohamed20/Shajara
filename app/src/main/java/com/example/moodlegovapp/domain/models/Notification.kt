@@ -1,19 +1,22 @@
 package com.example.moodlegovapp.domain.models
 
-enum class NotificationType {
-    COURSE,
-    ACHIEVEMENT,
-    SCHEDULE,
-    CERTIFICATE,
-    ASSIGNMENT
-}
+import com.google.gson.annotations.SerializedName
 
 data class Notification(
     val id: Int,
     val title: String,
-    val message: String,
-    val timeCreated: Long,
-    val isRead: Boolean,
-    val type: NotificationType,
-    val iconUrl: String
+    val body: String,
+    @SerializedName("NotificationType")
+    val notificationType: String,
+    val shortBody: String,
+    val type: String,
+    val read: Boolean,
+    val createdAt: String,
+    val createdAtFormatted: String,
+    val deepLink: String,
+    val iconType: String,
+    val courseName: String,
+    val sessionDate: String,
+    val sessionTime: String,
+    val location: String
 )

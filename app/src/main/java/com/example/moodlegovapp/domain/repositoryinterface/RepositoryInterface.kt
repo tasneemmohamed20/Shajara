@@ -9,12 +9,12 @@ import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 
 interface AuthRepositoryProtocol {
     suspend fun login(username: String, password: String): AppResult<AuthToken>
@@ -23,10 +23,10 @@ interface AuthRepositoryProtocol {
 }
 
 interface UserRepositoryProtocol {
-    suspend fun getUserProfile(): AppResult<User>
+    suspend fun getUserProfile(): AppResult<UserProfile>
     suspend fun getPerformanceOverview(): AppResult<PerformanceOverview>
     suspend fun getBadges(): AppResult<List<Badge>>
-    suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>>
+    suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData>
     suspend fun getTrainingStats(): AppResult<TrainingStats>
     suspend fun getUpcomingEvents(): AppResult<List<TrainingEvent>>
 }

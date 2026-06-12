@@ -1,12 +1,70 @@
 {
-  "id": 42,
-  "fullName": "Ahmed Al Mansoori",
-  "role": "Cadet • Batch 42",
-  "profileImageUrl": "",
-  "level": 5,
-  "rank": "Rank #12",
-  "totalXP": 1250,
-  "xpToNextLevel": 120,
-  "nextLevel": 6,
-  "overallProgress": 78
+  "success": true,
+  "data": {
+    "id": 42,
+    "fullName": "Ahmed Al Mansoori",
+    "email": "ahmed.mansoori@sharjahpolice.ae",
+    "profileImageUrl": "",
+    "role": "Cadet",
+    "department": "Criminal Investigation",
+    "institution": "Sharjah Police Academy",
+    "batch": "Batch 42",
+    "rank": "Rank #12",
+    "rankNumber": 12,
+    "level": 5,
+    "totalXP": 1250,
+    "xpToNextLevel": 120,
+    "xpProgressPercent": 78,
+    "performance": {
+      "overallProgress": 78,
+      "overallProgressLabel": "78%",
+      "averageGrade": 85,
+      "averageGradeLabel": "85%",
+      "taskCompletion": 12,
+      "taskCompletionLabel": "12 tasks"
+    },
+    "badges": [
+      {
+        "id": "b1",
+        "name": "Fast Learner",
+        "icon": "badge_fast_learner",
+        "earnedAt": "2024-09-15"
+      },
+      {
+        "id": "b2",
+        "name": "Top Performer",
+        "icon": "badge_top_performer",
+        "earnedAt": "2024-10-01"
+      }
+    ],
+    "certificates": [
+      {
+        "id": "cert_1",
+        "courseName": "Advanced Criminal Investigation",
+        "instructorName": "Maj. Ahmed Al-Mansouri",
+        "status": "completed",
+        "approvalStatus": "approved",
+        "completedAtFormatted": "Oct 10, 2024",
+        "viewUrl": "https://lms.sharjahpolice.ae/certificates/cert_1/view",
+        "downloadUrl": "https://lms.sharjahpolice.ae/certificates/cert_1/download",
+        "isAvailable": true
+      },
+      {
+        "id": "cert_2",
+        "courseName": "Community Engagement Workshop",
+        "instructorName": "Lt. Sara Al-Mansoori",
+        "status": "pending",
+        "approvalStatus": "pending_approval",
+        "completedAtFormatted": "Oct 20, 2024",
+        "viewUrl": null,
+        "downloadUrl": null,
+        "isAvailable": false,
+        "pendingMessage": "Awaiting supervisor approval"
+      }
+    ],
+    "settings": {
+      "language": "ar",
+      "notificationsEnabled": true
+    }
+  }
 }
