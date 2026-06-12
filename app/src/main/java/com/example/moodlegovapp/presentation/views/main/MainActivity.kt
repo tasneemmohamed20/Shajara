@@ -64,14 +64,25 @@ class MainActivity : AppCompatActivity() {
                     val session = remember { assembly.sharedSession }
                     val authToken by session.authToken.observeAsState()
 
-                    val startGraphRoot = if (authToken != null) "main_app_root" else "auth_root"
                     val rootNavController = rememberNavController()
 
                     NavHost(
                         navController = rootNavController,
-                        startDestination = startGraphRoot,
+                        startDestination = ScreensRoute.Splash.route,
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        composable(ScreensRoute.Splash.route) {
+                            com.example.moodlegovapp.presentation.views.splash.SplashScreen(
+                                session = session,
+                                onSplashFinished = { isAuthenticated ->
+                                    val destination = if (isAuthenticated) "main_app_root" else "auth_root"
+                                    rootNavController.navigate(destination) {
+                                        popUpTo(ScreensRoute.Splash.route) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
                         // Unauthenticated Context Wrapper
                         composable("auth_root") {
                             val loginNavController = rememberNavController()
