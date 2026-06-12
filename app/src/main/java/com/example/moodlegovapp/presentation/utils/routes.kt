@@ -14,7 +14,6 @@ sealed class ScreensRoute(val route: String) : Serializable {
     object LoginStepOne : ScreensRoute("loginOne")
     object LoginStepTwo : ScreensRoute("loginTwo")
 
-    // Changed to an object with an explicit path compiler and an instantiation helper
     object CourseDetail : ScreensRoute("course_detail/{courseId}") {
         fun createRoute(courseId: Int): String = "course_detail/$courseId"
     }

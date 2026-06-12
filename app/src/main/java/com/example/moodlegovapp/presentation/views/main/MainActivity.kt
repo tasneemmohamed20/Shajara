@@ -27,6 +27,7 @@ import androidx.navigation.navArgument
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
+import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
@@ -128,6 +129,10 @@ fun NavGraphBuilder.mainAppGraph(
             assembly = assembly,
             onCourseClick = { courseId ->
                 navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId))
+            },
+            onLeaderboardClick = {
+                // Navigate to full leaderboard screen
+                // e.g., navController.navigate("leaderboard")
             }
         )
     }
@@ -161,11 +166,15 @@ fun NavGraphBuilder.mainAppGraph(
         arguments = listOf(navArgument("courseId") { type = NavType.IntType })
     ) { backStackEntry ->
         val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
-        Surface(modifier = Modifier.fillMaxSize(), color = SpColors.LightGray) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Course Detail #$courseId", style = SpTypography.headingL(), color = SpColors.DarkBrown)
-            }
-        }
+        val vm = remember(courseId) { assembly.makeCourseDetailViewModel(courseId) }
+
+        CourseOverviewScreen(
+            vm = vm,
+            onBackClick = { navController.popBackStack() },
+            onReviewAssignmentClick = { },
+            onActivityClick = { },
+            onResourcesClick = { }
+        )
     }
 }
 

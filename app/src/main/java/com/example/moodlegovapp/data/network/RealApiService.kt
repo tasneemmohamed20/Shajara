@@ -8,6 +8,8 @@ import  com.example.moodlegovapp.domain.models.Notification
 import  com.example.moodlegovapp.domain.models.Badge
 import  com.example.moodlegovapp.domain.models.Certificate
 import  com.example.moodlegovapp.domain.models.Course
+import  com.example.moodlegovapp.domain.models.CourseDetail
+import  com.example.moodlegovapp.domain.models.CourseDetailsResponse
 import  com.example.moodlegovapp.domain.models.CourseModule
 import  com.example.moodlegovapp.domain.models.CourseResource
 import  com.example.moodlegovapp.domain.models.LeaderboardData
@@ -71,12 +73,21 @@ class RealApiService(
         return safeCall { retrofit.getEnrolledCourses(userId()) }
     }
 
-    override suspend fun getCourseDetail(courseId: Int): AppResult<Course> {
-        return safeCall { retrofit.getCourseDetail(courseId) }
+    override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> {
+        return when (val result = safeCall { retrofit.getCourseDetail(courseId) }) {
+            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
+                                    ?: AppResult.Failure(AppError.DecodingError)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     override suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>> {
-        return safeCall { retrofit.getCourseModules(courseId) }
+        return when (val result = getCourseDetail(courseId)) {
+            is AppResult.Success -> AppResult.Success(result.data.modules)
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
