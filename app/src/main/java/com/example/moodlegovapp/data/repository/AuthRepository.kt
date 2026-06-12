@@ -1,58 +1,43 @@
 package com.example.moodlegovapp.data.repository
 
 import android.util.Log
-import com.example.moodlegovapp.data.network.ApiServiceProtocol
-import com.example.moodlegovapp.data.network.AppError
 import com.example.moodlegovapp.data.network.AppResult
-import com.example.moodlegovapp.data.network.MockApiService
-import com.example.moodlegovapp.data.network.NetworkConfig
+import com.example.moodlegovapp.data.network.datasource.AuthDataSource
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.data.service.DataStoreManager.Companion.KEY_TOKEN
 import com.example.moodlegovapp.domain.repositoryinterface.AuthRepositoryProtocol
 import com.example.moodlegovapp.domain.models.AuthToken
 
+/**
+ * Auth Repository that coordinates the active auth data source (local mock or remote).
+ * Data source selection is handled upstream in AppDependencies.
+ */
 class AuthRepository(
-    private val api: ApiServiceProtocol,
-    private val dataStoreManager: DataStoreManager,
-    private val localMock: MockApiService? = null  // fallback if remote mock fails
+    private val remoteDataSource: AuthDataSource,
+    private val dataStoreManager: DataStoreManager
 ) : AuthRepositoryProtocol {
 
     override suspend fun login(username: String, password: String): AppResult<AuthToken> {
-        val result = api.login(username, password)
+        val result = remoteDataSource.login(username, password)
 
         return when (result) {
             is AppResult.Success -> {
-//                dataStoreManager.saveToken(result.data.token)
-                dataStoreManager.save(DataStoreManager.Companion.KEY_TOKEN, result.data.token)
+                dataStoreManager.save(KEY_TOKEN, result.data.token)
+                Log.d("AuthRepository", "Login successful, token cached")
                 result
             }
             is AppResult.Failure -> {
-                // mirrors iOS AuthRepository fallback:
-                // if remote mock returns 404 or 503 → fall back to local MockApiService
-                val shouldFallback = when (result.error) {
-                    is AppError.NotFound              -> true
-                    is AppError.ServerError           -> result.error.code == 503
-                    is AppError.NetworkError          -> true
-                    else                              -> false
-                }
-
-                if (shouldFallback && NetworkConfig.USE_MOCK && localMock != null) {
-                    Log.d("AuthRepository", "Remote mock failed — falling back to local MockApiService")
-                    val fallback = localMock.login(username, password)
-                    if (fallback is AppResult.Success) {
-//                        dataStoreManager.saveToken(fallback.data.token)
-                        dataStoreManager.save(DataStoreManager.Companion.KEY_TOKEN, fallback.data.token)
-                    }
-                    fallback
-                } else {
-                    result
-                }
+                Log.e("AuthRepository", "Login failed: ${result.error.errorDescription}")
+                result
             }
             is AppResult.Loading -> result
         }
     }
 
-    override suspend fun logout() = dataStoreManager.clearAll()
+    override suspend fun logout() {
+        dataStoreManager.clearAll()
+        Log.d("AuthRepository", "User logged out, cache cleared")
+    }
 
     suspend fun checkUserStatus(): Boolean {
         val token = dataStoreManager.get<String>(KEY_TOKEN)

@@ -2,6 +2,18 @@ package com.example.moodlegovapp.data.network
 
 import android.content.Context
 import com.example.moodlegovapp.R
+import com.example.moodlegovapp.data.network.datasource.ActivityDataSource
+import com.example.moodlegovapp.data.network.datasource.AssignmentsDataSource
+import com.example.moodlegovapp.data.network.datasource.AuthDataSource
+import com.example.moodlegovapp.data.network.datasource.BadgesDataSource
+import com.example.moodlegovapp.data.network.datasource.CertificatesDataSource
+import com.example.moodlegovapp.data.network.datasource.CoursesDataSource
+import com.example.moodlegovapp.data.network.datasource.EventsDataSource
+import com.example.moodlegovapp.data.network.datasource.LeaderboardDataSource
+import com.example.moodlegovapp.data.network.datasource.NotificationsDataSource
+import com.example.moodlegovapp.data.network.datasource.SearchDataSource
+import com.example.moodlegovapp.data.network.datasource.StatsDataSource
+import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
@@ -24,7 +36,19 @@ import kotlinx.coroutines.delay
 class MockApiService(
     private val context: Context,
     private val dataStoreManager: DataStoreManager
-) : ApiServiceProtocol {
+) : ApiServiceProtocol,
+    AuthDataSource,
+    UserDataSource,
+    CoursesDataSource,
+    AssignmentsDataSource,
+    NotificationsDataSource,
+    CertificatesDataSource,
+    LeaderboardDataSource,
+    BadgesDataSource,
+    EventsDataSource,
+    StatsDataSource,
+    SearchDataSource,
+    ActivityDataSource {
 
     private val gson = Gson()
 

@@ -36,6 +36,7 @@ object SpColors {
 
     val ProgressBg    = Color(0xFFE5E7EB)
     val ProgressFill  = Color(0xFFC9A84C)
+    val blackLabel = Color(0xFF1A1A1A)
 }
 
 // ─────────────────────────────────────────────

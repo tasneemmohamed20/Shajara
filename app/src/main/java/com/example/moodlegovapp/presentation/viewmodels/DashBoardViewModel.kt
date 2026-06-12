@@ -1,5 +1,6 @@
 package com.example.moodlegovapp.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moodlegovapp.data.network.AppResult
@@ -47,7 +48,9 @@ class DashboardViewModel(
                 val userResult = userDeferred.await()
                 val coursesResult = coursesDeferred.await()
                 val notificationsResult = notificationsDeferred.await()
-
+                Log.i("dashboardVM", userResult.let {
+                    user.value?.profileImageUrl ?: "null url"
+                })
                 if (userResult is AppResult.Success) {
                     _user.value = userResult.data
                 }
