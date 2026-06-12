@@ -18,7 +18,8 @@ object RetrofitClient {
 
     fun create(
         dataStoreManager: DataStoreManager,
-        isDebug: Boolean = false
+        isDebug: Boolean = false,
+        stripJsonComments: Boolean = NetworkConfig.USE_MOCK && NetworkConfig.USE_REMOTE_MOCK
     ): RetrofitApiService {
 
         // ── Auth interceptor: attaches token ──
@@ -63,6 +64,10 @@ object RetrofitClient {
             .readTimeout(NetworkConfig.READ_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(NetworkConfig.WRITE_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(authInterceptor)
+            .apply {
+                // Strip JS-style // comments that Postman mock server injects into responses
+                if (stripJsonComments) addInterceptor(CommentStripperInterceptor())
+            }
             .addInterceptor(logging)
             // Certificate pinning — uncomment when real server cert is available
             // .certificatePinner(
