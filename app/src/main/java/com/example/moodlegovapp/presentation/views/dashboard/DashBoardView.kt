@@ -11,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,13 +30,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -59,20 +56,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.core.DependencyContainer
-import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
+import com.example.moodlegovapp.presentation.views.dashboard.components.CohortRankCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.CompletedCourseCard
 import com.example.moodlegovapp.presentation.views.dashboard.components.ContinueTrainingSectionCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.CourseListCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardLeaderboardWidget
 import com.example.moodlegovapp.presentation.views.dashboard.components.DashboardMetricsRow
+import com.example.moodlegovapp.presentation.views.dashboard.components.DetailedMetricsCard
+import com.example.moodlegovapp.presentation.views.dashboard.components.ScheduleEvent
+import com.example.moodlegovapp.presentation.views.dashboard.components.SchedulePeriod
+import com.example.moodlegovapp.presentation.views.dashboard.components.SectionHeader
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilter
 import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingFilterRow
+import com.example.moodlegovapp.presentation.views.dashboard.components.TrainingScheduleSection
+import com.example.moodlegovapp.presentation.views.dashboard.components.XpProgressCard
 import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
@@ -87,16 +92,56 @@ fun DashboardScreen(
     // Collect each StateFlow from the ViewModel individually
     val user by vm.user.collectAsState()
     val enrolledCourses by vm.enrolledCourses.collectAsState()
-    val notifications by vm.notifications.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
+    val unreadCount by vm.unreadCount.collectAsState()
     val profileUrl = "https://m.media-amazon.com/images/I/615JjV818kL._AC_SL1500_.jpg"
     var searchQuery by remember { mutableStateOf("") }
-    // Derived values — computed from VM state, not from VM directly
-    val unreadCount = notifications.count { !it.isRead }
     var currentFilter by remember { mutableStateOf(TrainingFilter.ACTIVE) }
     val pullState = rememberPullToRefreshState()
-    val dueActivities = enrolledCourses.size - (user?.overallProgress ?: 10)
+    var activeSchedulePeriod by remember { mutableStateOf(SchedulePeriod.TODAY) }
+
+    val dueActivities = enrolledCourses.size - (user?.performance?.overallProgress ?: 10)
+    val rawNotifications by vm.notifications.collectAsState()
+
+    val formattedEvents = remember(rawNotifications) {
+        rawNotifications.map { notif ->
+            val resourceId = when (notif.iconType.lowercase()) {
+                "assignment"  -> R.drawable.ic_tasks
+                "certificate" -> R.drawable.ic_completed
+                "achievement" -> R.drawable.ic_completed
+                "course"      -> R.drawable.ic_courses
+                else          -> R.drawable.notification_icon
+            }
+            val timeAndDate = when {
+                notif.sessionDate.isNotBlank() && notif.sessionTime.isNotBlank() ->
+                    "${notif.sessionDate} · ${notif.sessionTime}"
+                notif.sessionDate.isNotBlank() -> notif.sessionDate
+                else -> notif.createdAtFormatted
+            }
+            ScheduleEvent(
+                id          = notif.id,
+                title       = notif.title,
+                type        = notif.notificationType,
+                category    = notif.shortBody.ifBlank { notif.body },
+                timeAndDate = timeAndDate,
+                location    = notif.location,
+                instructor  = "Maj. Ahmed Al-Mansouri",
+                iconRes     = resourceId
+            )
+        }
+    }
+
+    val leaderboardData by vm.leaderboard.collectAsState()
+    val completedCertificates = remember(user?.certificates) {
+        user?.certificates?.take(3).orEmpty()
+    }
+
+    val onLeaderboardClick = {
+        // Navigate to full leaderboard screen
+        // e.g., navController.navigate("leaderboard")
+    }
+
     LaunchedEffect(Unit) {
         vm.loadAll()
         user?.let { Log.i("dashboard", it.profileImageUrl) }
@@ -114,7 +159,6 @@ fun DashboardScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // ── Header ────────────────────────────
                 item {
@@ -151,14 +195,26 @@ fun DashboardScreen(
                     DashboardMetricsRow(
                         activeCoursesCount = enrolledCourses.size,
                         dueActivitiesCount = dueActivities,
-                        completedCount = user?.overallProgress ?: 10,
+                        completedCount = user?.performance?.overallProgress ?: 10,
 //                        modifier =  Modifier.padding(16.dp)
+                    )
+                }
+
+
+                item {
+                    TrainingScheduleSection(
+                        currentPeriod = activeSchedulePeriod,
+                        onPeriodChange = { activeSchedulePeriod = it },
+                        upcomingEventsList = formattedEvents,
+                        onEventClick = { },
+                        onGoToCalendarClick = { /* Handle Navigation Intent */ },
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
 
                 // ── All Training Programs ─────────────
                 item {
-                    AllCoursesHeader(count = enrolledCourses.size)
+                    SectionHeader(title = stringResource(R.string.dashboard_all_programs), count = enrolledCourses.size)
                 }
 
                 items(enrolledCourses) { course ->
@@ -169,6 +225,80 @@ fun DashboardScreen(
                     )
                 }
 
+                item {
+
+                    SectionHeader("Your Achievements")
+                }
+
+                user?.let { userProfile -> // Ensures your UserProfile data isn't null before rendering
+                    item {
+                        XpProgressCard(
+                            userProfile = userProfile,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                        CohortRankCard(
+                            userProfile = userProfile,
+                            onRankCardClick = {
+                                // Navigate to your Leaderboard screen here
+                                // e.g., navController.navigate("leaderboard")
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                        DetailedMetricsCard(
+                            userProfile = userProfile,
+                            onViewAllBadgesClick = {
+                                // Navigate to all badges grid
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(Modifier.height(16.dp))
+                    DashboardLeaderboardWidget(
+                        leaderboard = leaderboardData,
+                        isLoading = isLoading && leaderboardData == null,
+                        onViewAllClick = onLeaderboardClick,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                item {
+                    SectionHeader(
+                        title = stringResource(R.string.completed),
+                        count = user?.certificates?.size,
+                        color = AppColors.Success
+                    )
+                }
+
+                if (completedCertificates.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No completed courses yet",
+                            style = SpTypography.bodySecondary(),
+                            color = AppColors.TextSecondary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                } else {
+                    items(completedCertificates, key = { it.id }) { certificate ->
+                        CompletedCourseCard(
+                            certificate = certificate,
+                            onViewCertificateClick = { /* Open certificate URL */ },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                }
                 // ── Error Message ─────────────────────
                 errorMessage?.let { err ->
                     item {
@@ -196,14 +326,9 @@ fun DashboardScreen(
     }
 }
 
-// ─────────────────────────────────────────────
-// DASHBOARD HEADER
-// mirrors iOS DashboardHeaderView
-// ─────────────────────────────────────────────
-
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl: String) {
+private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -284,7 +409,7 @@ private fun DashboardHeader(user: User?, unreadCount: Int, profileUrl: String) {
             }
             Spacer(Modifier.height(16.dp))
             OverallProgressCard(
-                progress = user?.overallProgress ?: 0,
+                progress = user?.performance?.overallProgress ?: 0,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }
@@ -330,150 +455,6 @@ private fun OverallProgressCard(progress: Int, modifier: Modifier = Modifier) {
     }
 }
 
-// ─────────────────────────────────────────────
-// ALL COURSES HEADER
-// ─────────────────────────────────────────────
-
-@Composable
-private fun AllCoursesHeader(count: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // The vertical navy blue indicator line
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .height(24.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(Color(0xFF1A3550))
-            )
-
-            Text(
-                text = stringResource(R.string.dashboard_all_programs),
-                style = SpTypography.titleCard(),
-                color = SpColors.DarkBrown,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Text(
-            text = "$count ${stringResource(R.string.dashboard_enrolled)}",
-            style = SpTypography.caption(),
-            color = SpColors.DarkGray.copy(alpha = 0.8f) // Soft gray tint matching the design asset
-        )
-    }
-}
-
-// ─────────────────────────────────────────────
-// COURSE LIST CARD
-// mirrors iOS CourseListCard
-// ─────────────────────────────────────────────
-
-@Composable
-private fun CourseListCard(
-    course: Course, onClick: () -> Unit, modifier: Modifier = Modifier
-) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = course.progress / 100f,
-        animationSpec = tween(800, easing = EaseOut),
-        label = "cardProgress"
-    )
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = SpColors.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
-        Column {
-            // Image area with gradient
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(
-                        Brush.linearGradient(listOf(Color(0xFF2F5D8A), Color(0xFF1A3550)))
-                    )
-                    .padding(16.dp), contentAlignment = Alignment.BottomStart
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.9f),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = course.instructorName,
-                            style = SpTypography.caption(),
-                            color = Color.White.copy(alpha = 0.9f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Text(
-                        text = course.dueIn,
-                        style = SpTypography.caption(),
-                        color = SpColors.Warning
-                    )
-                }
-            }
-
-            // Course info
-            Column(
-                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = course.title,
-                    style = SpTypography.label(),
-                    color = SpColors.DarkBrown,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    LinearProgressIndicator(
-                        progress = { animatedProgress },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
-                        color = SpColors.Gold,
-                        trackColor = SpColors.ProgressBg
-                    )
-                    Text(
-                        text = "${course.progress}%",
-                        style = SpTypography.caption(),
-                        color = SpColors.DarkGray,
-                        modifier = Modifier.width(36.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────
-// EMPTY & LOADING STATES
-// ─────────────────────────────────────────────
 
 @Composable
 fun EmptyStateView(message: String, modifier: Modifier = Modifier) {
@@ -573,7 +554,8 @@ fun TrainingSearchBar(
                     onSearch = {
                         focusManager.clearFocus() // Closes keyboard on search click
                     }),
-                modifier = Modifier.fillMaxWidth())
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

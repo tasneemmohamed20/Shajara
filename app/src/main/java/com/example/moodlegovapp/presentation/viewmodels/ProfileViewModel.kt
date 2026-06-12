@@ -6,7 +6,7 @@ import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.PerformanceOverview
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.repositoryinterface.CertificatesRepositoryProtocol
 import com.example.moodlegovapp.domain.repositoryinterface.UserRepositoryProtocol
 import kotlinx.coroutines.async
@@ -19,8 +19,8 @@ class ProfileViewModel(
     private val certificatesRepository: CertificatesRepositoryProtocol
 ) : ViewModel() {
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user
+    private val _user = MutableStateFlow<UserProfile?>(null)
+    val user: StateFlow<UserProfile?> = _user
 
     private val _performance = MutableStateFlow<PerformanceOverview?>(null)
     val performance: StateFlow<PerformanceOverview?> = _performance

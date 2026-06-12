@@ -8,12 +8,14 @@ import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
+import com.example.moodlegovapp.domain.models.LeaderboardData
+import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.User
+import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.domain.models.UserResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -23,7 +25,7 @@ interface ApiServiceProtocol {
     suspend fun login(username: String, password: String): AppResult<AuthToken>
 
     // USER
-    suspend fun getUserProfile(): AppResult<User>
+    suspend fun getUserProfile(): AppResult<UserProfile>
     suspend fun getPerformanceOverview(): AppResult<PerformanceOverview>
 
     // COURSES
@@ -46,7 +48,7 @@ interface ApiServiceProtocol {
     suspend fun getCertificateDownloadUrl(certificateId: Int): AppResult<String>
 
     // LEADERBOARD
-    suspend fun getLeaderboard(courseId: Int): AppResult<List<LeaderboardEntry>>
+    suspend fun getLeaderboard(courseId: Int): AppResult<LeaderboardData>
 
     // BADGES
     suspend fun getBadges(): AppResult<List<Badge>>
@@ -78,7 +80,7 @@ interface RetrofitApiService {
     @GET("user/profile")
     suspend fun getUserProfile(
         @Query("id") userId: Int
-    ): Response<User>
+    ): Response<UserResponse>
 
     @GET("progress/overview")
     suspend fun getPerformanceOverview(
@@ -134,11 +136,10 @@ interface RetrofitApiService {
     ): Response<List<Certificate>>
 
     // LEADERBOARD
-    @GET("courses")
+    @GET("leaderboard")
     suspend fun getLeaderboard(
-        @Query("courseId")    courseId: Int,
-        @Query("leaderboard") leaderboard: String = "true"
-    ): Response<List<LeaderboardEntry>>
+        @Query("courseId") courseId: Int
+    ): Response<LeaderboardResponse>
 
     // BADGES
     @GET("user/preferences")

@@ -18,4 +18,6 @@ object AppColors {
     val Success = Color(0xFF2E7D32)
     val green = Color(0xFF22C55E)
     val NavyGradient = Brush.linearGradient(listOf(Navy, NavyDark))
+
+    val darkBlue = Color(0xFF1B365D )
 }
