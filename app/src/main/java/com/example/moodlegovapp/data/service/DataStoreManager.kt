@@ -47,6 +47,7 @@ class DataStoreManager private constructor(val context: Context) {
         val KEY_TOKEN = stringPreferencesKey("auth_token")
         val KEY_PRIVATE_TOKEN = stringPreferencesKey("private_token")
         val KEY_USER_ID = stringPreferencesKey("user_id")
+        val KEY_LANGUAGE = stringPreferencesKey("app_language")
 
         @Volatile private var instance: DataStoreManager? = null
 
@@ -75,6 +76,14 @@ class DataStoreManager private constructor(val context: Context) {
     }
 
     // ── REACTIVE CACHE (For the Interceptor) ──
+
+    val languageState: StateFlow<String?> = context.dataStore.data
+        .map { prefs -> decrypt(prefs[KEY_LANGUAGE]) }
+        .stateIn(
+            scope = applicationScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
 
     /**
      * 2. This StateFlow eagerly reads the token from disk on initialization and

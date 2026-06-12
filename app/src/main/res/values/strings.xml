@@ -20,10 +20,23 @@
     <string name="login_secure_body">This portal is for authorized personnel only. All access is monitored and logged.</string>
     <string name="login_need_help">Need help?</string>
     <string name="login_contact_support">Contact Support</string>
+    <!-- Login Step One -->
+    <string name="login_step1_welcome_title">Welcome to\nTraining Platform</string>
+    <string name="login_step1_welcome_subtitle">Choose your preferred language to continue and review important platform information.</string>
+    <string name="login_step1_language_label">Language</string>
+    <string name="login_step1_lang_english">English</string>
+    <string name="login_step1_lang_arabic">العربية</string>
+    <string name="login_step1_security_title">SECURITY &amp; PRIVACY</string>
+    <string name="login_step1_security_subtitle">Encrypted and monitored by SP IT Security</string>
+    <string name="login_step1_continue">Continue</string>
+    <string name="lang_dialog_title">Restart Required</string>
+    <string name="lang_dialog_message">The app will restart to apply the selected language. Do you want to continue?</string>
+    <string name="lang_dialog_ok">OK</string>
+    <string name="lang_dialog_cancel">Cancel</string>
 
     <!-- Dashboard -->
     <string name="dashboard_overall_progress">OVERALL PROGRESS</string>
-    <string name="dashboard_search_hint">Search training programs...</string>
+    <string name="dashboard_search_hint">Search training programs…</string>
     <string name="dashboard_continue_training">Continue Training</string>
     <string name="dashboard_pick_up">Pick up where you left off</string>
     <string name="dashboard_active">Active</string>
@@ -34,12 +47,54 @@
     <string name="dashboard_today">Today</string>
     <string name="dashboard_this_week">This Week</string>
     <string name="dashboard_this_month">This Month</string>
+    <string name="dashboard_upcoming_events">UPCOMING EVENTS</string>
     <string name="dashboard_all_programs">All Training Programs</string>
     <string name="dashboard_enrolled">Enrolled</string>
     <string name="dashboard_leaderboard">Leaderboard</string>
     <string name="dashboard_view_all">View All</string>
     <string name="dashboard_certificates">Certificates</string>
     <string name="dashboard_achievements">Your Achievements</string>
+    <string name="dashboard_no_completed">No completed courses yet</string>
+    <string name="dashboard_no_leaderboard">No leaderboard data available</string>
+    <string name="dashboard_loading_name">Loading…</string>
+    <!-- Dashboard Metric Cards -->
+    <string name="metric_courses_active">Courses Active</string>
+    <string name="metric_activities_due">Activities Due</string>
+    <string name="metric_completed">Completed</string>
+    <!-- Achievement Cards -->
+    <string name="achievement_top_performer">Top Performer</string>
+    <string name="achievement_average_grade">%1$d%% Average Grade</string>
+    <string name="achievement_xp_this_week">+%1$d XP this week</string>
+    <string name="achievement_xp_suffix"> XP</string>
+    <string name="achievement_xp_to_next_level">%1$d XP to Level %2$d</string>
+    <string name="achievement_view_all">View All</string>
+    <string name="achievement_next_label">Next:</string>
+    <string name="achievement_elite_performer">Elite Performer</string>
+    <string name="achievement_complete_more">• Complete 2 more courses</string>
+    <string name="achievement_overall_progress">Overall Progress</string>
+    <string name="achievement_average_grade_label">Average Grade</string>
+    <string name="achievement_assignment_completion">Assignment Completion Rate</string>
+    <string name="achievement_xp_bonus">+50 XP</string>
+    <string name="achievement_rank_in_cohort">Rank #%1$d in cohort</string>
+    <string name="achievement_xp_reach_top10">%1$d reach the Top 10</string>
+    <!-- Leaderboard -->
+    <string name="leaderboard_you_top10">You\'re in the top 10!</string>
+    <string name="leaderboard_keep_going">Keep going to reach top 10!</string>
+    <string name="leaderboard_you_ranked">You are ranked #%1$d</string>
+    <!-- Course List Card -->
+    <string name="course_card_progress">Progress</string>
+    <string name="course_card_due_in">Due in %1$s</string>
+    <!-- Completed Courses -->
+    <string name="certificate_view_button">View Certificate</string>
+    <!-- Course Details Screen -->
+    <string name="course_detail_next_assignment">NEXT REQUIRED ASSIGNMENT</string>
+    <string name="course_detail_completed_modules">Completed Modules</string>
+    <string name="course_detail_modules_count">%1$d Modules</string>
+    <string name="course_detail_course_modules">Course Modules</string>
+    <string name="course_detail_overall_progress">OVERALL COURSE PROGRESS</string>
+    <string name="course_detail_certificate">Certificate</string>
+    <string name="course_detail_not_found">Course not found</string>
+    <string name="course_detail_review_assignment">Review Assignment</string>
 
     <!-- Tab Bar -->
     <string name="tab_home">Home</string>
@@ -51,10 +106,5 @@
     <string name="loading">Loading...</string>
     <string name="error_retry">Retry</string>
     <string name="no_data">No data available</string>
-
-
-
     <string name="completed">Completed</string>
-
-
 </resources>

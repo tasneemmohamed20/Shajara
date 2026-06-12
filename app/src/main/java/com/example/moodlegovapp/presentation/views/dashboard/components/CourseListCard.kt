@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import androidx.compose.ui.res.stringResource
+import com.example.moodlegovapp.R
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 
@@ -75,14 +77,14 @@ fun ContinueTrainingSectionCard(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        text = "Continue Training",
+                        text = stringResource(R.string.dashboard_continue_training),
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = (-0.5).sp
                     )
                     Text(
-                        text = "Pick up where you left off",
+                        text = stringResource(R.string.dashboard_pick_up),
                         color = Color.White.copy(alpha = 0.65f),
                         fontSize = 12.sp
                     )
@@ -250,7 +252,7 @@ private fun InnerCourseItemCard(
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Text(
-                            text = "Due in ${course.dueIn}",
+                            text = stringResource(R.string.course_card_due_in, course.dueIn),
                             color = SpColors.Error,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
@@ -277,7 +279,7 @@ private fun InnerCourseItemCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Progress",
+                            text = stringResource(R.string.course_card_progress),
                             style = SpTypography.caption(),
                             color = SpColors.DarkGray
                         )

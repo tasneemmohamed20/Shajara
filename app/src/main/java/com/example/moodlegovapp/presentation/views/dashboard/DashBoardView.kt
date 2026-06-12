@@ -229,8 +229,7 @@ fun DashboardScreen(
                 }
 
                 item {
-
-                    SectionHeader("Your Achievements")
+                    SectionHeader(stringResource(R.string.dashboard_achievements))
                 }
 
                 user?.let { userProfile -> // Ensures your UserProfile data isn't null before rendering
@@ -287,7 +286,7 @@ fun DashboardScreen(
                 if (completedCertificates.isEmpty()) {
                     item {
                         Text(
-                            text = "No completed courses yet",
+                            text = stringResource(R.string.dashboard_no_completed),
                             style = SpTypography.bodySecondary(),
                             color = AppColors.TextSecondary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -367,7 +366,7 @@ private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: St
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = user?.fullName ?: "Loading...",
+                        text = user?.fullName ?: stringResource(R.string.dashboard_loading_name),
                         style = SpTypography.titleCard(),
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold
@@ -504,7 +503,7 @@ fun TrainingSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Search training programs..."
+    placeholder: String = stringResource(R.string.dashboard_search_hint)
 ) {
     val focusManager = LocalFocusManager.current
 

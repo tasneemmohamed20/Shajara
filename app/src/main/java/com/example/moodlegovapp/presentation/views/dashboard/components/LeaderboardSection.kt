@@ -34,6 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import com.example.moodlegovapp.R
 import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.LeaderboardEntry
 import com.example.moodlegovapp.ui.theme.AppColors
@@ -60,7 +62,7 @@ fun DashboardLeaderboardWidget(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Leaderboard",
+                text = stringResource(R.string.dashboard_leaderboard),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppColors.TextPrimary
@@ -71,7 +73,7 @@ fun DashboardLeaderboardWidget(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "View All",
+                        text = stringResource(R.string.dashboard_view_all),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = AppColors.Navy,
@@ -107,7 +109,7 @@ fun DashboardLeaderboardWidget(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No leaderboard data available",
+                        text = stringResource(R.string.dashboard_no_leaderboard),
                         fontSize = 14.sp,
                         color = AppColors.TextSecondary
                     )
@@ -288,8 +290,8 @@ private fun CurrentUserCard(
     totalParticipants: Int
 ) {
     val rankMessage = when {
-        entry.rank <= 10 -> "You're in the top 10!"
-        else -> "Keep going to reach top 10!"
+        entry.rank <= 10 -> stringResource(R.string.leaderboard_you_top10)
+        else -> stringResource(R.string.leaderboard_keep_going)
     }
 
     Row(
@@ -317,7 +319,7 @@ private fun CurrentUserCard(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "You are ranked #${entry.rank}",
+                text = stringResource(R.string.leaderboard_you_ranked, entry.rank),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppColors.TextPrimary

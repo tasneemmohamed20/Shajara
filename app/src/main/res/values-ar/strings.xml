@@ -1,46 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">منصة التدريب الحكومية</string>
-    <string name="login_academy_name">أكاديمية التدريب الحكومية</string>
+    <string name="app_name">MoodleGovApp</string>
+    <!-- Login -->
+    <string name="login_academy_name">أكاديمية شرطة الشارقة</string>
     <string name="login_welcome_title">مرحباً بعودتك</string>
-    <string name="login_welcome_subtitle">سجّل دخولك لمتابعة تدريبك</string>
+    <string name="login_welcome_subtitle">سجل الدخول لمتابعة تدريبك</string>
     <string name="login_step">خطوة المصادقة</string>
-    <string name="login_logging_as">تسجيل الدخول بصفة</string>
+    <string name="auth_step_1">الخطوة 1 من 2</string>
+    <string name="auth_step_2">الخطوة 2 من 2</string>
+    <string name="login_logging_as">تسجيل الدخول كـ</string>
     <string name="login_role_participant">مشارك</string>
     <string name="login_change">تغيير</string>
     <string name="login_username">اسم المستخدم</string>
     <string name="login_username_placeholder">أدخل اسم المستخدم</string>
     <string name="login_password">كلمة المرور</string>
-    <string name="login_remember_me">تذكّرني</string>
-    <string name="login_forgot_password">نسيت كلمة المرور؟</string>
+    <string name="login_remember_me">تذكرني</string>
+    <string name="login_forgot_password">هل نسيت كلمة المرور؟</string>
     <string name="login_button">تسجيل الدخول</string>
     <string name="login_secure_title">بوابة حكومية آمنة</string>
-    <string name="login_secure_body">هذه البوابة مخصصة للموظفين المعتمدين فقط.</string>
-    <string name="login_need_help">تحتاج مساعدة؟</string>
+    <string name="login_secure_body">هذه البوابة للموظفين المصرح لهم فقط. تتم مراقبة وتسجيل جميع عمليات الدخول.</string>
+    <string name="login_need_help">هل تحتاج إلى المساعدة؟</string>
     <string name="login_contact_support">تواصل مع الدعم</string>
-    <string name="tab_home">الرئيسية</string>
-    <string name="tab_courses">الدورات</string>
-    <string name="tab_notifications">التنبيهات</string>
-    <string name="tab_profile">الملف</string>
-    <string name="loading">جاري التحميل...</string>
+
+    <!-- Login Step One -->
+    <string name="login_step1_welcome_title">مرحباً بك في\nمنصة التدريب</string>
+    <string name="login_step1_welcome_subtitle">اختر لغتك المفضلة للمتابعة ومراجعة معلومات المنصة الهامة.</string>
+    <string name="login_step1_language_label">اللغة</string>
+    <string name="login_step1_lang_english">English</string>
+    <string name="login_step1_lang_arabic">العربية</string>
+    <string name="login_step1_security_title">الأمن والخصوصية</string>
+    <string name="login_step1_security_subtitle">مشفرة ومراقبة بواسطة قسم أمن تقنية المعلومات بشرطة الشارقة</string>
+    <string name="login_step1_continue">متابعة</string>
+    <string name="lang_dialog_title">مطلوب إعادة التشغيل</string>
+    <string name="lang_dialog_message">سيتم إعادة تشغيل التطبيق لتطبيق اللغة المحددة. هل تريد المتابعة؟</string>
+    <string name="lang_dialog_ok">موافق</string>
+    <string name="lang_dialog_cancel">إلغاء</string>
+
+    <!-- Dashboard -->
     <string name="dashboard_overall_progress">التقدم الإجمالي</string>
-    <string name="dashboard_search_hint">ابحث عن البرامج التدريبية...</string>
+    <string name="dashboard_search_hint">ابحث في البرامج التدريبية…</string>
     <string name="dashboard_continue_training">متابعة التدريب</string>
-    <string name="dashboard_pick_up">تابع من حيث توقفت</string>
+    <string name="dashboard_pick_up">أكمل من حيث توقفت</string>
     <string name="dashboard_active">نشط</string>
     <string name="dashboard_new">جديد</string>
     <string name="dashboard_completed">مكتمل</string>
-    <string name="dashboard_training_schedule">الجدول التدريبي</string>
-    <string name="dashboard_go_to_calendar">الانتقال إلى التقويم</string>
+    <string name="dashboard_training_schedule">جدول التدريب</string>
+    <string name="dashboard_go_to_calendar">الذهاب إلى التقويم</string>
     <string name="dashboard_today">اليوم</string>
     <string name="dashboard_this_week">هذا الأسبوع</string>
     <string name="dashboard_this_month">هذا الشهر</string>
+    <string name="dashboard_upcoming_events">الفعاليات القادمة</string>
     <string name="dashboard_all_programs">جميع البرامج التدريبية</string>
     <string name="dashboard_enrolled">مسجل</string>
-    <string name="dashboard_leaderboard">لوحة الصدارة</string>
+    <string name="dashboard_leaderboard">لوحة المتصدرين</string>
     <string name="dashboard_view_all">عرض الكل</string>
     <string name="dashboard_certificates">الشهادات</string>
     <string name="dashboard_achievements">إنجازاتك</string>
+    <string name="dashboard_no_completed">لا توجد دورات مكتملة بعد</string>
+    <string name="dashboard_no_leaderboard">لا تتوفر بيانات للوحة المتصدرين</string>
+    <string name="dashboard_loading_name">جاري التحميل…</string>
+
+    <!-- Dashboard Metric Cards -->
+    <string name="metric_courses_active">الدورات النشطة</string>
+    <string name="metric_activities_due">الأنشطة المستحقة</string>
+    <string name="metric_completed">المكتملة</string>
+
+    <!-- Achievement Cards -->
+    <string name="achievement_top_performer">أفضل أداء</string>
+    <string name="achievement_average_grade">متوسط الدرجات %1$d%%</string>
+    <string name="achievement_xp_this_week">+%1$d نقطة خبرة هذا الأسبوع</string>
+    <string name="achievement_xp_suffix"> نقطة خبرة</string>
+    <string name="achievement_xp_to_next_level">%1$d نقطة للوصول للمستوى %2$d</string>
+    <string name="achievement_view_all">عرض الكل</string>
+    <string name="achievement_next_label">التالي:</string>
+    <string name="achievement_elite_performer">أداء نخبوي</string>
+    <string name="achievement_complete_more">• أكمل دورتين إضافيتين</string>
+    <string name="achievement_overall_progress">التقدم الإجمالي</string>
+    <string name="achievement_average_grade_label">متوسط الدرجات</string>
+    <string name="achievement_assignment_completion">معدل إنجاز المهام</string>
+    <string name="achievement_xp_bonus">+50 نقطة خبرة</string>
+    <string name="achievement_rank_in_cohort">المركز #%1$d في الدفعة</string>
+    <string name="achievement_xp_reach_top10">%1$d نقطة للوصول لأفضل 10</string>
+
+    <!-- Leaderboard -->
+    <string name="leaderboard_you_top10">أنت ضمن أفضل 10!</string>
+    <string name="leaderboard_keep_going">استمر للوصول إلى أفضل 10!</string>
+    <string name="leaderboard_you_ranked">تصنيفك هو #%1$d</string>
+
+    <!-- Course List Card -->
+    <string name="course_card_progress">التقدم</string>
+    <string name="course_card_due_in">مستحق خلال %1$s</string>
+
+    <!-- Completed Courses -->
+    <string name="certificate_view_button">عرض الشهادة</string>
+
+    <!-- Course Details Screen -->
+    <string name="course_detail_next_assignment">المهمة المطلوبة التالية</string>
+    <string name="course_detail_completed_modules">الوحدات المكتملة</string>
+    <string name="course_detail_modules_count">%1$d وحدات</string>
+    <string name="course_detail_course_modules">وحدات الدورة</string>
+    <string name="course_detail_overall_progress">التقدم الإجمالي في الدورة</string>
+    <string name="course_detail_certificate">الشهادة</string>
+    <string name="course_detail_not_found">لم يتم العثور على الدورة</string>
+    <string name="course_detail_review_assignment">مراجعة المهمة</string>
+
+    <!-- Tab Bar -->
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_courses">الدورات</string>
+    <string name="tab_notifications">التنبيهات</string>
+    <string name="tab_profile">الملف الشخصي</string>
+
+    <!-- Common -->
+    <string name="loading">جاري التحميل...</string>
     <string name="error_retry">إعادة المحاولة</string>
     <string name="no_data">لا توجد بيانات متاحة</string>
+    <string name="completed">مكتمل</string>
 </resources>

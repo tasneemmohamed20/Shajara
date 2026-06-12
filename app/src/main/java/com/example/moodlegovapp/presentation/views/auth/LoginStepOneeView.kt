@@ -1,5 +1,6 @@
 package com.example.moodlegovapp.presentation.views.auth
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,16 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
+import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
 import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 
@@ -30,7 +31,8 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 fun LoginStepOneView(
     showBackButton: Boolean,
     onBackClick: () -> Unit,
-    onContinueClicked:() -> Unit,
+    onContinueClicked: () -> Unit,
+    vm: LoginViewModel,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -44,7 +46,11 @@ fun LoginStepOneView(
                 .fillMaxHeight(0.4f)
                 .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 .background(AppColors.NavyGradient)
-                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp) // Reduced bottom padding from 32.dp to 16.dp
+                .padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    bottom = 16.dp
+                ) // Reduced bottom padding from 32.dp to 16.dp
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -62,9 +68,9 @@ fun LoginStepOneView(
 
                     // Welcome Text
                     Text(
-                        text = "Welcome to\nTraining Platform",
+                        text = stringResource(R.string.login_step1_welcome_title),
                         color = Color.White,
-                        fontSize = 24.sp, // Slightly reduced from 28.sp to ensure 2 lines fit comfortably
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         lineHeight = 28.sp
                     )
@@ -72,7 +78,7 @@ fun LoginStepOneView(
                     Spacer(modifier = Modifier.height(6.dp)) // Reduced from 12.dp
 
                     Text(
-                        text = "Choose your preferred language to continue and review important platform information.",
+                        text = stringResource(R.string.login_step1_welcome_subtitle),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 13.sp,
                         lineHeight = 18.sp
@@ -83,7 +89,7 @@ fun LoginStepOneView(
                 Column {
                     // Progress Indicator Section
                     Text(
-                        text = "STEP 1 OF 2",
+                        text = stringResource(R.string.auth_step_1),
                         color = Color.White,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -99,7 +105,7 @@ fun LoginStepOneView(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Language Selection Card Component
-        LanguageSelectionCard()
+        LanguageSelectionCard(vm = vm)
 
         // Pushes the security section and button to the bottom
         Spacer(modifier = Modifier.weight(1f))
@@ -171,10 +177,59 @@ fun LoginHeader(
     }
 }
 
-@Composable
-fun LanguageSelectionCard() {
-    var selectedLanguage by remember { mutableStateOf("English") }
+// ─────────────────────────────────────────────────────────────
+// LanguageSelectionCard
+// ─────────────────────────────────────────────────────────────
 
+@Composable
+fun LanguageSelectionCard(vm: LoginViewModel) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    // Collect VM state
+    val selectedLanguage by vm.selectedLanguage.collectAsState()
+    val pendingLanguage by vm.pendingLanguage.collectAsState()
+
+    LaunchedEffect(Unit) {
+        vm.syncSelectedLanguageFromSystem()
+    }
+
+    // ── Restart-confirmation dialog ────────────────────────────
+    pendingLanguage?.let { pending ->
+        AlertDialog(
+            onDismissRequest = { vm.onLanguageDialogDismiss() },
+            title = {
+                Text(
+                    text = stringResource(R.string.lang_dialog_title),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(text = stringResource(R.string.lang_dialog_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { activity?.let { vm.applyLanguage(it) } }
+                ) {
+                    Text(
+                        text = stringResource(R.string.lang_dialog_ok),
+                        color = AppColors.Gold,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { vm.onLanguageDialogDismiss() }) {
+                    Text(
+                        text = stringResource(R.string.lang_dialog_cancel),
+                        color = AppColors.Navy
+                    )
+                }
+            }
+        )
+    }
+
+    // ── Card UI ────────────────────────────────────────────────
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -192,7 +247,7 @@ fun LanguageSelectionCard() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Language",
+                    text = stringResource(R.string.login_step1_language_label),
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -216,13 +271,15 @@ fun LanguageSelectionCard() {
                         .weight(1f)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(50))
-                        .background(if (selectedLanguage == "English") AppColors.Gold else Color.Transparent)
-                        .clickable { selectedLanguage = "English" },
+                        .background(if (selectedLanguage == LoginViewModel.LANGUAGE_ENGLISH) AppColors.Gold else Color.Transparent)
+                        .clickable {
+                            vm.onLanguageTapped(LoginViewModel.LANGUAGE_ENGLISH)
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "English",
-                        color = if (selectedLanguage == "English") Color.White else AppColors.Navy,
+                        text = stringResource(R.string.login_step1_lang_english),
+                        color = if (selectedLanguage == LoginViewModel.LANGUAGE_ENGLISH) Color.White else AppColors.Navy,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -234,13 +291,15 @@ fun LanguageSelectionCard() {
                         .weight(1f)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(50))
-                        .background(if (selectedLanguage == "Arabic") AppColors.Gold else Color.Transparent)
-                        .clickable { selectedLanguage = "Arabic" },
+                        .background(if (selectedLanguage == LoginViewModel.LANGUAGE_ARABIC) AppColors.Gold else Color.Transparent)
+                        .clickable {
+                            vm.onLanguageTapped(LoginViewModel.LANGUAGE_ARABIC)
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "العربية",
-                        color = if (selectedLanguage == "Arabic") Color.White else AppColors.Navy,
+                        text = stringResource(R.string.login_step1_lang_arabic),
+                        color = if (selectedLanguage == LoginViewModel.LANGUAGE_ARABIC) Color.White else AppColors.Navy,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -249,6 +308,7 @@ fun LanguageSelectionCard() {
         }
     }
 }
+
 
 @Composable
 fun BottomActionSection(
@@ -293,19 +353,19 @@ fun BottomActionSection(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "SECURITY & PRIVACY",
-                    fontSize = 12.sp, // Slightly reduced to guarantee layout fit
+                    text = stringResource(R.string.login_step1_security_title),
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.TextPrimary,
                     lineHeight = 16.sp
                 )
                 Text(
-                    text = "Encrypted and monitored by SP IT Security",
+                    text = stringResource(R.string.login_step1_security_subtitle),
                     fontSize = 10.sp,
                     color = AppColors.TextSecondary,
                     maxLines = 2,
                     overflow = TextOverflow.Visible,
-                    lineHeight = 14.sp // Controls the exact vertical gap between the 2 lines
+                    lineHeight = 14.sp
                 )
             }
         }
@@ -322,7 +382,7 @@ fun BottomActionSection(
             colors = ButtonDefaults.buttonColors(containerColor = AppColors.Gold)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.login_step1_continue),
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium

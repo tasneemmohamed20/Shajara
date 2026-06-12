@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -112,10 +113,9 @@ fun DashboardMetricsRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp), // Leaves an even gap between all cards
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 1. Courses Active Card
         MetricCard(
             value = activeCoursesCount.toString(),
-            label = "Courses Active",
+            label = stringResource(R.string.metric_courses_active),
             cardIcon = R.drawable.ic_courses,
             iconColor = Color.White,
             backgroundColor = AppColors.Navy,
@@ -125,7 +125,7 @@ fun DashboardMetricsRow(
         // 2. Activities Due Card
         MetricCard(
             value = dueActivitiesCount.toString(),
-            label = "Activities Due",
+            label = stringResource(R.string.metric_activities_due),
             cardIcon = R.drawable.ic_tasks,
             iconColor = SpColors.Error,
             backgroundColor = SpColors.Error.copy(alpha = 0.1f),
@@ -135,7 +135,7 @@ fun DashboardMetricsRow(
         // 3. Completed Card
         MetricCard(
             value = completedCount.toString(),
-            label = "Completed",
+            label = stringResource(R.string.metric_completed),
             cardIcon = R.drawable.ic_completed,
             iconColor = Color(0xFF2E7D32),
             backgroundColor = AppColors.green,

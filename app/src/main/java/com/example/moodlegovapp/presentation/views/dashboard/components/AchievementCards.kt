@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.example.moodlegovapp.R
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
@@ -97,13 +98,13 @@ fun XpProgressCard(
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = "Top Performer",
+                            text = stringResource(R.string.achievement_top_performer),
                             color = Color.Black,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "${userProfile.performance.averageGrade}% Average Grade",
+                            text = stringResource(R.string.achievement_average_grade, userProfile.performance.averageGrade),
                             color = SpColors.DarkGray,
                             fontSize = 12.sp
                         )
@@ -136,10 +137,9 @@ fun XpProgressCard(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = " XP",
+                            text = stringResource(R.string.achievement_xp_suffix),
                             color = SpColors.DarkGray,
                             fontSize = 12.sp,
-//                            modifier = Modifier.padding(bottom = 1.dp)
                         )
                     }
 
@@ -153,7 +153,7 @@ fun XpProgressCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "+${userProfile.xpToNextLevel} XP this week",
+                            text = stringResource(R.string.achievement_xp_this_week, userProfile.xpToNextLevel),
                             color = Color(0xFF2E7D32),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
@@ -195,7 +195,7 @@ fun XpProgressCard(
                         }
 
                         Text(
-                            text = "${userProfile.xpToNextLevel} XP to Level ${userProfile.level + 1}",
+                            text = stringResource(R.string.achievement_xp_to_next_level, userProfile.xpToNextLevel, userProfile.level + 1),
                             color = SpColors.Gold,
                             fontSize = 12.sp,
                             letterSpacing = 0.sp,
@@ -273,14 +273,14 @@ fun CohortRankCard(
 
             Column {
                 Text(
-                    text = "Rank #${userProfile.rankNumber} in cohort",
+                    text = stringResource(R.string.achievement_rank_in_cohort, userProfile.rankNumber),
                     color = Color.Black,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.sp
                 )
                 Text(
-                    text = "${userProfile.xpToNextLevel} reach the Top 10",
+                    text = stringResource(R.string.achievement_xp_reach_top10, userProfile.xpToNextLevel),
                     color = SpColors.DarkGray,
                     fontSize = 12.sp
                 )
@@ -360,7 +360,7 @@ fun DetailedMetricsCard(
                     modifier = Modifier.clickable { onViewAllBadgesClick() }
                 ) {
                     Text(
-                        "View All",
+                        stringResource(R.string.achievement_view_all),
                         color = Color(0xFF2F5D8A),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
@@ -388,38 +388,36 @@ fun DetailedMetricsCard(
                     modifier = Modifier.size(18.dp)
                 )
                 Row {
-                    Text("Next:", color = SpColors.DarkGray, fontSize = 10.sp)
-
+                    Text(stringResource(R.string.achievement_next_label), color = SpColors.DarkGray, fontSize = 10.sp)
                     Text(
-                        "Elite Performer",
+                        stringResource(R.string.achievement_elite_performer),
                         color = Color(0xFF111111),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Text("• Complete 2 more courses", color = SpColors.DarkGray, fontSize = 10.sp)
+                    Text(stringResource(R.string.achievement_complete_more), color = SpColors.DarkGray, fontSize = 10.sp)
                 }
             }
 
             // Structural Progress bars Checklist Block mapping Nested Performance Metrics
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 PerformanceMetricRow(
-                    label = "Overall Progress",
+                    label = stringResource(R.string.achievement_overall_progress),
                     percentage = userProfile.performance.overallProgress,
                     barColor = SpColors.Gold,
-                    extraLabel = "+50 XP"
+                    extraLabel = stringResource(R.string.achievement_xp_bonus)
                 )
 
                 PerformanceMetricRow(
-                    label = "Average Grade",
+                    label = stringResource(R.string.achievement_average_grade_label),
                     percentage = userProfile.performance.averageGrade,
                     barColor = Color(0xFF2E7D32),
                 )
 
                 PerformanceMetricRow(
-                    label = "Assignment Completion Rate",
+                    label = stringResource(R.string.achievement_assignment_completion),
                     percentage = userProfile.performance.taskCompletion,
                     barColor = SpColors.Gold,
-//                    extraLabel = "+120 XP this week",
                     extraLabelColor = Color(0xFF2E7D32)
                 )
             }

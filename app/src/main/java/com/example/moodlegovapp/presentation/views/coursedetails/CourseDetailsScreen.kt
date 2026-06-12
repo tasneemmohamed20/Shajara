@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,7 +68,7 @@ fun CourseOverviewScreen(
         courseDetail == null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = errorMessage ?: "Course not found",
+                    text = errorMessage ?: stringResource(R.string.course_detail_not_found),
                     color = AppColors.TextSecondary
                 )
             }
@@ -97,7 +98,7 @@ fun CourseOverviewScreen(
                 item {
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         Text(
-                            text = "NEXT REQUIRED ASSIGNMENT",
+                            text = stringResource(R.string.course_detail_next_assignment),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = AppColors.TextSecondary,
@@ -122,8 +123,8 @@ fun CourseOverviewScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Completed Modules", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-                            Text("${completedModules.size} Modules", fontSize = 14.sp, color = AppColors.Navy)
+                            Text(stringResource(R.string.course_detail_completed_modules), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
+                            Text(stringResource(R.string.course_detail_modules_count, completedModules.size), fontSize = 14.sp, color = AppColors.Navy)
                         }
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = 20.dp),
@@ -150,8 +151,8 @@ fun CourseOverviewScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Course Modules", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-                    Text("${activeModules.size} Modules", fontSize = 14.sp, color = AppColors.Navy)
+                    Text(stringResource(R.string.course_detail_course_modules), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
+                    Text(stringResource(R.string.course_detail_modules_count, activeModules.size), fontSize = 14.sp, color = AppColors.Navy)
                 }
             }
 
@@ -276,7 +277,7 @@ private fun CourseHeaderBanner(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Certificate",
+                                text = stringResource(R.string.course_detail_certificate),
                                 fontSize = 14.sp,
                                 color = AppColors.GoldLight
                             )
@@ -302,7 +303,7 @@ private fun CourseHeaderBanner(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "OVERALL COURSE PROGRESS",
+                                stringResource(R.string.course_detail_overall_progress),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White.copy(alpha = 0.8f)
@@ -353,7 +354,7 @@ private fun NextAssignmentCard(assignment: NextAssignment, onReviewClick: () -> 
                 contentPadding = PaddingValues(vertical = 14.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Review Assignment", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                    Text(stringResource(R.string.course_detail_review_assignment), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 }

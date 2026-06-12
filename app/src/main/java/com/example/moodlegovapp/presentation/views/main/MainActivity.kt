@@ -1,7 +1,7 @@
 package com.example.moodlegovapp.presentation.views.main
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -26,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
+import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
@@ -33,11 +34,26 @@ import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.gov.moodleapp.presentation.auth.LoginStepTwoView
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var assembly: DependencyContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Read persisted language and apply it before super.onCreate() to avoid layout flashing
+        val dsm = com.example.moodlegovapp.data.service.DataStoreManager.getInstance(applicationContext)
+        val savedLang = kotlinx.coroutines.runBlocking {
+            dsm.get<String>(com.example.moodlegovapp.data.service.DataStoreManager.KEY_LANGUAGE)
+        }
+        if (savedLang != null) {
+            val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+            val currentLang = if (locales.isEmpty) "en" else locales[0]?.language ?: "en"
+            if (savedLang != currentLang) {
+                androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                    androidx.core.os.LocaleListCompat.forLanguageTags(savedLang)
+                )
+            }
+        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         assembly = DependencyContainer.getInstance(this)
@@ -70,7 +86,8 @@ class MainActivity : ComponentActivity() {
                                         rootNavController.navigate("main_app_root") {
                                             popUpTo("auth_root") { inclusive = true }
                                         }
-                                    }
+                                    },
+                                    assembly = assembly
                                 )
                             }
                         }
@@ -101,13 +118,16 @@ class MainActivity : ComponentActivity() {
 fun NavGraphBuilder.authGraph(
     navController: NavHostController,
     showBackButton: Boolean,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    assembly: DependencyContainer
 ) {
     composable(ScreensRoute.LoginStepOne.route) {
+        val vm = remember { assembly.makeLoginViewModel() }
         LoginStepOneView(
             showBackButton = showBackButton,
             onBackClick = { navController.popBackStack() },
-            onContinueClicked = { navController.navigate(ScreensRoute.LoginStepTwo.route) }
+            onContinueClicked = { navController.navigate(ScreensRoute.LoginStepTwo.route) },
+            vm = vm
         )
     }
 
@@ -115,7 +135,7 @@ fun NavGraphBuilder.authGraph(
         LoginStepTwoView(
             onLoginSuccess = onLoginSuccess,
             assembly = DependencyContainer.getInstance(LocalContext.current),
-            onBackClicked = { navController.popBackStack()}
+            onBackClicked = { navController.popBackStack() }
         )
     }
 }

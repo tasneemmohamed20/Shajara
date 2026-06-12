@@ -32,7 +32,10 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
 
     // mirrors iOS: public func makeLoginViewModel() -> LoginViewModelDI
     fun makeLoginViewModel(): LoginViewModel =
-        LoginViewModel(session = sharedSession)
+        LoginViewModel(
+            session = sharedSession,
+            dataStoreManager = deps.dataStoreManager
+        )
 
     // mirrors iOS: public func makeDashboardViewModel() -> DashboardViewModelDI
     fun makeDashboardViewModel(): DashboardViewModel =

@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +55,7 @@ fun CompletedCourses(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "No completed courses yet",
+                text = stringResource(R.string.dashboard_no_completed),
                 fontSize = 14.sp,
                 color = AppColors.TextSecondary
             )
@@ -72,8 +71,7 @@ fun CompletedCourses(
     ) {
         visibleCertificates.forEach { certificate ->
             CompletedCourseCard(
-                certificate = certificate,
-                onViewCertificateClick = onViewCertificateClick
+                certificate = certificate, onViewCertificateClick = onViewCertificateClick
             )
         }
     }
@@ -102,9 +100,11 @@ fun CompletedCourseCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier
+            Column(
+                modifier = Modifier
 //                .weight(1f)
-                .padding(end = 12.dp)) {
+                    .padding(end = 12.dp)
+            ) {
                 Text(
                     text = certificate.courseName.orEmpty(),
                     fontSize = 14.sp,
@@ -123,9 +123,7 @@ fun CompletedCourseCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = instructor,
-                                fontSize = 14.sp,
-                                color = AppColors.TextSecondary
+                                text = instructor, fontSize = 14.sp, color = AppColors.TextSecondary
                             )
                         }
                     }
@@ -187,8 +185,7 @@ fun CompletedCourseCard(
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(vertical = 16.dp),
-            color = AppColors.Border
+            modifier = Modifier.padding(vertical = 16.dp), color = AppColors.Border
         )
 
         Row(
@@ -224,7 +221,7 @@ fun CompletedCourseCard(
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
             ) {
                 Text(
-                    text = "View Certificate",
+                    text = stringResource(R.string.certificate_view_button),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold
                 )

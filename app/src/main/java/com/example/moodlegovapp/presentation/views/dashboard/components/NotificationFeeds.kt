@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.R
+import androidx.compose.ui.res.stringResource
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 
@@ -81,7 +82,7 @@ fun TrainingScheduleSection(
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = "Training Schedule",
+                        text = stringResource(R.string.dashboard_training_schedule),
                         style = SpTypography.titleCard(),
                         color = Color(0xFF1A1A1A),
                         fontWeight = FontWeight.Bold
@@ -94,7 +95,7 @@ fun TrainingScheduleSection(
                     modifier = Modifier.clickable { onGoToCalendarClick() }
                 ) {
                     Text(
-                        text = "Go to Calendar",
+                        text = stringResource(R.string.dashboard_go_to_calendar),
                         style = SpTypography.caption(),
                         color = Color(0xFF1A3550),
                         fontWeight = FontWeight.SemiBold
@@ -122,7 +123,7 @@ fun TrainingScheduleSection(
             ) {
                 HorizontalDivider(modifier = Modifier.weight(1f), color = SpColors.DarkGray.copy(alpha = 0.2f))
                 Text(
-                    text = "UPCOMING EVENTS",
+                    text = stringResource(R.string.dashboard_upcoming_events),
                     color = Color(0xFF2F5D8A),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
