@@ -70,4 +70,9 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Preferences DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // Google Tink for Encryption
+    implementation(libs.tink.android) // Use the latest stable version
 }
