@@ -27,7 +27,7 @@ class RealApiService(
     private val dataStoreManager: DataStoreManager
 ) : ApiServiceProtocol {
 
-    private fun userId() = dataStoreManager.userIdState.value?.toInt()?: 101
+    private fun userId() = dataStoreManager.userIdState.value?.toIntOrNull() ?: 101
 
     // ── Safe call helper ──────────────────────
     private suspend inline fun <T> safeCall(

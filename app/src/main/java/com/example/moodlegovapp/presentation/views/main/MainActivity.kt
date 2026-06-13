@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.os.LocaleListCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -32,6 +34,7 @@ import androidx.navigation.navArgument
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
+import com.example.moodlegovapp.presentation.views.Profile.ProfileScreen
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
@@ -39,6 +42,13 @@ import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.gov.moodleapp.presentation.auth.LoginStepTwoView
+import kotlinx.coroutines.runBlocking
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import android.widget.Toast
+import android.content.Intent
+import android.net.Uri
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         // Read persisted language and apply it before super.onCreate() to avoid layout flashing
         val dsm =
             DataStoreManager.getInstance(applicationContext)
-        val savedLang = kotlinx.coroutines.runBlocking {
+        val savedLang = runBlocking {
             dsm.get<String>(DataStoreManager.KEY_LANGUAGE)
         }
         if (savedLang != null) {
@@ -60,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             val currentLang = if (locales.isEmpty) "en" else locales[0]?.language ?: "en"
             if (savedLang != currentLang) {
                 AppCompatDelegate.setApplicationLocales(
-                    androidx.core.os.LocaleListCompat.forLanguageTags(savedLang)
+                    LocaleListCompat.forLanguageTags(savedLang)
                 )
             }
         }
@@ -85,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                         val rootNavController = rememberNavController()
                         val startRoute = if (session.isAuthenticated) "main_app_root" else "auth_root"
 
-                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                        LaunchedEffect(Unit) {
                             isKeepShowing = false
                         }
 
@@ -123,6 +133,7 @@ class MainActivity : AppCompatActivity() {
                                     ) {
                                         mainAppGraph(
                                             navController = mainNavController,
+                                            rootNavController = rootNavController,
                                             assembly = assembly
                                         )
                                     }
@@ -167,6 +178,7 @@ fun NavGraphBuilder.authGraph(
 
 fun NavGraphBuilder.mainAppGraph(
     navController: NavHostController,
+    rootNavController: NavHostController,
     assembly: DependencyContainer
 ) {
     composable(ScreensRoute.Home.route) {
@@ -199,11 +211,23 @@ fun NavGraphBuilder.mainAppGraph(
     }
 
     composable(ScreensRoute.Profile.route) {
-        Surface(modifier = Modifier.fillMaxSize(), color = SpColors.LightGray) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Profile", style = SpTypography.headingL(), color = SpColors.DarkBrown)
-            }
+        val vm = remember { assembly.makeProfileViewModel() }
+        LaunchedEffect(Unit) {
+            vm.loadAll()
         }
+        val scope = rememberCoroutineScope()
+
+        ProfileScreen(
+            viewModel = vm,
+            onLogOutClick = {
+                scope.launch {
+                    assembly.sharedSession.logout()
+                    rootNavController.navigate("auth_root") {
+                        popUpTo("main_app_root") { inclusive = true }
+                    }
+                }
+            }
+        )
     }
 
     composable(
