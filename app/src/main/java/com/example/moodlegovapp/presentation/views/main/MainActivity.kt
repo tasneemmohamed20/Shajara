@@ -14,12 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
@@ -42,13 +42,8 @@ import com.example.moodlegovapp.ui.theme.AppColors
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.gov.moodleapp.presentation.auth.LoginStepTwoView
-import kotlinx.coroutines.runBlocking
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import android.widget.Toast
-import android.content.Intent
-import android.net.Uri
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 
@@ -60,8 +55,7 @@ class MainActivity : AppCompatActivity() {
         splashScreen.setKeepOnScreenCondition { isKeepShowing }
 
         // Read persisted language and apply it before super.onCreate() to avoid layout flashing
-        val dsm =
-            DataStoreManager.getInstance(applicationContext)
+        val dsm = DataStoreManager.getInstance(applicationContext)
         val savedLang = runBlocking {
             dsm.get<String>(DataStoreManager.KEY_LANGUAGE)
         }
@@ -78,8 +72,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
-                AppColors.Navy.toArgb(),
-                AppColors.Navy.toArgb()
+                AppColors.Navy.toArgb(), AppColors.Navy.toArgb()
             )
         )
         assembly = DependencyContainer.getInstance(this)
@@ -93,7 +86,8 @@ class MainActivity : AppCompatActivity() {
 
                     if (isInitialized) {
                         val rootNavController = rememberNavController()
-                        val startRoute = if (session.isAuthenticated) "main_app_root" else "auth_root"
+                        val startRoute =
+                            if (session.isAuthenticated) "main_app_root" else "auth_root"
 
                         LaunchedEffect(Unit) {
                             isKeepShowing = false
@@ -171,8 +165,7 @@ fun NavGraphBuilder.authGraph(
         LoginStepTwoView(
             onLoginSuccess = onLoginSuccess,
             assembly = DependencyContainer.getInstance(LocalContext.current),
-            onBackClicked = { navController.popBackStack() }
-        )
+            onBackClicked = { navController.popBackStack() })
     }
 }
 
@@ -182,16 +175,12 @@ fun NavGraphBuilder.mainAppGraph(
     assembly: DependencyContainer
 ) {
     composable(ScreensRoute.Home.route) {
-        DashboardScreen(
-            assembly = assembly,
-            onCourseClick = { courseId ->
-                navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId))
-            },
-            onLeaderboardClick = {
-                // Navigate to full leaderboard screen
-                // e.g., navController.navigate("leaderboard")
-            }
-        )
+        DashboardScreen(assembly = assembly, onCourseClick = { courseId ->
+            navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId))
+        }, onLeaderboardClick = {
+            // Navigate to full leaderboard screen
+            // e.g., navController.navigate("leaderboard")
+        })
     }
 
     composable(ScreensRoute.Courses.route) {
@@ -217,17 +206,16 @@ fun NavGraphBuilder.mainAppGraph(
         }
         val scope = rememberCoroutineScope()
 
-        ProfileScreen(
-            viewModel = vm,
-            onLogOutClick = {
-                scope.launch {
-                    assembly.sharedSession.logout()
-                    rootNavController.navigate("auth_root") {
-                        popUpTo("main_app_root") { inclusive = true }
-                    }
+        ProfileScreen(viewModel = vm, onLogOutClick = {
+            scope.launch {
+                assembly.sharedSession.logout()
+                rootNavController.navigate("auth_root") {
+                    popUpTo("main_app_root") { inclusive = true }
                 }
             }
-        )
+        }, onBackClick = {
+            navController.popBackStack()
+        })
     }
 
     composable(
@@ -242,8 +230,7 @@ fun NavGraphBuilder.mainAppGraph(
             onBackClick = { navController.popBackStack() },
             onReviewAssignmentClick = { },
             onActivityClick = { },
-            onResourcesClick = { }
-        )
+            onResourcesClick = { })
     }
 }
 
@@ -257,7 +244,6 @@ fun MoodleGovAppTheme(content: @Composable () -> Unit) {
             background = SpColors.LightGray,
             surface = SpColors.White,
             error = SpColors.Error
-        ),
-        content = content
+        ), content = content
     )
 }
