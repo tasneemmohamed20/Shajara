@@ -1,14 +1,16 @@
 package com.example.moodlegovapp.data.session
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.data.repository.AuthRepository
 import com.example.moodlegovapp.data.repository.UserRepository
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.UserProfile
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppSession(
     private val authRepository: AuthRepository,
@@ -31,17 +33,19 @@ class AppSession(
     init {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val token = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_TOKEN)
+                val token = dataStoreManager.get<String>(DataStoreManager.KEY_TOKEN)
                 if (token != null) {
-                    val privateToken = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_PRIVATE_TOKEN)
-                    _authToken.postValue(AuthToken(
-                        token = token,
-                        privateToken = privateToken
-                    ))
+                    val privateToken =
+                        dataStoreManager.get<String>(DataStoreManager.KEY_PRIVATE_TOKEN)
+                    _authToken.postValue(
+                        AuthToken(
+                            token = token, privateToken = privateToken
+                        )
+                    )
                     userRepository?.getUserProfile()?.let { result ->
                         if (result is AppResult.Success) {
                             _currentUser.postValue(result.data)
-                            dataStoreManager.save(DataStoreManager.Companion.KEY_USER_ID, result.data.id)
+                            dataStoreManager.save(DataStoreManager.KEY_USER_ID, result.data.id)
                         }
                     }
                 }
@@ -55,9 +59,9 @@ class AppSession(
         val result = authRepository.login(username, password)
 
         if (result is AppResult.Success) {
-            dataStoreManager.save(DataStoreManager.Companion.KEY_TOKEN, result.data.token)
-            result.data.privateToken?.let { 
-                dataStoreManager.save(DataStoreManager.Companion.KEY_PRIVATE_TOKEN, it)
+            dataStoreManager.save(DataStoreManager.KEY_TOKEN, result.data.token)
+            result.data.privateToken?.let {
+                dataStoreManager.save(DataStoreManager.KEY_PRIVATE_TOKEN, it)
             }
             _authToken.postValue(result.data)
 
@@ -65,7 +69,9 @@ class AppSession(
             userRepository?.getUserProfile()?.let { userResult ->
                 if (userResult is AppResult.Success) {
                     _currentUser.postValue(userResult.data)
-                    dataStoreManager.save(DataStoreManager.Companion.KEY_USER_ID, userResult.data.id)
+                    dataStoreManager.save(
+                        DataStoreManager.Companion.KEY_USER_ID, userResult.data.id
+                    )
                 }
             }
         }
@@ -78,5 +84,9 @@ class AppSession(
         dataStoreManager.clearAll()
         _authToken.postValue(null)
         _currentUser.postValue(null)
+    }
+
+    fun updateUser(userProfile: UserProfile) {
+        _currentUser.postValue(userProfile)
     }
 }

@@ -115,4 +115,46 @@
     <string name="error_retry">إعادة المحاولة</string>
     <string name="no_data">لا توجد بيانات متاحة</string>
     <string name="completed">مكتمل</string>
+
+    <!--    Profile Screen-->
+    <string name="profile_performance_overview_coming_soon">شاشة تفاصيل نظرة عامة على الأداء ستتوفر قريبًا</string>
+    <string name="profile_cannot_open_url">لا يمكن فتح الرابط: %1$s</string>
+    <string name="profile_downloading_certificate">جاري تحميل الشهادة من: %1$s</string>
+    <string name="profile_edit_coming_soon">شاشة تعديل الملف الشخصي ستتوفر قريبًا</string>
+    <string name="profile_change_password_coming_soon">شاشة تغيير كلمة المرور ستتوفر قريبًا</string>
+    <string name="profile_all_badges">جميع الشارات</string>
+    <string name="profile_select_language">اختر اللغة</string>
+    <string name="profile_english">English (الإنجليزية)</string>
+    <string name="profile_arabic">العربية</string>
+    <string name="profile_performance_overview">نظرة عامة على الأداء</string>
+    <string name="profile_overall_progress">التقدم العام</string>
+    <string name="profile_average_grade">متوسط الدرجات</string>
+    <string name="profile_task_completion">إنجاز المهام</string>
+    <string name="profile_badges">الشارات</string>
+    <string name="profile_no_badges">لم يتم الحصول على أي شارات بعد.</string>
+    <string name="profile_certificates">الشهادات</string>
+    <string name="profile_settings">الإعدادات</string>
+    <string name="profile_edit_profile">تعديل الملف الشخصي</string>
+    <string name="profile_language">اللغة</string>
+    <string name="profile_notifications">الإشعارات</string>
+    <string name="profile_security">الأمان</string>
+    <string name="profile_change_password">تغيير كلمة المرور</string>
+    <string name="profile_log_out">تسجيل الخروج</string>
+
+    <string name="profile_back">رجوع</string>
+    <string name="profile_more_options">خيارات إضافية</string>
+    <string name="profile_avatar">الصورة الشخصية</string>
+    <string name="profile_lvl_format">المستوى %1$d</string>
+    <string name="profile_rank_number_format">الترتيب #%1$d</string>
+    <string name="profile_total_xp">إجمالي نقاط الخبرة (XP)</string>
+    <string name="profile_xp_format">%1$,d نقطة خبرة</string>
+    <string name="profile_xp_amount">%1$d نقطة خبرة</string>
+    <string name="profile_to_level_format">للوصول إلى المستوى %1$d</string>
+
+    <string name="profile_available_after_approval">متاحة بعد الموافقة النهائية</string>
+    <string name="profile_view_certificate">عرض الشهادة</string>
+    <string name="profile_download">تحميل</string>
+    <string name="profile_completed_date">اكتمل في %1$s</string>
+
+    <string name="profile_view_all">عرض الكل</string>
 </resources>

@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val userRepository: UserRepositoryProtocol,
-    private val certificatesRepository: CertificatesRepositoryProtocol,
     private val session: AppSession
 ) : ViewModel() {
 
@@ -76,8 +75,6 @@ class ProfileViewModel(
         }
     }
 
-    fun refresh() = loadAll()
-
     fun toggleNotifications(enabled: Boolean) {
         _user.value?.let { currentUser ->
             val updatedUser = currentUser.copy(
@@ -85,26 +82,26 @@ class ProfileViewModel(
             )
             _user.value = updatedUser
             _profileResponse.value = UserResponse(success = true, data = updatedUser)
+            session.updateUser(updatedUser)
         }
     }
 
-    fun toggleLanguage(context: Context) {
+    fun setLanguage(context: Context, langCode: String) {
         val currentUser = _user.value ?: return
-        val currentLang = currentUser.settings.language
-        val nextLang = if (currentLang.lowercase() == "ar") "en" else "ar"
 
         viewModelScope.launch {
             val dsm = DataStoreManager.getInstance(context)
-            dsm.save(DataStoreManager.KEY_LANGUAGE, nextLang)
+            dsm.save(DataStoreManager.KEY_LANGUAGE, langCode)
 
             val updatedUser = currentUser.copy(
-                settings = currentUser.settings.copy(language = nextLang)
+                settings = currentUser.settings.copy(language = langCode)
             )
             _user.value = updatedUser
             _profileResponse.value = UserResponse(success = true, data = updatedUser)
+            session.updateUser(updatedUser)
 
             AppCompatDelegate.setApplicationLocales(
-                LocaleListCompat.forLanguageTags(nextLang)
+                LocaleListCompat.forLanguageTags(langCode)
             )
         }
     }
