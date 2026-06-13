@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.MoodleGovApp" parent="Theme.AppCompat.Light.NoActionBar" />
+
+    <style name="Theme.App.StartingSplash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/spNavyBlue</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.MoodleGovApp</item>
+    </style>
 </resources>

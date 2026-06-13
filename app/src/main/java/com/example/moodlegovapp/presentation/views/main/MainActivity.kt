@@ -1,9 +1,9 @@
 package com.example.moodlegovapp.presentation.views.main
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -11,12 +11,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -26,7 +25,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
-import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
@@ -39,8 +37,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var assembly: DependencyContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+
         // Read persisted language and apply it before super.onCreate() to avoid layout flashing
-        val dsm = com.example.moodlegovapp.data.service.DataStoreManager.getInstance(applicationContext)
+        val dsm =
+            com.example.moodlegovapp.data.service.DataStoreManager.getInstance(applicationContext)
         val savedLang = kotlinx.coroutines.runBlocking {
             dsm.get<String>(com.example.moodlegovapp.data.service.DataStoreManager.KEY_LANGUAGE)
         }
@@ -62,7 +63,6 @@ class MainActivity : AppCompatActivity() {
             MoodleGovAppTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = SpColors.LightGray) {
                     val session = remember { assembly.sharedSession }
-                    val authToken by session.authToken.observeAsState()
 
                     val rootNavController = rememberNavController()
 
@@ -75,7 +75,8 @@ class MainActivity : AppCompatActivity() {
                             com.example.moodlegovapp.presentation.views.splash.SplashScreen(
                                 session = session,
                                 onSplashFinished = { isAuthenticated ->
-                                    val destination = if (isAuthenticated) "main_app_root" else "auth_root"
+                                    val destination =
+                                        if (isAuthenticated) "main_app_root" else "auth_root"
                                     rootNavController.navigate(destination) {
                                         popUpTo(ScreensRoute.Splash.route) { inclusive = true }
                                     }

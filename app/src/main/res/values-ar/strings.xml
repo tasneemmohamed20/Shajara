@@ -80,6 +80,7 @@
     <string name="achievement_xp_bonus">+50 نقطة خبرة</string>
     <string name="achievement_rank_in_cohort">المركز #%1$d في الدفعة</string>
     <string name="achievement_xp_reach_top10">%1$d نقطة للوصول لأفضل 10</string>
+    <string name="achievement_LVL">مستوى</string>
 
     <!-- Leaderboard -->
     <string name="leaderboard_you_top10">أنت ضمن أفضل 10!</string>
@@ -110,7 +111,7 @@
     <string name="tab_profile">الملف الشخصي</string>
 
     <!-- Common -->
-    <string name="loading">جاري التحميل...</string>
+    <string name="loading">جاري التحميل…</string>
     <string name="error_retry">إعادة المحاولة</string>
     <string name="no_data">لا توجد بيانات متاحة</string>
     <string name="completed">مكتمل</string>

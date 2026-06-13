@@ -122,7 +122,7 @@ fun XpProgressCard(
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "LVL ${userProfile.level}",
+                            text = "${stringResource(id = R.string.achievement_LVL)} ${userProfile.level}",
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
