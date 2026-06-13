@@ -17,7 +17,7 @@
             android:name=".presentation.views.main.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MoodleGovApp"
+            android:theme="@style/Theme.App.StartingSplash"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

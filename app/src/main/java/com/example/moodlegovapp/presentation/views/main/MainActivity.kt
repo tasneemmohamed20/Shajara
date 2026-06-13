@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -24,10 +25,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.moodlegovapp.core.DependencyContainer
+import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
+import com.example.moodlegovapp.presentation.views.splash.SplashScreen
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.gov.moodleapp.presentation.auth.LoginStepTwoView
@@ -35,21 +38,23 @@ import com.gov.moodleapp.presentation.auth.LoginStepTwoView
 class MainActivity : AppCompatActivity() {
 
     private lateinit var assembly: DependencyContainer
+    private var isKeepShowing = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { isKeepShowing }
 
         // Read persisted language and apply it before super.onCreate() to avoid layout flashing
         val dsm =
-            com.example.moodlegovapp.data.service.DataStoreManager.getInstance(applicationContext)
+            DataStoreManager.getInstance(applicationContext)
         val savedLang = kotlinx.coroutines.runBlocking {
-            dsm.get<String>(com.example.moodlegovapp.data.service.DataStoreManager.KEY_LANGUAGE)
+            dsm.get<String>(DataStoreManager.KEY_LANGUAGE)
         }
         if (savedLang != null) {
-            val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+            val locales = AppCompatDelegate.getApplicationLocales()
             val currentLang = if (locales.isEmpty) "en" else locales[0]?.language ?: "en"
             if (savedLang != currentLang) {
-                androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                AppCompatDelegate.setApplicationLocales(
                     androidx.core.os.LocaleListCompat.forLanguageTags(savedLang)
                 )
             }
@@ -72,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         composable(ScreensRoute.Splash.route) {
-                            com.example.moodlegovapp.presentation.views.splash.SplashScreen(
+                            SplashScreen(
                                 session = session,
                                 onSplashFinished = { isAuthenticated ->
                                     val destination =
@@ -80,6 +85,7 @@ class MainActivity : AppCompatActivity() {
                                     rootNavController.navigate(destination) {
                                         popUpTo(ScreensRoute.Splash.route) { inclusive = true }
                                     }
+                                    isKeepShowing = false
                                 }
                             )
                         }
@@ -104,7 +110,6 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
-                        // Authenticated Main Feature Context Wrapper
                         composable("main_app_root") {
                             val mainNavController = rememberNavController()
                             MainScreen(navController = mainNavController) {

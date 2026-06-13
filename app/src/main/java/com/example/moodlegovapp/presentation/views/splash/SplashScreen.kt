@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,10 +23,14 @@ fun SplashScreen(
     onSplashFinished: (isAuthenticated: Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(key1 = true) {
-        delay(2000)
-        // Check credentials/auth token state
-        onSplashFinished(session.isAuthenticated)
+    val isInitialized by session.isInitialized.observeAsState(initial = false)
+
+    LaunchedEffect(isInitialized) {
+        if (isInitialized) {
+            // Wait a short delay to display the branding / shield icon nicely
+            delay(1000)
+            onSplashFinished(session.isAuthenticated)
+        }
     }
 
     Box(

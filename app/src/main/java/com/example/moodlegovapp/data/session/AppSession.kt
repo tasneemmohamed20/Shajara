@@ -21,25 +21,32 @@ class AppSession(
     private val _currentUser = MutableLiveData<UserProfile?>(null)
     val currentUser: LiveData<UserProfile?> = _currentUser
 
+    private val _isInitialized = MutableLiveData<Boolean>(false)
+    val isInitialized: LiveData<Boolean> = _isInitialized
+
     // mirrors iOS: var isAuthenticated
     val isAuthenticated: Boolean get() = _authToken.value != null
 
     // Auto-restore session on init — mirrors iOS init block
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            val token = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_TOKEN)
-            if (token != null) {
-                val privateToken = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_PRIVATE_TOKEN)
-                _authToken.postValue(AuthToken(
-                    token = token,
-                    privateToken = privateToken
-                ))
-                userRepository?.getUserProfile()?.let { result ->
-                    if (result is AppResult.Success) {
-                        _currentUser.postValue(result.data)
-                        dataStoreManager.save(DataStoreManager.Companion.KEY_USER_ID, result.data.id)
+            try {
+                val token = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_TOKEN)
+                if (token != null) {
+                    val privateToken = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_PRIVATE_TOKEN)
+                    _authToken.postValue(AuthToken(
+                        token = token,
+                        privateToken = privateToken
+                    ))
+                    userRepository?.getUserProfile()?.let { result ->
+                        if (result is AppResult.Success) {
+                            _currentUser.postValue(result.data)
+                            dataStoreManager.save(DataStoreManager.Companion.KEY_USER_ID, result.data.id)
+                        }
                     }
                 }
+            } finally {
+                _isInitialized.postValue(true)
             }
         }
     }
