@@ -1,5 +1,6 @@
 package com.example.moodlegovapp.data.network.datasource
 
+import android.util.Log
 import com.example.moodlegovapp.data.network.AppError
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.data.network.NetworkCallHandler
@@ -17,14 +18,12 @@ import com.example.moodlegovapp.domain.models.CourseDetailsResponse
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
 import com.example.moodlegovapp.domain.models.LeaderboardData
-import com.example.moodlegovapp.domain.models.LeaderboardEntry
 import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
 import com.example.moodlegovapp.domain.models.UserProfile
-import com.example.moodlegovapp.domain.models.UserResponse
 
 /**
  * Remote data source implementation that wraps Retrofit calls.
@@ -34,21 +33,12 @@ class RemoteDataSource(
     private val retrofit: RetrofitApiService,
     private val dataStoreManager: DataStoreManager,
     private val retryPolicy: RetryPolicy = RetryPolicy.DEFAULT
-) : AuthDataSource,
-    UserDataSource,
-    CoursesDataSource,
-    AssignmentsDataSource,
-    NotificationsDataSource,
-    CertificatesDataSource,
-    LeaderboardDataSource,
-    BadgesDataSource,
-    EventsDataSource,
-    StatsDataSource,
-    SearchDataSource,
-    ActivityDataSource {
+) : AuthDataSource, UserDataSource, CoursesDataSource, AssignmentsDataSource,
+    NotificationsDataSource, CertificatesDataSource, LeaderboardDataSource, BadgesDataSource,
+    EventsDataSource, StatsDataSource, SearchDataSource, ActivityDataSource {
 
     private fun getCurrentUserId(): Int = dataStoreManager.userIdState.value?.toIntOrNull() ?: 101
-
+    private val TAG = "RemoteDataSource"
     // ── AUTH ──────────────────────────────────────────────────────
 
     override suspend fun login(username: String, password: String): AppResult<AuthToken> {
@@ -60,13 +50,39 @@ class RemoteDataSource(
     // ── USER ──────────────────────────────────────────────────────
 
     override suspend fun getUserProfile(): AppResult<UserProfile> {
+        Log.d(TAG, "getUserProfile: Initiating fetch for User ID: ${getCurrentUserId()}")
+
         return when (val result = NetworkCallHandler.safeCall(retryPolicy) {
             retrofit.getUserProfile(getCurrentUserId())
         }) {
-            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
-                                    ?: AppResult.Failure(AppError.DecodingError)
-            is AppResult.Failure -> result
-            is AppResult.Loading -> AppResult.Loading
+            is AppResult.Success -> {
+                val userProfile = result.data.data
+                if (userProfile != null) {
+                    Log.d(
+                        TAG,
+                        "getUserProfile: Success! Received profile for ${userProfile.fullName} (ID: ${userProfile.id})"
+                    )
+                    AppResult.Success(userProfile)
+                } else {
+                    Log.e(
+                        TAG,
+                        "getUserProfile: Failure - API payload field 'data' was null (DecodingError)"
+                    )
+                    AppResult.Failure(AppError.DecodingError)
+                }
+            }
+
+            is AppResult.Failure -> {
+                Log.e(
+                    TAG, "getUserProfile: Network or Server Failure. Error Details: ${result.error}"
+                )
+                result
+            }
+
+            is AppResult.Loading -> {
+                Log.d(TAG, "getUserProfile: Request is loading/retrying...")
+                AppResult.Loading
+            }
         }
     }
 
@@ -89,7 +105,8 @@ class RemoteDataSource(
             retrofit.getCourseDetail(courseId)
         }) {
             is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
-                                    ?: AppResult.Failure(AppError.DecodingError)
+                ?: AppResult.Failure(AppError.DecodingError)
+
             is AppResult.Failure -> result
             is AppResult.Loading -> AppResult.Loading
         }
@@ -156,7 +173,8 @@ class RemoteDataSource(
             retrofit.getLeaderboard(courseId)
         }) {
             is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
-                                    ?: AppResult.Failure(AppError.DecodingError)
+                ?: AppResult.Failure(AppError.DecodingError)
+
             is AppResult.Failure -> result
             is AppResult.Loading -> AppResult.Loading
         }
@@ -193,15 +211,17 @@ class RemoteDataSource(
         return when (result) {
             is AppResult.Success -> AppResult.Success(
                 if (query.isBlank()) result.data
-                else result.data.filter { it.title.contains(query, ignoreCase = true) }
-            )
+                else result.data.filter { it.title.contains(query, ignoreCase = true) })
+
             else -> result
         }
     }
 
     // ── ACTIVITY COMPLETION ───────────────────────────────────────
 
-    override suspend fun updateActivityCompletion(activityId: Int, completed: Boolean): AppResult<Unit> {
+    override suspend fun updateActivityCompletion(
+        activityId: Int, completed: Boolean
+    ): AppResult<Unit> {
         return AppResult.Success(Unit)
     }
 }

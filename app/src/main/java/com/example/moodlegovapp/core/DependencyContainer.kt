@@ -61,6 +61,7 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
     fun makeProfileViewModel(): ProfileViewModel =
         ProfileViewModel(
             userRepository         = deps.userRepository,
-            certificatesRepository = deps.certificatesRepository
+            certificatesRepository = deps.certificatesRepository,
+            session                = sharedSession
         )
 }

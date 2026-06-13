@@ -24,6 +24,7 @@ fun AppError.shouldFallbackToLocalMock(): Boolean = when (this) {
     is AppError.NotFound      -> true
     is AppError.DecodingError -> true
     is AppError.ServerError   -> code in 500..599
+    is AppError.Unauthorized  -> NetworkConfig.USE_REMOTE_MOCK
     else                      -> false
 }
 

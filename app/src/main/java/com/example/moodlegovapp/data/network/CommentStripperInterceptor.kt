@@ -10,8 +10,8 @@ class CommentStripperInterceptor : Interceptor {
         val rawJson = response.body?.string() ?: ""
 
         // Regex to find and remove // inline comments
-        // Note: This matches '//' up to the end of the line
-        val cleanJson = rawJson.replace(Regex("//.*"), "")
+        // Note: This matches '//' up to the end of the line, ignoring URLs (http:// or https://)
+        val cleanJson = rawJson.replace(Regex("(?<!https:|http:)//.*"), "")
 
         val newBody = cleanJson.toResponseBody(response.body?.contentType())
         return response.newBuilder().body(newBody).build()

@@ -146,4 +146,4 @@ class LoginViewModel(
         fun tagToLanguage(tag: String): String =
             if (tag == "ar") LANGUAGE_ARABIC else LANGUAGE_ENGLISH
     }
-}
+}
