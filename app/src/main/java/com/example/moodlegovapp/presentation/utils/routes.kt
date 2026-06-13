@@ -11,7 +11,6 @@ sealed class ScreensRoute(val route: String) : Serializable {
     object Courses : ScreensRoute("courses")
     object Notifications : ScreensRoute("notifications")
     object Profile : ScreensRoute("profile")
-    object Splash : ScreensRoute("splash")
     object LoginStepOne : ScreensRoute("loginOne")
     object LoginStepTwo : ScreensRoute("loginTwo")
 

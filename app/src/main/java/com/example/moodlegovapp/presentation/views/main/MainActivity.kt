@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +32,6 @@ import com.example.moodlegovapp.presentation.utils.ScreensRoute
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
-import com.example.moodlegovapp.presentation.views.splash.SplashScreen
 import com.example.moodlegovapp.ui.theme.SpColors
 import com.example.moodlegovapp.ui.theme.SpTypography
 import com.gov.moodleapp.presentation.auth.LoginStepTwoView
@@ -69,61 +70,59 @@ class MainActivity : AppCompatActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = SpColors.LightGray) {
                     val session = remember { assembly.sharedSession }
 
-                    val rootNavController = rememberNavController()
+                    val isInitialized by session.isInitialized.observeAsState(initial = false)
 
-                    NavHost(
-                        navController = rootNavController,
-                        startDestination = ScreensRoute.Splash.route,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        composable(ScreensRoute.Splash.route) {
-                            SplashScreen(
-                                session = session,
-                                onSplashFinished = { isAuthenticated ->
-                                    val destination =
-                                        if (isAuthenticated) "main_app_root" else "auth_root"
-                                    rootNavController.navigate(destination) {
-                                        popUpTo(ScreensRoute.Splash.route) { inclusive = true }
-                                    }
-                                    isKeepShowing = false
-                                }
-                            )
+                    if (isInitialized) {
+                        val rootNavController = rememberNavController()
+                        val startRoute = if (session.isAuthenticated) "main_app_root" else "auth_root"
+
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            isKeepShowing = false
                         }
 
-                        // Unauthenticated Context Wrapper
-                        composable("auth_root") {
-                            val loginNavController = rememberNavController()
-                            NavHost(
-                                navController = loginNavController,
-                                startDestination = ScreensRoute.LoginStepOne.route
-                            ) {
-                                authGraph(
-                                    navController = loginNavController,
-                                    showBackButton = false,
-                                    onLoginSuccess = {
-                                        rootNavController.navigate("main_app_root") {
-                                            popUpTo("auth_root") { inclusive = true }
-                                        }
-                                    },
-                                    assembly = assembly
-                                )
-                            }
-                        }
-
-                        composable("main_app_root") {
-                            val mainNavController = rememberNavController()
-                            MainScreen(navController = mainNavController) {
+                        NavHost(
+                            navController = rootNavController,
+                            startDestination = startRoute,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            // Unauthenticated Context Wrapper
+                            composable("auth_root") {
+                                val loginNavController = rememberNavController()
                                 NavHost(
-                                    navController = mainNavController,
-                                    startDestination = ScreensRoute.Home.route
+                                    navController = loginNavController,
+                                    startDestination = ScreensRoute.LoginStepOne.route
                                 ) {
-                                    mainAppGraph(
-                                        navController = mainNavController,
+                                    authGraph(
+                                        navController = loginNavController,
+                                        showBackButton = false,
+                                        onLoginSuccess = {
+                                            rootNavController.navigate("main_app_root") {
+                                                popUpTo("auth_root") { inclusive = true }
+                                            }
+                                        },
                                         assembly = assembly
                                     )
                                 }
                             }
+
+                            composable("main_app_root") {
+                                val mainNavController = rememberNavController()
+                                MainScreen(navController = mainNavController) {
+                                    NavHost(
+                                        navController = mainNavController,
+                                        startDestination = ScreensRoute.Home.route
+                                    ) {
+                                        mainAppGraph(
+                                            navController = mainNavController,
+                                            assembly = assembly
+                                        )
+                                    }
+                                }
+                            }
                         }
+                    } else {
+                        // While session is restoring, show a blank background matching the splash screen
+                        Box(modifier = Modifier.fillMaxSize())
                     }
                 }
             }
