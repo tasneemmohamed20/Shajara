@@ -15,8 +15,9 @@ import com.example.moodlegovapp.data.network.datasource.SearchDataSource
 import com.example.moodlegovapp.data.network.datasource.StatsDataSource
 import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentItem
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
@@ -145,14 +146,15 @@ class MockApiService(
         }
     }
 
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
+    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> {
         fakeDelay()
-        return AppResult.Success(emptyList())
-    }
-
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
-        fakeDelay()
-        return AppResult.Failure(AppError.NotFound)
+        return try {
+            val response = readJson(R.raw.mock_assignments, object : TypeToken<AssignmentsResponse>() {})
+            response.data?.assignments?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.DecodingError)
+        } catch (_: Exception) {
+            AppResult.Failure(AppError.DecodingError)
+        }
     }
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {

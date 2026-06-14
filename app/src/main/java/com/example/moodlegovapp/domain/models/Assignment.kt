@@ -1,50 +1,78 @@
 package com.example.moodlegovapp.domain.models
 
-enum class SubmissionStatus {
-    NOT_SUBMITTED,
-    SUBMITTED,
-    GRADED,
-    LATE
-}
-
-enum class SubmissionType {
-    FILE_UPLOAD,
-    TEXT_ENTRY
-}
-
-data class Assignment(
+// 1. Individual assignment/task item model
+data class AssignmentItem(
     val id: Int,
-    val title: String,              // "Crime Scene Analysis Report"
-    val courseTitle: String,        // "CRIMINAL INVESTIGATION"
-    val courseCategory: String,     // "Crime Scene Analysis"
-    val dueInDays: Int,             // 3
-    val timeRemaining: String,      // "2 Days, 4 Hours"
-    val deadline: String,           // "Oct 24, 11:59 PM"
-    val overview: String,
-    val learningObjective: String,
-    val attempts: String,           // "1/2"
-    val submissionFormats: List<String>, // ["PDF","DOCX"]
-    val grading: String,            // "100 Points"
-    val cutOffDate: String,         // "15% of Final"
-    val detailedInstructions: String,
-    val resources: List<CourseResource>,
-    val submissionStatus: SubmissionStatus,
-    val submissionType: SubmissionType,
-    val requirements: List<String>  // integrity rules
+    val courseId: Int,
+    val courseName: String? = null,
+    val cmid: Int,
+    val name: String? = null,
+    val type: String? = null,
+    val intro: String? = null,
+    val learningObjective: String? = null,
+    val maxAttempts: Int = 0,
+    val usedAttempts: Int = 0,
+    val maxGrade: Int = 0,
+    val gradeWeightPercent: Int = 0,
+    val submissionTypes: List<String>? = null,
+    val allowedFileTypes: List<String>? = null,
+    val maxFileSizeMB: Int = 0,
+    val requirements: List<String>? = null,
+    val requireIntegrityStatement: Boolean = false,
+    val integrityStatementText: String? = null,
+    val dueDate: String? = null,
+    val dueDateFormatted: String? = null,
+    val dueLabel: String? = null,
+    val status: String? = null,
+    val resources: List<AssignmentResource>? = null
 )
 
+// 2. Nested assignment resource links
+data class AssignmentResource(
+    val name: String? = null,
+    val fileSizeLabel: String? = null,
+    val mimeType: String? = null,
+    val downloadUrl: String? = null
+)
+
+// 3. List response envelope — GET user/assignments
+data class AssignmentsResponse(
+    val success: Boolean,
+    val data: AssignmentsData? = null
+)
+
+data class AssignmentsData(
+    val total: Int,
+    val assignments: List<AssignmentItem>
+)
+
+// 4. Detail response envelope — GET courses?activity=assignment&assignid=
+data class AssignmentDetailResponse(
+    val success: Boolean,
+    val data: AssignmentItem? = null
+)
+
+// 5. Submission payload for upload / text submit
 data class AssignmentSubmission(
     val assignmentId: Int,
-    val submissionType: SubmissionType,
-    val uploadedFiles: List<UploadedFile>,
-    val textEntry: String?,
-    val hasConfirmedIntegrity: Boolean,
-    val comments: String?
+    val courseId: Int,
+    val onlineText: String? = null,
+    val fileUrls: List<String> = emptyList(),
+    val integrityAccepted: Boolean = false
 )
 
-data class UploadedFile(
-    val fileName: String,     // "crime_scene_report_v..."
-    val fileSize: String,     // "2.4 MB"
-    val status: String,       // "Uploaded"
-    val fileType: String      // PDF / DOCX / JPG
-)
+enum class AssignmentStatusFilter {
+    ALL, PENDING, OVERDUE, SUBMITTED
+}
+
+fun AssignmentItem.displayType(): String =
+    type?.takeIf { it.isNotBlank() }
+        ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        ?: "Assignment"
+
+fun AssignmentItem.displayStatus(): String = status.orEmpty()
+
+fun AssignmentItem.displayName(): String = name.orEmpty()
+
+fun AssignmentItem.isOverdue(): Boolean =
+    status.orEmpty().equals("overdue", ignoreCase = true)

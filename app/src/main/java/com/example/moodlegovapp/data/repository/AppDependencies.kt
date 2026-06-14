@@ -8,6 +8,7 @@ import com.example.moodlegovapp.data.network.NetworkConfig
 import com.example.moodlegovapp.data.network.RealApiService
 import com.example.moodlegovapp.data.network.RetrofitClient
 import com.example.moodlegovapp.data.service.DataStoreManager
+import kotlin.getValue
 
 
 class AppDependencies private constructor(context: Context) {
@@ -64,5 +65,8 @@ class AppDependencies private constructor(context: Context) {
 
     val certificatesRepository: CertificatesRepository by lazy {
         CertificatesRepository(certificatesDataSource = apiService)
+    }
+    val assignmentRepo: AssignmentsRepositoryImpl by lazy {
+        AssignmentsRepositoryImpl(api = apiService)
     }
 }

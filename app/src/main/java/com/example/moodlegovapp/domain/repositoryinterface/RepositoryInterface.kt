@@ -1,7 +1,7 @@
 package com.example.moodlegovapp.domain.repositoryinterface
 
 import com.example.moodlegovapp.data.network.AppResult
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentItem
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
@@ -37,9 +37,9 @@ interface CoursesRepositoryProtocol {
     suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail>
     suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>>
     suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>>
-    suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>>
-    suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment>
-    suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit>
+//    suspend fun getAllAssignments(): AppResult<List<AssignmentItem>>
+//    suspend fun getAssignments(courseId: Int): AppResult<List<AssignmentItem>>
+//    suspend fun getAssignmentDetail(assignmentId: Int): AppResult<AssignmentItem>
     suspend fun searchCourses(query: String): AppResult<List<Course>>
     suspend fun updateActivityCompletion(activityId: Int, completed: Boolean): AppResult<Unit>
 }
@@ -52,4 +52,9 @@ interface NotificationsRepositoryProtocol {
 interface CertificatesRepositoryProtocol {
     suspend fun getCertificates(): AppResult<List<Certificate>>
     suspend fun getDownloadUrl(certificateId: Int): AppResult<String>
+}
+
+interface IAssignmentsRepository {
+    suspend fun getAllAssignments(courseId: Int): AppResult<List<AssignmentItem>>
+    suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit>
 }

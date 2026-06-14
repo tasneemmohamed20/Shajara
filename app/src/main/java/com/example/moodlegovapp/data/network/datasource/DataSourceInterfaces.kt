@@ -1,7 +1,7 @@
 package com.example.moodlegovapp.data.network.datasource
 
 import com.example.moodlegovapp.data.network.AppResult
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentItem
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
@@ -40,8 +40,8 @@ interface CoursesDataSource {
 }
 
 interface AssignmentsDataSource {
-    suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>>
-    suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment>
+    /** Fetches all assignments for the given course. */
+    suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>>
     suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit>
 }
 

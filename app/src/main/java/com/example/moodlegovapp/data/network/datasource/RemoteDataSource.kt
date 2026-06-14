@@ -7,8 +7,9 @@ import com.example.moodlegovapp.data.network.NetworkCallHandler
 import com.example.moodlegovapp.data.network.RetrofitApiService
 import com.example.moodlegovapp.data.network.RetryPolicy
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentItem
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
@@ -126,15 +127,17 @@ class RemoteDataSource(
 
     // ── ASSIGNMENTS ───────────────────────────────────────────────
 
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
-            retrofit.getAssignments(courseId)
-        }
-    }
-
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
-            retrofit.getAssignmentDetail(assignId = assignmentId)
+    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> {
+        return when (val result = NetworkCallHandler.safeCall<AssignmentsResponse>(retryPolicy) {
+            retrofit.getAllUserAssignments(courseId)
+        }) {
+            is AppResult.Success -> {
+                val items = result.data.data?.assignments
+                if (items != null) AppResult.Success(items)
+                else AppResult.Failure(AppError.DecodingError)
+            }
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 

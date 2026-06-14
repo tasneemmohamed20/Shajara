@@ -1,7 +1,7 @@
 package com.example.moodlegovapp.data.network
 
 import android.util.Log
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentItem
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
@@ -76,11 +76,8 @@ class FallbackApiService(
     override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> =
         withFallback("getCourseResources", { network.getCourseResources(courseId) }, { localMock.getCourseResources(courseId) })
 
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> =
-        withFallback("getAssignments", { network.getAssignments(courseId) }, { localMock.getAssignments(courseId) })
-
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> =
-        withFallback("getAssignmentDetail", { network.getAssignmentDetail(assignmentId) }, { localMock.getAssignmentDetail(assignmentId) })
+    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> =
+        withFallback("getAllUserAssignments", { network.getAllUserAssignments(courseId) }, { localMock.getAllUserAssignments(courseId) })
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> =
         withFallback("submitAssignment", { network.submitAssignment(submission) }, { localMock.submitAssignment(submission) })

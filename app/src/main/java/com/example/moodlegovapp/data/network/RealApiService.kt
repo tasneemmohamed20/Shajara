@@ -3,8 +3,9 @@ package com.example.moodlegovapp.data.network
 import com.example.moodlegovapp.data.service.DataStoreManager
 
 import retrofit2.Response
-import  com.example.moodlegovapp.domain.models.Assignment
+import  com.example.moodlegovapp.domain.models.AssignmentItem
 import  com.example.moodlegovapp.domain.models.AssignmentSubmission
+import  com.example.moodlegovapp.domain.models.AssignmentsResponse
 import  com.example.moodlegovapp.domain.models.Notification
 import  com.example.moodlegovapp.domain.models.Badge
 import  com.example.moodlegovapp.domain.models.Certificate
@@ -82,12 +83,16 @@ class RealApiService(
     }
 
     // ── ASSIGNMENTS ───────────────────────────
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
-        return safeCall { retrofit.getAssignments(courseId) }
-    }
-
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
-        return safeCall { retrofit.getAssignmentDetail(assignId = assignmentId) }
+    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> {
+        return when (val result = safeCall { retrofit.getAllUserAssignments(courseId) }) {
+            is AppResult.Success -> {
+                val items = result.data.data?.assignments
+                if (items != null) AppResult.Success(items)
+                else AppResult.Failure(AppError.DecodingError)
+            }
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {

@@ -1,7 +1,8 @@
 package com.example.moodlegovapp.data.network
 
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentItem
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
@@ -32,6 +33,7 @@ import com.example.moodlegovapp.data.network.datasource.StatsDataSource
 import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiServiceProtocol :
@@ -75,10 +77,15 @@ interface RetrofitApiService {
         @Query("id") userId: Int
     ): Response<List<Course>>
 
-    @GET("courses")
-    suspend fun getCourseDetail(
-        @Query("courseId") courseId: Int
-    ): Response<CourseDetailsResponse>
+    @GET("courses/{courseId}/contents")
+     suspend fun getCourseDetail(
+        @Path("courseId") courseId: Int
+     ): Response<CourseDetailsResponse>
+
+//    @GET("courses")
+//    suspend fun getCourseDetail(
+//        @Query("courseId") courseId: Int
+//    ): Response<CourseDetailsResponse>
 
     @GET("courses")
     suspend fun getCourseModules(
@@ -92,17 +99,10 @@ interface RetrofitApiService {
         @Query("contents") contents: String = "resources"
     ): Response<List<CourseResource>>
 
-    @GET("courses")
-    suspend fun getAssignments(
-        @Query("courseId")  courseId: Int,
-        @Query("activities") activities: String = "assignments"
-    ): Response<List<Assignment>>
-
-    @GET("courses")
-    suspend fun getAssignmentDetail(
-        @Query("activity") activity: String = "assignment",
-        @Query("assignid") assignId: Int
-    ): Response<Assignment>
+    @GET("courses/{courseId}/contents")
+    suspend fun getAllUserAssignments(
+        @Path("courseId") courseId: Int
+    ): Response<AssignmentsResponse>
 
     // NOTIFICATIONS
     @GET("notifications")

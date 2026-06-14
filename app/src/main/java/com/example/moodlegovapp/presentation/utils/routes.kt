@@ -17,6 +17,12 @@ sealed class ScreensRoute(val route: String) : Serializable {
     object CourseDetail : ScreensRoute("course_detail/{courseId}") {
         fun createRoute(courseId: Int): String = "course_detail/$courseId"
     }
+    object AssignmentDetails : ScreensRoute("assignment_detail/{courseId}/{assignmentId}") {
+        fun createRoute(courseId: Int, assignmentId: Int): String = "assignment_detail/$courseId/$assignmentId"
+    }
+
+//    object AssignmentDetails : ScreensRoute("assignment_detail")
+
 }
 
 sealed class Tab(

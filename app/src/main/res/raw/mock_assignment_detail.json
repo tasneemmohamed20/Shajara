@@ -1,0 +1,45 @@
+{
+  "success": true,
+  "data": {
+    "id": 501,
+    "courseId": 101,
+    "courseName": "Criminal Investigation Basics",
+    "cmid": 205,
+    "name": "Crime Scene Analysis Report",
+    "type": "assignment",
+    "intro": "Analyze the provided crime scene photos and submit a comprehensive report detailing potential evidence, suspects, and procedural steps.",
+    "learningObjective": "Apply forensic evidence collection protocols in a simulated environment.",
+    "maxAttempts": 2,
+    "usedAttempts": 1,
+    "maxGrade": 100,
+    "gradeWeightPercent": 15,
+    "submissionTypes": ["file", "onlinetext"],
+    "allowedFileTypes": [".pdf", ".docx"],
+    "maxFileSizeMB": 25,
+    "requirements": [
+      "Include incident diagram",
+      "Minimum 500 words analysis",
+      "Cite relevant penal codes"
+    ],
+    "requireIntegrityStatement": true,
+    "integrityStatementText": "I confirm this submission follows academy integrity rules and is my original work.",
+    "dueDate": "2024-10-24T23:59:00Z",
+    "dueDateFormatted": "Oct 24, 11:59 PM",
+    "dueLabel": "Due in 2 days",
+    "status": "pending",
+    "resources": [
+      {
+        "name": "Scene_Photos.zip",
+        "fileSizeLabel": "12 MB",
+        "mimeType": "application/zip",
+        "downloadUrl": "https://lms.sharjahpolice.ae/files/courses/101/resources/Scene_Photos.zip"
+      },
+      {
+        "name": "Report_Template.pdf",
+        "fileSizeLabel": "2.4 MB",
+        "mimeType": "application/pdf",
+        "downloadUrl": "https://lms.sharjahpolice.ae/files/courses/101/resources/Report_Template.pdf"
+      }
+    ]
+  }
+}

@@ -35,6 +35,7 @@ import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
 import com.example.moodlegovapp.presentation.views.Profile.ProfileScreen
+import com.example.moodlegovapp.presentation.views.assignments.AssignmentDetailsScreen
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
@@ -228,9 +229,38 @@ fun NavGraphBuilder.mainAppGraph(
         CourseOverviewScreen(
             vm = vm,
             onBackClick = { navController.popBackStack() },
-            onReviewAssignmentClick = { },
+            onReviewAssignmentClick = { assignmentId ->
+                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(courseId, assignmentId))
+            },
             onActivityClick = { },
             onResourcesClick = { })
+    }
+
+    composable(
+        route = ScreensRoute.AssignmentDetails.route,
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("assignmentId") { type = NavType.IntType }
+        )
+    ) { backStackEntry ->
+        val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
+        val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: 0
+        val vm = remember(assignmentId) { assembly.makeAssignmentsViewModel() }
+
+        LaunchedEffect(courseId, assignmentId) {
+            vm.selectAssignmentById(courseId, assignmentId)
+        }
+
+        AssignmentDetailsScreen(
+            assignmentsViewModel = vm,
+            onBackClick = { navController.popBackStack() },
+            onDownloadResource = {},
+            onDownloadAllResources = {},
+            onContactInstructorClick = {},
+            onGuideClick = {},
+            onStartAssignmentClick = {},
+        )
+
     }
 }
 
