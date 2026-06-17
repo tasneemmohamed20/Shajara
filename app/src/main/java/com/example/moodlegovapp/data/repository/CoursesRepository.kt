@@ -2,7 +2,7 @@ package com.example.moodlegovapp.data.repository
 import com.example.moodlegovapp.data.network.ApiServiceProtocol
 import com.example.moodlegovapp.data.network.AppResult
 import com.example.moodlegovapp.domain.repositoryinterface.CoursesRepositoryProtocol
-import com.example.moodlegovapp.domain.models.AssignmentItem
+import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseDetail
@@ -17,10 +17,9 @@ class CoursesRepository(
     override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> = api.getCourseDetail(courseId)
     override suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>> = api.getCourseModules(courseId)
     override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> = api.getCourseResources(courseId)
-//    override suspend fun getAllAssignments(): AppResult<List<AssignmentItem>> = api.getAllUserAssignments()
-//    override suspend fun getAssignments(courseId: Int): AppResult<List<AssignmentItem>> = api.getAssignments(courseId)
-//    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<AssignmentItem> = api.getAssignmentDetail(assignmentId)
-//    override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> = api.submitAssignment(submission)
+    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> = api.getAssignments(courseId)
+    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> = api.getAssignmentDetail(assignmentId)
+    override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> = api.submitAssignment(submission)
     override suspend fun searchCourses(query: String): AppResult<List<Course>> = api.searchCourses(query)
     override suspend fun updateActivityCompletion(activityId: Int, completed: Boolean): AppResult<Unit> = api.updateActivityCompletion(activityId, completed)
 }

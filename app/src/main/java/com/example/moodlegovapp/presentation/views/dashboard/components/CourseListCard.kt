@@ -161,7 +161,7 @@ private fun InnerCourseItemCard(
                 // 1. The Composable image goes here, filling the entire parent Box bounds
                 GlideImage(
 //                    model = course.imageUrl,
-                    model = "https://img.magnific.com/free-vector/online-tutorials-concept_52683-37480.jpg?semt=ais_hybrid&w=740&q=80",
+                    model = R.drawable.crime,
                     contentDescription = course.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

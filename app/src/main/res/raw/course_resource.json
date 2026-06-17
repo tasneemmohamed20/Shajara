@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "data": {
+    "resources": [
+      {
+        "id": "res_1",
+        "name": "Scene_Photos.zip",
+        "fileName": "Scene_Photos.zip",
+        "mimeType": "application/zip",
+        "fileSizeLabel": "12 MB",
+        "downloadUrl": "https://lms.sharjahpolice.ae/files/courses/101/resources/Scene_Photos.zip"
+      },
+      {
+        "id": "res_2",
+        "name": "Report_Template.pdf",
+        "fileName": "Report_Template.pdf",
+        "mimeType": "application/pdf",
+        "fileSizeLabel": "2.4 MB",
+        "downloadUrl": "https://lms.sharjahpolice.ae/files/courses/101/resources/Report_Template.pdf"
+      }
+    ]
+  }
+}

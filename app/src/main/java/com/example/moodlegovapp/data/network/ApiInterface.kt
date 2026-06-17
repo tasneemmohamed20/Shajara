@@ -1,24 +1,5 @@
 package com.example.moodlegovapp.data.network
 
-import com.example.moodlegovapp.domain.models.AssignmentItem
-import com.example.moodlegovapp.domain.models.AssignmentSubmission
-import com.example.moodlegovapp.domain.models.AssignmentsResponse
-import com.example.moodlegovapp.domain.models.AuthToken
-import com.example.moodlegovapp.domain.models.Badge
-import com.example.moodlegovapp.domain.models.Certificate
-import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetail
-import com.example.moodlegovapp.domain.models.CourseDetailsResponse
-import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.LeaderboardData
-import com.example.moodlegovapp.domain.models.LeaderboardResponse
-import com.example.moodlegovapp.domain.models.Notification
-import com.example.moodlegovapp.domain.models.PerformanceOverview
-import com.example.moodlegovapp.domain.models.TrainingEvent
-import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.UserProfile
-import com.example.moodlegovapp.domain.models.UserResponse
 import com.example.moodlegovapp.data.network.datasource.ActivityDataSource
 import com.example.moodlegovapp.data.network.datasource.AssignmentsDataSource
 import com.example.moodlegovapp.data.network.datasource.AuthDataSource
@@ -31,8 +12,34 @@ import com.example.moodlegovapp.data.network.datasource.NotificationsDataSource
 import com.example.moodlegovapp.data.network.datasource.SearchDataSource
 import com.example.moodlegovapp.data.network.datasource.StatsDataSource
 import com.example.moodlegovapp.data.network.datasource.UserDataSource
+import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
+import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatusResponse
+import com.example.moodlegovapp.domain.models.AssignmentsResponse
+import com.example.moodlegovapp.domain.models.AuthToken
+import com.example.moodlegovapp.domain.models.Badge
+import com.example.moodlegovapp.domain.models.Certificate
+import com.example.moodlegovapp.domain.models.Course
+import com.example.moodlegovapp.domain.models.CourseDetailsResponse
+import com.example.moodlegovapp.domain.models.CourseModule
+import com.example.moodlegovapp.domain.models.CourseResourcesResponse
+import com.example.moodlegovapp.domain.models.FileUploadResponse
+import com.example.moodlegovapp.domain.models.LeaderboardResponse
+import com.example.moodlegovapp.domain.models.Notification
+import com.example.moodlegovapp.domain.models.PerformanceOverview
+import com.example.moodlegovapp.domain.models.SubmissionFinalizeResponse
+import com.example.moodlegovapp.domain.models.SubmissionSaveResponse
+import com.example.moodlegovapp.domain.models.TrainingEvent
+import com.example.moodlegovapp.domain.models.TrainingStats
+import com.example.moodlegovapp.domain.models.UserResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -77,15 +84,10 @@ interface RetrofitApiService {
         @Query("id") userId: Int
     ): Response<List<Course>>
 
-    @GET("courses/{courseId}/contents")
-     suspend fun getCourseDetail(
-        @Path("courseId") courseId: Int
-     ): Response<CourseDetailsResponse>
-
-//    @GET("courses")
-//    suspend fun getCourseDetail(
-//        @Query("courseId") courseId: Int
-//    ): Response<CourseDetailsResponse>
+    @GET("courses")
+    suspend fun getCourseDetail(
+        @Query("courseId") courseId: Int
+    ): Response<CourseDetailsResponse>
 
     @GET("courses")
     suspend fun getCourseModules(
@@ -93,16 +95,65 @@ interface RetrofitApiService {
         @Query("contents") contents: String = "true"
     ): Response<List<CourseModule>>
 
-    @GET("courses")
-    suspend fun getCourseResources(
-        @Query("courseId") courseId: Int,
-        @Query("contents") contents: String = "resources"
-    ): Response<List<CourseResource>>
+    // ── Assignments ────────────────────────────────────────────────────────
 
-    @GET("courses/{courseId}/contents")
-    suspend fun getAllUserAssignments(
-        @Path("courseId") courseId: Int
+    /** GET /api/courses/assignments?userId={userId} */
+    @GET("api/courses/assignments")
+    suspend fun getAssignments(
+        @Query("userId") userId: Int
     ): Response<AssignmentsResponse>
+
+    /** GET /api/courses/assignments?userId={userId}&courseId={courseId} */
+    @GET("api/courses/assignments")
+    suspend fun getAssignmentsByCourse(
+        @Query("userId")   userId:   Int,
+        @Query("courseId") courseId: Int
+    ): Response<AssignmentsResponse>
+
+    /** GET /api/courses/assignments/{assignmentId}/submission?userId={userId} */
+    @GET("api/courses/assignments/{assignmentId}/submission")
+    suspend fun getSubmissionStatus(
+        @Path("assignmentId") assignmentId: Int,
+        @Query("userId")      userId:       Int
+    ): Response<AssignmentSubmissionStatusResponse>
+
+    /** POST /api/courses/assignments/{assignmentId}/submission/save?userId={userId} */
+    @POST("api/courses/assignments/{assignmentId}/submission/save")
+    suspend fun saveSubmission(
+        @Path("assignmentId") assignmentId: Int,
+        @Query("userId")      userId:       Int,
+        @Body                 body:         AssignmentSubmission
+    ): Response<SubmissionSaveResponse>
+
+    /** POST /api/courses/assignments/{assignmentId}/submission/finalize?userId={userId} */
+    @POST("api/courses/assignments/{assignmentId}/submission/finalize")
+    suspend fun finalizeSubmission(
+        @Path("assignmentId") assignmentId: Int,
+        @Query("userId")      userId:       Int,
+        @Body                 body: AssignmentSubmissionFinalize
+    ): Response<SubmissionFinalizeResponse>
+
+    /**
+     * POST /api/courses/assignments/{assignmentId}/upload?userId={userId}
+     * Content-Type: multipart/form-data
+     */
+    @Multipart
+    @POST("api/courses/assignments/{assignmentId}/upload")
+    suspend fun uploadAssignmentFile(
+        @Path("assignmentId")   assignmentId: Int,
+        @Query("userId")        userId:       Int,
+        @Part                   file:         MultipartBody.Part,
+        @Part("draftItemId")    draftItemId:  RequestBody
+    ): Response<FileUploadResponse>
+
+    // ── Course resources ───────────────────────────────────────────────────
+
+    /** GET /api/courses/{courseId}/resources?userId={userId} */
+    @GET("api/courses/{courseId}/resources")
+    suspend fun getCourseResources(
+        @Path("courseId") courseId: Int,
+        @Query("userId")  userId:   Int
+    ): Response<CourseResourcesResponse>
 
     // NOTIFICATIONS
     @GET("notifications")

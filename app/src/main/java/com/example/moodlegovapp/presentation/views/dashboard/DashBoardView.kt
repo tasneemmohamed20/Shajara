@@ -98,7 +98,7 @@ fun DashboardScreen(
     val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
     val unreadCount by vm.unreadCount.collectAsState()
-    val profileUrl = "https://m.media-amazon.com/images/I/615JjV818kL._AC_SL1500_.jpg"
+    val profileUrl = R.drawable.avatar
     var searchQuery by remember { mutableStateOf("") }
     var currentFilter by remember { mutableStateOf(TrainingFilter.ACTIVE) }
     val pullState = rememberPullToRefreshState()
@@ -330,7 +330,7 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: String) {
+private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: Int) {
     Box(
         modifier = Modifier
             .fillMaxWidth()

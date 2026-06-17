@@ -7,7 +7,7 @@ import com.example.moodlegovapp.data.network.NetworkCallHandler
 import com.example.moodlegovapp.data.network.RetrofitApiService
 import com.example.moodlegovapp.data.network.RetryPolicy
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.AssignmentItem
+import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
@@ -18,10 +18,12 @@ import com.example.moodlegovapp.domain.models.CourseDetail
 import com.example.moodlegovapp.domain.models.CourseDetailsResponse
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
+import com.example.moodlegovapp.domain.models.CourseResourcesResponse
 import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
+import com.example.moodlegovapp.domain.models.SubmissionSaveResponse
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
 import com.example.moodlegovapp.domain.models.UserProfile
@@ -118,32 +120,58 @@ class RemoteDataSource(
             retrofit.getCourseModules(courseId)
         }
     }
+// ── COURSES ───────────────────────────────────────────────────
 
     override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
-            retrofit.getCourseResources(courseId)
+        return when (val result = NetworkCallHandler.safeCall<CourseResourcesResponse>(retryPolicy) {
+            retrofit.getCourseResources(courseId, getCurrentUserId())  // fix: missing userId param
+        }) {
+            is AppResult.Success -> result.data.data?.resources?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.DecodingError)           // fix: unwrap .data.resources
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 
-    // ── ASSIGNMENTS ───────────────────────────────────────────────
+// ── ASSIGNMENTS ───────────────────────────────────────────────
 
-    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> {
+    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
         return when (val result = NetworkCallHandler.safeCall<AssignmentsResponse>(retryPolicy) {
-            retrofit.getAllUserAssignments(courseId)
+            retrofit.getAssignmentsByCourse(getCurrentUserId(), courseId) // fix: use correct endpoint
         }) {
-            is AppResult.Success -> {
-                val items = result.data.data?.assignments
-                if (items != null) AppResult.Success(items)
-                else AppResult.Failure(AppError.DecodingError)
-            }
+            is AppResult.Success -> result.data.data?.assignments?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.DecodingError)             // fix: unwrap .data.assignments
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
+    }
+
+    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
+        // fix: no single-assignment endpoint exists in RetrofitApiService;
+        // fetch all and find by id as a workaround
+        return when (val result = NetworkCallHandler.safeCall<AssignmentsResponse>(retryPolicy) {
+            retrofit.getAssignments(getCurrentUserId())
+        }) {
+            is AppResult.Success -> result.data.data?.assignments
+                ?.find { it.id == assignmentId }
+                ?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.NotFound)
             is AppResult.Failure -> result
             is AppResult.Loading -> AppResult.Loading
         }
     }
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {
-        return AppResult.Success(Unit)
+        // fix: no submitAssignment endpoint exists; use saveSubmission instead
+        return when (NetworkCallHandler.safeCall<SubmissionSaveResponse>(retryPolicy) {
+            retrofit.saveSubmission(submission.assignmentId, getCurrentUserId(), submission)
+        }) {
+            is AppResult.Success -> AppResult.Success(Unit)
+            is AppResult.Failure -> AppResult.Failure(AppError.Unknown)
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
+
 
     // ── NOTIFICATIONS ─────────────────────────────────────────────
 

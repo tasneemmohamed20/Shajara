@@ -1,27 +1,25 @@
 package com.example.moodlegovapp.data.network
 
 import com.example.moodlegovapp.data.service.DataStoreManager
-
-import retrofit2.Response
-import  com.example.moodlegovapp.domain.models.AssignmentItem
-import  com.example.moodlegovapp.domain.models.AssignmentSubmission
-import  com.example.moodlegovapp.domain.models.AssignmentsResponse
-import  com.example.moodlegovapp.domain.models.Notification
-import  com.example.moodlegovapp.domain.models.Badge
-import  com.example.moodlegovapp.domain.models.Certificate
-import  com.example.moodlegovapp.domain.models.Course
-import  com.example.moodlegovapp.domain.models.CourseDetail
-import  com.example.moodlegovapp.domain.models.CourseDetailsResponse
-import  com.example.moodlegovapp.domain.models.CourseModule
-import  com.example.moodlegovapp.domain.models.CourseResource
-import  com.example.moodlegovapp.domain.models.LeaderboardData
-import  com.example.moodlegovapp.domain.models.LeaderboardResponse
-import  com.example.moodlegovapp.domain.models.PerformanceOverview
-import  com.example.moodlegovapp.domain.models.TrainingEvent
-import  com.example.moodlegovapp.domain.models.TrainingStats
-import  com.example.moodlegovapp.domain.models.UserProfile
-import  com.example.moodlegovapp.domain.models.UserResponse
-import  com.example.moodlegovapp.domain.models.AuthToken
+import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AssignmentsResponse
+import com.example.moodlegovapp.domain.models.AuthToken
+import com.example.moodlegovapp.domain.models.Badge
+import com.example.moodlegovapp.domain.models.Certificate
+import com.example.moodlegovapp.domain.models.Course
+import com.example.moodlegovapp.domain.models.CourseDetail
+import com.example.moodlegovapp.domain.models.CourseModule
+import com.example.moodlegovapp.domain.models.CourseResource
+import com.example.moodlegovapp.domain.models.CourseResourcesResponse
+import com.example.moodlegovapp.domain.models.LeaderboardData
+import com.example.moodlegovapp.domain.models.Notification
+import com.example.moodlegovapp.domain.models.PerformanceOverview
+import com.example.moodlegovapp.domain.models.SubmissionSaveResponse
+import com.example.moodlegovapp.domain.models.TrainingEvent
+import com.example.moodlegovapp.domain.models.TrainingStats
+import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.domain.models.UserResponse
 
 class RealApiService(
     private val retrofit: RetrofitApiService,
@@ -78,27 +76,50 @@ class RealApiService(
         }
     }
 
-    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
-        return safeCall { retrofit.getCourseResources(courseId) }
+
+    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
+        return when (val r = safeCall<AssignmentsResponse> {
+            if (courseId <= 0) retrofit.getAssignments(userId())
+            else               retrofit.getAssignmentsByCourse(userId(), courseId)
+        }) {
+            is AppResult.Success -> AppResult.Success(r.data.data?.assignments ?: emptyList())
+            is AppResult.Failure -> r
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
-    // ── ASSIGNMENTS ───────────────────────────
-    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> {
-        return when (val result = safeCall { retrofit.getAllUserAssignments(courseId) }) {
-            is AppResult.Success -> {
-                val items = result.data.data?.assignments
-                if (items != null) AppResult.Success(items)
-                else AppResult.Failure(AppError.DecodingError)
-            }
-            is AppResult.Failure -> result
+    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
+        // No dedicated detail endpoint on the mock server — pull list and filter.
+        return when (val r = getAssignments(-1)) {
+            is AppResult.Success -> r.data.find { it.id == assignmentId }
+                ?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.NotFound)
+            is AppResult.Failure -> r
             is AppResult.Loading -> AppResult.Loading
         }
     }
 
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {
-        return AppResult.Success(Unit)
+        return when (val result = safeCall<SubmissionSaveResponse> {
+            retrofit.saveSubmission(submission.assignmentId, userId(), submission)
+        }) {
+            is AppResult.Success -> AppResult.Success(Unit)
+            is AppResult.Failure -> result  // propagate
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
+// ── COURSE RESOURCES ──────────────────────────────────────────────────────────
+
+    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
+        return when (val r = safeCall<CourseResourcesResponse> {
+            retrofit.getCourseResources(courseId, userId())
+        }) {
+            is AppResult.Success -> AppResult.Success(r.data.data?.resources ?: emptyList())
+            is AppResult.Failure -> r
+            is AppResult.Loading -> AppResult.Loading
+        }
+    }
     // ── NOTIFICATIONS ─────────────────────────
     override suspend fun getNotifications(): AppResult<List<Notification>> {
         return safeCall { retrofit.getNotifications(userId()) }

@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "data": {
+    "assignmentId": 301,
+    "status": "not_submitted",
+    "attemptsUsed": 1,
+    "maxAttempts": 2,
+    "timeRemaining": "2 Days, 4 Hours",
+    "deadline": "Oct 24, 11:59 PM",
+    "gradingStatus": "not_graded",
+    "grade": null,
+    "feedback": null,
+    "submittedFiles": [],
+    "onlineText": null,
+    "canEdit": true,
+    "canSubmit": true,
+    "isLate": false,
+    "previousAttempts": []
+  }
+}

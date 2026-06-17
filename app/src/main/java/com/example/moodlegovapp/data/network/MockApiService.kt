@@ -15,8 +15,11 @@ import com.example.moodlegovapp.data.network.datasource.SearchDataSource
 import com.example.moodlegovapp.data.network.datasource.StatsDataSource
 import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.AssignmentItem
+import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
+import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
+import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatus
+import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatusResponse
 import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
@@ -26,12 +29,16 @@ import com.example.moodlegovapp.domain.models.CourseDetail
 import com.example.moodlegovapp.domain.models.CourseDetailsResponse
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
+import com.example.moodlegovapp.domain.models.CourseResourcesResponse
+import com.example.moodlegovapp.domain.models.FileUploadResult
 import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
+import com.example.moodlegovapp.domain.models.SubmissionFinalizeData
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
+import com.example.moodlegovapp.domain.models.UploadedFileInfo
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.models.UserResponse
 import com.google.gson.Gson
@@ -129,10 +136,10 @@ class MockApiService(
         }
     }
 
-    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
-        fakeDelay()
-        return AppResult.Success(emptyList())
-    }
+//    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
+//        fakeDelay()
+//        return AppResult.Success(emptyList())
+//    }
 
     override suspend fun searchCourses(query: String): AppResult<List<Course>> {
         fakeDelay()
@@ -146,22 +153,132 @@ class MockApiService(
         }
     }
 
-    override suspend fun getAllUserAssignments(courseId: Int): AppResult<List<AssignmentItem>> {
+    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
         fakeDelay()
         return try {
-            val response = readJson(R.raw.mock_assignments, object : TypeToken<AssignmentsResponse>() {})
-            response.data?.assignments?.let { AppResult.Success(it) }
+            val response = readJson(
+                R.raw.assigment,
+                object : TypeToken<AssignmentsResponse>() {}
+            )
+            val all = response.data?.assignments ?: emptyList()
+            val filtered = if (courseId <= 0) all
+            else all.filter { it.courseId == courseId }
+            AppResult.Success(filtered)
+        } catch (_: Exception) {
+            AppResult.Failure(AppError.DecodingError)
+        }
+    }
+
+    // 2. getAssignmentDetail — finds a single assignment by id from the same file.
+    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
+        fakeDelay()
+        return try {
+            val response = readJson(
+                R.raw.assigment,
+                object : TypeToken<AssignmentsResponse>() {}
+            )
+            val found = response.data?.assignments?.find { it.id == assignmentId }
+            found?.let { AppResult.Success(it) }
+                ?: AppResult.Failure(AppError.NotFound)
+        } catch (_: Exception) {
+            AppResult.Failure(AppError.DecodingError)
+        }
+    }
+
+    // 3. getSubmissionStatus — reads mock_assignment_submission_status.json and
+//    patches the assignmentId field so the caller always gets the right id back.
+    suspend fun getSubmissionStatus(assignmentId: Int): AppResult<AssignmentSubmissionStatus> {
+        fakeDelay()
+        return try {
+            val response = readJson(
+                R.raw.submission_status,
+                object : TypeToken<AssignmentSubmissionStatusResponse>(){}
+            )
+            response.data
+                ?.copy(assignmentId = assignmentId)
+                ?.let { AppResult.Success(it) }
                 ?: AppResult.Failure(AppError.DecodingError)
         } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
 
+    // 4. submitAssignment (draft save) — returns a fixed draft response.
     override suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit> {
         fakeDelay()
-        return AppResult.Success(Unit)
+        return AppResult.Success(Unit)   // UI layer can treat Unit as "draft saved"
     }
 
+    // 5. finalizeSubmission — always succeeds in mock.
+    suspend fun finalizeSubmission(
+        finalize: AssignmentSubmissionFinalize
+    ): AppResult<SubmissionFinalizeData> {
+        fakeDelay()
+        return if (finalize.acceptIntegrityStatement) {
+            AppResult.Success(
+                SubmissionFinalizeData(
+                    submissionId  = 9001,
+                    status        = "submitted",
+                    submittedAt   = "2024-10-22T14:30:00Z",
+                    gradingStatus = "not_graded"
+                )
+            )
+        } else {
+            AppResult.Failure(AppError.ValidationError(mapOf("integrity" to "Must accept integrity statement")))
+        }
+    }
+
+    // 6. uploadFile — returns a fixed FileUploadResult without doing a real upload.
+    suspend fun uploadFile(
+        assignmentId: Int,
+        fileName: String,
+        fileSizeBytes: Long
+    ): AppResult<FileUploadResult> {
+        fakeDelay()
+        val maxBytes = 25L * 1024 * 1024
+        return if (fileSizeBytes > maxBytes) {
+            AppResult.Failure(AppError.BadRequest("File exceeds the maximum allowed size of 25MB."))
+        } else {
+            AppResult.Success(
+                FileUploadResult(
+                    draftItemId = 987654,
+                    file = UploadedFileInfo(
+                        fileName = fileName,
+                        fileSizeLabel = "${fileSizeBytes / (1024 * 1024)}.${(fileSizeBytes % (1024 * 1024)) / 100000} MB",
+                        mimeType = guessMimeType(fileName),
+                        previewUrl = "https://lms.sharjahpolice.ae/drafts/101/987654/$fileName"
+                    )
+                )
+            )
+        }
+    }
+
+    // 7. getCourseResources — now reads from mock_course_resources.json.
+    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
+        fakeDelay()
+        return try {
+            val response = readJson(
+                R.raw.course_resource,
+                object : TypeToken<CourseResourcesResponse>() {}
+            )
+            response.data?.resources
+                ?.let { AppResult.Success(it) }
+                ?: AppResult.Success(emptyList())
+        } catch (_: Exception) {
+            AppResult.Failure(AppError.DecodingError)
+        }
+    }
+
+    // ── Private helper (add to MockApiService body) ───────────────────────────────
+    private fun guessMimeType(fileName: String): String = when {
+        fileName.endsWith(".pdf",  ignoreCase = true) -> "application/pdf"
+        fileName.endsWith(".docx", ignoreCase = true) -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        fileName.endsWith(".jpg",  ignoreCase = true) ||
+                fileName.endsWith(".jpeg", ignoreCase = true) -> "image/jpeg"
+        fileName.endsWith(".png",  ignoreCase = true) -> "image/png"
+        fileName.endsWith(".zip",  ignoreCase = true) -> "application/zip"
+        else                                          -> "application/octet-stream"
+    }
     override suspend fun updateActivityCompletion(activityId: Int, completed: Boolean): AppResult<Unit> {
         fakeDelay()
         return AppResult.Success(Unit)

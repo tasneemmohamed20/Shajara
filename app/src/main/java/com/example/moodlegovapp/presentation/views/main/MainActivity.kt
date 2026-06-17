@@ -35,7 +35,8 @@ import com.example.moodlegovapp.core.DependencyContainer
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.presentation.utils.ScreensRoute
 import com.example.moodlegovapp.presentation.views.Profile.ProfileScreen
-import com.example.moodlegovapp.presentation.views.assignments.AssignmentDetailsScreen
+import com.example.moodlegovapp.presentation.views.assigments.AssignmentDetailsScreen
+import com.example.moodlegovapp.presentation.views.assigments.AssignmentSubmissionScreen
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
@@ -230,7 +231,7 @@ fun NavGraphBuilder.mainAppGraph(
             vm = vm,
             onBackClick = { navController.popBackStack() },
             onReviewAssignmentClick = { assignmentId ->
-                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(courseId, assignmentId))
+                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(assignmentId))
             },
             onActivityClick = { },
             onResourcesClick = { })
@@ -238,31 +239,37 @@ fun NavGraphBuilder.mainAppGraph(
 
     composable(
         route = ScreensRoute.AssignmentDetails.route,
-        arguments = listOf(
-            navArgument("courseId") { type = NavType.IntType },
-            navArgument("assignmentId") { type = NavType.IntType }
-        )
+        arguments = listOf(navArgument("assignmentId") { type = NavType.IntType })
     ) { backStackEntry ->
-        val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
-        val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: 0
-        val vm = remember(assignmentId) { assembly.makeAssignmentsViewModel() }
-
-        LaunchedEffect(courseId, assignmentId) {
-            vm.selectAssignmentById(courseId, assignmentId)
-        }
+        val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
+        val vm = remember { assembly.makeAssignmentsViewModel() } // Ensure this exists in your DependencyContainer
 
         AssignmentDetailsScreen(
-            assignmentsViewModel = vm,
+            assignmentId = assignmentId,
+            viewModel = vm,
             onBackClick = { navController.popBackStack() },
-            onDownloadResource = {},
-            onDownloadAllResources = {},
-            onContactInstructorClick = {},
-            onGuideClick = {},
-            onStartAssignmentClick = {},
+            onStartAssignmentClick = { id ->
+                navController.navigate(ScreensRoute.AssignmentSubmission.createRoute(id))
+            }
         )
+    }
 
+    composable(
+        route = ScreensRoute.AssignmentSubmission.route,
+        arguments = listOf(navArgument("assignmentId") { type = NavType.IntType })
+    ) { backStackEntry ->
+        val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
+        val vm = remember { assembly.makeAssignmentsViewModel() }
+
+        AssignmentSubmissionScreen(
+            assignmentId = assignmentId,
+            viewModel = vm,
+            onBackClick = { navController.popBackStack() },
+            onSubmissionSuccess = { navController.popBackStack() }
+        )
     }
 }
+
 
 
 @Composable

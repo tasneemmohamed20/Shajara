@@ -1,10 +1,10 @@
 {
   "success": true,
   "data": {
-    "total": 2,
+    "total": 1,
     "assignments": [
       {
-        "id": 501,
+        "id": 301,
         "courseId": 101,
         "courseName": "Criminal Investigation Basics",
         "cmid": 205,
@@ -32,42 +32,20 @@
         "status": "pending",
         "resources": [
           {
+            "id": 1,
             "name": "Scene_Photos.zip",
             "fileSizeLabel": "12 MB",
             "mimeType": "application/zip",
             "downloadUrl": "https://lms.sharjahpolice.ae/files/courses/101/resources/Scene_Photos.zip"
           },
           {
+            "id": 2,
             "name": "Report_Template.pdf",
             "fileSizeLabel": "2.4 MB",
             "mimeType": "application/pdf",
             "downloadUrl": "https://lms.sharjahpolice.ae/files/courses/101/resources/Report_Template.pdf"
           }
         ]
-      },
-      {
-        "id": 502,
-        "courseId": 102,
-        "courseName": "Traffic Law Enforcement",
-        "cmid": 310,
-        "name": "Traffic Incident Report",
-        "type": "practical_task",
-        "intro": "Document a simulated traffic incident using standard reporting procedures.",
-        "maxAttempts": 1,
-        "usedAttempts": 0,
-        "maxGrade": 100,
-        "gradeWeightPercent": 10,
-        "submissionTypes": ["file"],
-        "allowedFileTypes": [".pdf", ".docx"],
-        "maxFileSizeMB": 25,
-        "requirements": [],
-        "requireIntegrityStatement": true,
-        "integrityStatementText": "I confirm this submission follows academy integrity rules and is my original work.",
-        "dueDate": "2025-01-25T23:59:00Z",
-        "dueDateFormatted": "Jan 25, 2025",
-        "dueLabel": "Overdue — Jan 25, 2025",
-        "status": "overdue",
-        "resources": []
       }
     ]
   }

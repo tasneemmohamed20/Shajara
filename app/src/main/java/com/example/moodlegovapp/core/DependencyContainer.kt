@@ -14,14 +14,12 @@ import com.example.moodlegovapp.presentation.viewmodels.ProfileViewModel
 class DependencyContainer private constructor(private val deps: AppDependencies) {
 
     companion object {
-        @Volatile
-        private var instance: DependencyContainer? = null
+        @Volatile private var instance: DependencyContainer? = null
 
-        fun getInstance(context: Context): DependencyContainer = instance ?: synchronized(this) {
-            instance ?: DependencyContainer(AppDependencies.Companion.getInstance(context)).also {
-                instance = it
+        fun getInstance(context: Context): DependencyContainer =
+            instance ?: synchronized(this) {
+                instance ?: DependencyContainer(AppDependencies.getInstance(context)).also { instance = it }
             }
-        }
     }
 
     // mirrors iOS: public lazy var sharedSession: AppSession
@@ -34,33 +32,42 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
     }
 
     // mirrors iOS: public func makeLoginViewModel() -> LoginViewModelDI
-    fun makeLoginViewModel(): LoginViewModel = LoginViewModel(
-        session = sharedSession, dataStoreManager = deps.dataStoreManager
-    )
+    fun makeLoginViewModel(): LoginViewModel =
+        LoginViewModel(
+            session = sharedSession,
+            dataStoreManager = deps.dataStoreManager
+        )
 
     // mirrors iOS: public func makeDashboardViewModel() -> DashboardViewModelDI
-    fun makeDashboardViewModel(): DashboardViewModel = DashboardViewModel(
-        userRepository = deps.userRepository,
-        coursesRepository = deps.coursesRepository,
-        notificationsRepository = deps.notificationsRepository
-    )
+    fun makeDashboardViewModel(): DashboardViewModel =
+        DashboardViewModel(
+            userRepository = deps.userRepository,
+            coursesRepository = deps.coursesRepository,
+            notificationsRepository = deps.notificationsRepository
+        )
 
     // mirrors iOS: public func makeCoursesViewModel() -> CoursesViewModelDI
     fun makeCoursesViewModel(): CoursesViewModel =
         CoursesViewModel(coursesRepository = deps.coursesRepository)
 
-    fun makeAssignmentsViewModel(): AssignmentsViewModel = AssignmentsViewModel(
-        assignmentsRepository = deps.assignmentRepo
-    )
-
-    fun makeCourseDetailViewModel(courseId: Int): CourseDetailViewModel = CourseDetailViewModel(
-        courseId = courseId, coursesRepository = deps.coursesRepository
-    )
+    fun makeCourseDetailViewModel(courseId: Int): CourseDetailViewModel =
+        CourseDetailViewModel(
+            courseId = courseId,
+            coursesRepository = deps.coursesRepository
+        )
 
     fun makeNotificationsViewModel(): NotificationsViewModel =
         NotificationsViewModel(notificationsRepository = deps.notificationsRepository)
 
-    fun makeProfileViewModel(): ProfileViewModel = ProfileViewModel(
-        userRepository = deps.userRepository, session = sharedSession
-    )
+    fun makeProfileViewModel(): ProfileViewModel =
+        ProfileViewModel(
+            userRepository         = deps.userRepository,
+            session                = sharedSession
+        )
+    fun makeAssignmentsViewModel(): AssignmentsViewModel =
+        AssignmentsViewModel(
+            // Make sure your AppDependencies class exposes assignmentsRepository
+            // the same way it exposes coursesRepository and userRepository!
+            repository = deps.assignmentsRepository
+        )
 }

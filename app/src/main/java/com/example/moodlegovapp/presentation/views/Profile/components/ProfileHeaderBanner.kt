@@ -102,7 +102,7 @@ fun ProfileHeaderBanner(
                 ) {
                     AsyncImage(
 //                        model = userProfile.profileImageUrl,
-                        model = "https://m.media-amazon.com/images/I/615JjV818kL._AC_SL1500_.jpg",
+                        model = R.drawable.avatar,
                         contentDescription = stringResource(R.string.profile_avatar),
                         modifier = Modifier
                             .size(76.dp)

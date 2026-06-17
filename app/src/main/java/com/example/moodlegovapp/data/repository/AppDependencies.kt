@@ -6,9 +6,10 @@ import com.example.moodlegovapp.data.network.FallbackApiService
 import com.example.moodlegovapp.data.network.MockApiService
 import com.example.moodlegovapp.data.network.NetworkConfig
 import com.example.moodlegovapp.data.network.RealApiService
+import com.example.moodlegovapp.data.network.RetrofitApiService
 import com.example.moodlegovapp.data.network.RetrofitClient
 import com.example.moodlegovapp.data.service.DataStoreManager
-import kotlin.getValue
+import com.example.moodlegovapp.domain.repositoryinterface.AssignmentsRepositoryProtocol
 
 
 class AppDependencies private constructor(context: Context) {
@@ -22,12 +23,17 @@ class AppDependencies private constructor(context: Context) {
             }
     }
 
-    val dataStoreManager: DataStoreManager = DataStoreManager.Companion.getInstance(context)
+    val dataStoreManager: DataStoreManager = DataStoreManager.getInstance(context)
 
     private val localMock: MockApiService by lazy {
         MockApiService(context, dataStoreManager)
     }
-
+    private val retrofitService: RetrofitApiService by lazy {
+        RetrofitClient.create(
+            dataStoreManager,
+            isDebug = NetworkConfig.USE_REMOTE_MOCK
+        )
+    }
     private val networkApi: RealApiService by lazy {
         val retrofit = RetrofitClient.create(
             dataStoreManager,
@@ -66,7 +72,11 @@ class AppDependencies private constructor(context: Context) {
     val certificatesRepository: CertificatesRepository by lazy {
         CertificatesRepository(certificatesDataSource = apiService)
     }
-    val assignmentRepo: AssignmentsRepositoryImpl by lazy {
-        AssignmentsRepositoryImpl(api = apiService)
+    val assignmentsRepository: AssignmentsRepositoryProtocol by lazy {
+        AssignmentsRepository(
+            retrofit = retrofitService,
+            mock = localMock,
+            dataStoreManager = dataStoreManager
+        )
     }
 }
