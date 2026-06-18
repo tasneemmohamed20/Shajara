@@ -1,75 +1,378 @@
 package com.example.moodlegovapp.domain.models
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
-// 1. Top-level API Wrapper Response
-data class CourseDetailsResponse(
-    val success: Boolean,
-    val data: CourseDetail? = null
-)
-
-// 2. The main Course details model
-data class CourseDetail(
-    @SerializedName("courseId", alternate = ["id"])
+// 1. The root collection is parsed as List<CourseSection>
+@Serializable
+data class CourseSection(
     val id: Int,
-    val fullName: String,
-    val instructor: String,
-    val startDate: String,
-    val endDate: String,
-    val status: String,
-    val hasCertificate: Boolean,
-    val overallProgress: Int,
-    val nextRequiredAssignment: NextAssignment? = null,
-    val totalModules: Int,
-    val courseResources: CourseResources,
+    val name: String,
+    val visible: Int,
+    val summary: String,
+
+    @SerializedName("summaryformat")
+    val summaryFormat: Int,
+
+    val section: Int,
+
+    @SerializedName("hiddenbynumsections")
+    val hiddenByNumSections: Int,
+
+    @SerializedName("uservisible")
+    val userVisible: Boolean,
+
+    val component: String? = null,
+
+    @SerializedName("itemid")
+    val itemId: Int? = null,
+
     val modules: List<CourseModule>
 )
 
-// 3. Upcoming required assignment metadata
-data class NextAssignment(
-    val id: Int,
-    val name: String,
-    val type: String,
-    val dueDate: String? = null,
-    val dueLabel: String,
-    val cmid: Int = 0
-)
 
-// 4. Shared resources block
-data class CourseResources(
-    val label: String,
-    val description: String,
-    val url: String? = null
-)
 
-// 5. Course Module structure
+// 2. Individual content blocks/activities inside a section
+
+@Serializable
+
 data class CourseModule(
-    val id: Int,
-    val name: String,
-    val shortName: String,
-    val section: Int,
-    val status: String,
-    val completionPercent: Int = 0,
-    val totalActivities: Int,
-    val completedActivities: Int,
-    val isLocked: Boolean,
-    val activities: List<ModuleActivity>? = null
-) {
-    val progressPercent: Int
-        get() = completionPercent.takeIf { it > 0 }
-            ?: if (totalActivities > 0) (completedActivities * 100) / totalActivities else 0
 
-    val isCompleted: Boolean
-        get() = status.equals("completed", ignoreCase = true)
-}
-
-// 6. Individual Activity details inside a module
-data class ModuleActivity(
     val id: Int,
+
+    val url: String? = null, // Can be null (e.g. for text labels)
+
     val name: String,
+
+    val instance: Int,
+
+
+
+    @SerializedName("contextid")
+
+    val contextId: Int,
+
+
+
+    val description: String? = null,
+
+    val visible: Int,
+
+
+
+    @SerializedName("uservisible")
+
+    val userVisible: Boolean,
+
+
+
+    @SerializedName("visibleoncoursepage")
+
+    val visibleOnCoursePage: Int,
+
+
+
+    @SerializedName("modicon")
+
+    val modIcon: String,
+
+
+
+    @SerializedName("modname")
+
+    val modName: String,
+
+
+
+    val purpose: String,
+
+    val branded: Boolean,
+
+
+
+    @SerializedName("modplural")
+
+    val modPlural: String,
+
+
+
+    val availability: String? = null,
+
+    val indent: Int,
+
+    val onclick: String,
+
+
+
+    @SerializedName("afterlink")
+
+    val afterLink: String? = null,
+
+
+
+    @SerializedName("activitybadge")
+    val activityBadge: com.google.gson.JsonElement? = null,
+
+
+
+    @SerializedName("customdata")
+
+    val customData: String, // Kept as raw string since it contains a JSON sub-string escape layer
+
+
+
+    @SerializedName("noviewlink")
+
+    val noViewLink: Boolean,
+
+
+
+    @SerializedName("candisplay")
+
+    val canDisplay: Boolean,
+
+
+
+    val completion: Int,
+
+
+
+    @SerializedName("completiondata")
+
+    val completionData: CompletionData? = null,
+
+
+
+    @SerializedName("downloadcontent")
+
+    val downloadContent: Int,
+
+
+
+    val dates: List<ActivityDate> = emptyList(),
+
+
+
+    @SerializedName("groupmode")
+
+    val groupMode: Int,
+
+
+
+    val contents: List<ModuleContent> = emptyList(),
+
+
+
+    @SerializedName("contentsinfo")
+
+    val contentsInfo: ContentsSummary? = null
+
+)
+
+
+
+// 3. Activity tags (e.g. PDF, DOCX status badges)
+
+@Serializable
+
+data class ActivityBadge(
+
+    @SerializedName("badgecontent")
+
+    val badgeContent: String,
+
+
+
+    @SerializedName("badgestyle")
+
+    val badgeStyle: String
+
+)
+
+
+
+// 4. Progress and tracking states for user activities
+
+@Serializable
+
+data class CompletionData(
+
+    val state: Int,
+
+
+
+    @SerializedName("timecompleted")
+
+    val timeCompleted: Long,
+
+
+
+    @SerializedName("overrideby")
+
+    val overrideBy: Int? = null,
+
+
+
+    @SerializedName("valueused")
+
+    val valueUsed: Boolean,
+
+
+
+    @SerializedName("hascompletion")
+
+    val hasCompletion: Boolean,
+
+
+
+    @SerializedName("isautomatic")
+
+    val isAutomatic: Boolean,
+
+
+
+    @SerializedName("istrackeduser")
+
+    val isTrackedUser: Boolean,
+
+
+
+    @SerializedName("uservisible")
+
+    val userVisible: Boolean,
+
+
+
+    val details: List<String> = emptyList(),
+
+
+
+    @SerializedName("isoverallcomplete")
+
+    val isOverallComplete: Boolean
+
+)
+
+
+
+// 5. Open and Due times metric array blocks
+
+@Serializable
+
+data class ActivityDate(
+
+    val label: String,
+
+    val timestamp: Long,
+
+
+
+    @SerializedName("dataid")
+
+    val dataId: String
+
+)
+
+
+
+// 6. Direct attachments / Links linked inside the module layer
+
+@Serializable
+
+data class ModuleContent(
+
     val type: String,
-    val duration: String? = null,
-    val status: String,
-    val dueLabel: String? = null,
-    val dueDate: String? = null
+
+    val filename: String,
+
+
+
+    @SerializedName("filepath")
+
+    val filePath: String?,
+
+
+
+    @SerializedName("filesize")
+
+    val fileSize: Int,
+
+
+
+    @SerializedName("fileurl")
+
+    val fileUrl: String,
+
+
+
+    @SerializedName("timecreated")
+
+    val timeCreated: Long? = null,
+
+
+
+    @SerializedName("timemodified")
+
+    val timeModified: Long,
+
+
+
+    @SerializedName("sortorder")
+
+    val sortOrder: Int? = null,
+
+
+
+    @SerializedName("isexternalfile")
+
+    val isExternalFile: Boolean = false,
+
+
+
+    @SerializedName("userid")
+
+    val userId: Int? = null,
+
+
+
+    val author: String? = null,
+
+    val license: String? = null
+
+)
+
+
+
+// 7. General bundle summary info for files block
+
+@Serializable
+
+data class ContentsSummary(
+
+    @SerializedName("filescount")
+
+    val filesCount: Int,
+
+
+
+    @SerializedName("filessize")
+
+    val filesSize: Int,
+
+
+
+    @SerializedName("lastmodified")
+
+    val lastModified: Long,
+
+
+
+    val mimetypes: List<String> = emptyList(),
+
+
+
+    @SerializedName("repositorytype")
+
+    val repositoryType: String
+
 )

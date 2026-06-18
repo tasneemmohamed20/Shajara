@@ -14,8 +14,8 @@ import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetail
-import com.example.moodlegovapp.domain.models.CourseDetailsResponse
+import com.example.moodlegovapp.domain.models.CourseSection
+
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
 import com.example.moodlegovapp.domain.models.CourseResourcesResponse
@@ -108,21 +108,17 @@ class RemoteDataSource(
         }
     }
 
-    override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> {
-        return when (val result = NetworkCallHandler.safeCall<CourseDetailsResponse>(retryPolicy) {
-            retrofit.getCourseDetail(courseId)
-        }) {
-            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
-                ?: AppResult.Failure(AppError.DecodingError)
 
-            is AppResult.Failure -> result
-            is AppResult.Loading -> AppResult.Loading
-        }
-    }
 
     override suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>> {
         return NetworkCallHandler.safeCall(retryPolicy) {
             retrofit.getCourseModules(courseId)
+        }
+    }
+
+    override suspend fun getCourseContents(courseId: Int): AppResult<List<CourseSection>> {
+        return NetworkCallHandler.safeCall(retryPolicy) {
+            retrofit.getCourseContents(courseId)
         }
     }
 // ── COURSES ───────────────────────────────────────────────────

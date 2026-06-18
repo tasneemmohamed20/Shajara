@@ -50,9 +50,11 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
     fun makeCoursesViewModel(): CoursesViewModel =
         CoursesViewModel(coursesRepository = deps.coursesRepository)
 
-    fun makeCourseDetailViewModel(courseId: Int): CourseDetailViewModel =
+    fun makeCourseDetailViewModel(courseId: Int, courseName: String, progress: Int): CourseDetailViewModel =
         CourseDetailViewModel(
             courseId = courseId,
+            courseName = courseName,
+            progress = progress,
             coursesRepository = deps.coursesRepository
         )
 

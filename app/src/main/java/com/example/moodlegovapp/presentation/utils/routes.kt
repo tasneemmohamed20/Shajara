@@ -14,8 +14,11 @@ sealed class ScreensRoute(val route: String) : Serializable {
     object LoginStepOne : ScreensRoute("loginOne")
     object LoginStepTwo : ScreensRoute("loginTwo")
 
-    object CourseDetail : ScreensRoute("course_detail/{courseId}") {
-        fun createRoute(courseId: Int): String = "course_detail/$courseId"
+    object CourseDetail : ScreensRoute("course_detail/{courseId}?courseName={courseName}&progress={progress}") {
+        fun createRoute(courseId: Int, courseName: String, progress: Int): String {
+            val encodedName = android.net.Uri.encode(courseName)
+            return "course_detail/$courseId?courseName=$encodedName&progress=$progress"
+        }
     }
 
     // --- NEW ROUTES ---

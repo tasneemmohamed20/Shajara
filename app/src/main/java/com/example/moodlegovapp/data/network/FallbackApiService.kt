@@ -7,7 +7,7 @@ import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetail
+import com.example.moodlegovapp.domain.models.CourseSection
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
 import com.example.moodlegovapp.domain.models.LeaderboardData
@@ -67,8 +67,8 @@ class FallbackApiService(
     override suspend fun getEnrolledCourses(): AppResult<List<Course>> =
         withFallback("getEnrolledCourses", { network.getEnrolledCourses() }, { localMock.getEnrolledCourses() })
 
-    override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> =
-        withFallback("getCourseDetail", { network.getCourseDetail(courseId) }, { localMock.getCourseDetail(courseId) })
+    override suspend fun getCourseContents(courseId: Int): AppResult<List<CourseSection>> =
+        withFallback("getCourseContents", { network.getCourseContents(courseId) }, { localMock.getCourseContents(courseId) })
 
     override suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>> =
         withFallback("getCourseModules", { network.getCourseModules(courseId) }, { localMock.getCourseModules(courseId) })

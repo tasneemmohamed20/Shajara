@@ -86,7 +86,7 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 @Composable
 fun DashboardScreen(
     assembly: DependencyContainer,
-    onCourseClick: (Int) -> Unit,
+    onCourseClick: (Int, String, Int) -> Unit,
     onLeaderboardClick: () -> Unit,
 
 ) {
@@ -189,7 +189,7 @@ fun DashboardScreen(
                 item {
                     ContinueTrainingSectionCard(
                         enrolledCourses = enrolledCourses, onCourseClick = { selectedCourse ->
-                            onCourseClick(selectedCourse.id)
+                            onCourseClick(selectedCourse.id, selectedCourse.fullName ?: "", selectedCourse.progress ?: 0)
                         }, modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -223,7 +223,7 @@ fun DashboardScreen(
                 items(enrolledCourses) { course ->
                     CourseListCard(
                         course = course,
-                        onClick = { onCourseClick(course.id) },
+                        onClick = { onCourseClick(course.id, course.fullName ?: "", course.progress ?: 0) },
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                 }

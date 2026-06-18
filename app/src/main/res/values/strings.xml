@@ -91,6 +91,7 @@
     <string name="course_detail_next_assignment">NEXT REQUIRED ASSIGNMENT</string>
     <string name="course_detail_completed_modules">Completed Modules</string>
     <string name="course_detail_modules_count">%1$d Modules</string>
+    <string name="course_detail_activities_count">%1$d Activities</string>
     <string name="course_detail_course_modules">Course Modules</string>
     <string name="course_detail_overall_progress">OVERALL COURSE PROGRESS</string>
     <string name="course_detail_certificate">Certificate</string>

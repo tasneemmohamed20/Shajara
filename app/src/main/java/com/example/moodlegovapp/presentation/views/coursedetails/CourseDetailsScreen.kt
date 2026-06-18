@@ -1,31 +1,42 @@
 package com.example.moodlegovapp.presentation.views.coursedetails
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.WorkspacePremium
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +48,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.R
-import com.example.moodlegovapp.domain.models.*
+import com.example.moodlegovapp.domain.models.CourseModule
+import com.example.moodlegovapp.domain.models.CourseSection
 import com.example.moodlegovapp.presentation.components.ProgressIndicator
 import com.example.moodlegovapp.presentation.viewmodels.CourseDetailViewModel
 import com.example.moodlegovapp.ui.theme.AppColors
@@ -51,21 +63,21 @@ fun CourseOverviewScreen(
     onResourcesClick: (url: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val courseDetail by vm.courseDetail.collectAsState()
+    val courseSections by vm.courseSections.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
 
     LaunchedEffect(vm) { vm.load() }
 
     when {
-        isLoading && courseDetail == null -> {
+        isLoading && courseSections.isEmpty() -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = AppColors.Navy)
             }
             return
         }
 
-        courseDetail == null -> {
+        courseSections.isEmpty() && errorMessage != null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = errorMessage ?: stringResource(R.string.course_detail_not_found),
@@ -76,11 +88,8 @@ fun CourseOverviewScreen(
         }
     }
 
-    val course = courseDetail!!
-    val completedModules = remember(course.modules) { course.modules.filter { it.isCompleted } }
-    val activeModules = remember(course.modules) { course.modules.filter { !it.isCompleted } }
-    var expandedModuleId by remember(course.id, activeModules) {
-        mutableStateOf(activeModules.firstOrNull { !it.isLocked }?.id)
+    var expandedSectionId by remember(courseSections) {
+        mutableStateOf(courseSections.firstOrNull()?.id)
     }
 
     LazyColumn(
@@ -91,102 +100,56 @@ fun CourseOverviewScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
-            CourseHeaderBanner(course = course, onBackClick = onBackClick)
+            CourseHeaderBanner(
+                courseName = vm.courseName,
+                progress = vm.progress,
+                onBackClick = onBackClick
+            )
         }
 
-        course.nextRequiredAssignment?.let { assignment ->
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                        Text(
-                            text = stringResource(R.string.course_detail_next_assignment),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AppColors.TextSecondary,
-                            modifier = Modifier.padding(bottom = 12.dp)
-                        )
-                        NextAssignmentCard(
-                            assignment = assignment,
-                            onReviewClick = { onReviewAssignmentClick(assignment.id) }
-                        )
-                    }
-                }
-            }
-
-            // 3. Horizontal Mini Module Slider — completed modules only
-            if (completedModules.isNotEmpty()) {
-                item {
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 20.dp, end = 20.dp, bottom = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(stringResource(R.string.course_detail_completed_modules), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-                            Text(stringResource(R.string.course_detail_modules_count, completedModules.size), fontSize = 14.sp, color = AppColors.Navy)
-                        }
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(completedModules, key = { it.id }) { module ->
-                                HorizontalMiniModuleCard(
-                                    module = module,
-                                    isSelected = false,
-                                    onClick = { }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 4. Expandable accordion — all modules except completed
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(stringResource(R.string.course_detail_course_modules), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-                    Text(stringResource(R.string.course_detail_modules_count, activeModules.size), fontSize = 14.sp, color = AppColors.Navy)
-                }
-            }
-
-            items(activeModules, key = { it.id }) { module ->
-                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    ExpandableModuleAccordion(
-                        module = module,
-                        isExpanded = expandedModuleId == module.id,
-                        onHeaderClick = {
-                            if (!module.isLocked) {
-                                expandedModuleId = if (expandedModuleId == module.id) null else module.id
-                            }
-                        },
-                        onActivityClick = onActivityClick
-                    )
-                }
-            }
-
-            // 5. Shared Course Resources Callout Footer Widget
-            item {
-                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    CourseResourcesCard(
-                        resources = course.courseResources,
-                        onClick = { course.courseResources.url?.let(onResourcesClick) }
-                    )
-                }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.course_detail_course_modules),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppColors.TextPrimary
+                )
+                Text(
+                    stringResource(R.string.course_detail_modules_count, courseSections.size),
+                    fontSize = 14.sp,
+                    color = AppColors.Navy
+                )
             }
         }
+
+        items(courseSections, key = { it.id }) { section ->
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                ExpandableSectionAccordion(
+                    section = section,
+                    isExpanded = expandedSectionId == section.id,
+                    onHeaderClick = {
+                        expandedSectionId =
+                            if (expandedSectionId == section.id) null else section.id
+                    },
+                    onActivityClick = onActivityClick
+                )
+            }
+        }
+    }
 }
 
 // --- Header Blue Segment Component ---
 @Composable
 private fun CourseHeaderBanner(
-    course: CourseDetail,
+    courseName: String,
+    progress: Int,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -219,72 +182,14 @@ private fun CourseHeaderBanner(
             modifier = Modifier.padding(top = 52.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Status Tag Badge
-            Box(
-                modifier = Modifier
-                    .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(100.dp))
-                    .padding(horizontal = 14.dp, vertical = 6.dp)
-            ) {
-                Text(text = course.status, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White)
-            }
-
             // Title
             Text(
-                text = course.fullName,
+                text = courseName,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 lineHeight = 34.sp
             )
-
-            // Dynamic Subtitle Meta Rows
-
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = course.instructor,
-                            fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.9f)
-                        )
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.CalendarMonth,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "${course.startDate} - ${course.endDate}",
-                            fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.9f)
-                        )
-                        if (course.hasCertificate) {
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Icon(
-                                Icons.Default.WorkspacePremium,
-                                contentDescription = null,
-                                tint = AppColors.GoldLight,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(R.string.course_detail_certificate),
-                                fontSize = 14.sp,
-                                color = AppColors.GoldLight
-                            )
-                        }
-                    }
-                }
-
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -293,195 +198,104 @@ private fun CourseHeaderBanner(
                     containerColor = Color.White.copy(alpha = 0.1f),
                     contentColor = Color.Transparent,
                 ),
-//                border = BorderStroke(1.dp, Color.White)
-            ){
-                    Column(modifier = Modifier.padding(all = 8.dp)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                stringResource(R.string.course_detail_overall_progress),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
-                        }
-                        ProgressIndicator(
-                            progress = course.overallProgress / 100f,
-                            percentage = "${course.overallProgress}%",
+            ) {
+                Column(modifier = Modifier.padding(all = 8.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            stringResource(R.string.course_detail_overall_progress),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White.copy(alpha = 0.8f)
                         )
                     }
+                    ProgressIndicator(
+                        progress = progress / 100f,
+                        percentage = "${progress}%",
+                    )
                 }
+            }
 
         }
     }
 }
 
-@Composable
-private fun NextAssignmentCard(assignment: NextAssignment, onReviewClick: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = AppColors.Surface),
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, AppColors.Border, RoundedCornerShape(24.dp))
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(AppColors.ErrorBackground, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(painterResource(R.drawable.missing_file), contentDescription = null, tint = AppColors.Error, modifier = Modifier.size(20.dp))
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(text = assignment.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-                    Text(text = assignment.dueLabel, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = AppColors.Error)
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onReviewClick,
-                colors = ButtonDefaults.buttonColors(containerColor = AppColors.Gold),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 14.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.course_detail_review_assignment), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                }
-            }
-        }
-    }
-}
-
-// --- Top Horizontal Module Pill List Cards ---
-@Composable
-private fun HorizontalMiniModuleCard(module: CourseModule, isSelected: Boolean, onClick: () -> Unit) {
-    val borderColor = if (isSelected) AppColors.green else AppColors.Border
-    Box(
-        modifier = Modifier
-            .size(width = 200.dp, height = 130.dp)
-            .background(AppColors.Surface, RoundedCornerShape(20.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
-            .clickable(enabled = !module.isLocked, onClick = onClick)
-            .padding(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxHeight(), // Allow column to occupy the entire fixed height
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Top row (Short name & Icons)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = module.shortName,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (module.isLocked) AppColors.TextSecondary else AppColors.green
-                )
-                if (module.status.lowercase() == "completed") {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = AppColors.green, modifier = Modifier.size(18.dp))
-                } else if (module.isLocked) {
-                    Icon(Icons.Default.Lock, contentDescription = null, tint = AppColors.TextSecondary, modifier = Modifier.size(16.dp))
-                }
-            }
-
-            // Module Name (Will dynamically handle 1 or 2 lines without altering the card size)
-            Text(
-                text = module.name,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = AppColors.TextPrimary,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            // This weight spacer pushes the progress bar to the absolute bottom of your fixed box
-            Spacer(modifier = Modifier.weight(1f))
-
-            LinearProgressIndicator(
-                progress = { module.progressPercent / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(100.dp)),
-                color = AppColors.green,
-                trackColor = AppColors.Border
-            )
-        }
-    }
-}
 
 // --- Expandable Accordion Item Node Component ---
 @Composable
-private fun ExpandableModuleAccordion(
-    module: CourseModule,
+private fun ExpandableSectionAccordion(
+    section: CourseSection,
     isExpanded: Boolean,
     onHeaderClick: () -> Unit,
     onActivityClick: (Int) -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = AppColors.Surface),
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, AppColors.Border, RoundedCornerShape(24.dp))
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column {
+            // Header Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(enabled = !module.isLocked, onClick = onHeaderClick)
+                    .clickable(onClick = onHeaderClick)
                     .padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Determine icon based on section type or name
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(AppColors.Surface, RoundedCornerShape(14.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Folder,
+                        contentDescription = "Section Icon",
+                        tint = AppColors.Navy,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "${module.shortName}  •  ${module.totalActivities} Activities",
-                        fontSize = 12.sp,
-                        color = AppColors.TextSecondary,
-                        fontWeight = FontWeight.Medium
+                        text = section.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AppColors.TextPrimary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = module.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (module.isLocked) AppColors.TextSecondary else AppColors.TextPrimary
+                        text = stringResource(
+                            R.string.course_detail_activities_count,
+                            section.modules.size
+                        ),
+                        fontSize = 13.sp,
+                        color = AppColors.TextSecondary
                     )
                 }
-                Spacer(modifier = Modifier.width(12.dp))
 
-                // End Metric/Locked Status handles
-                when {
-                    module.isLocked -> Icon(Icons.Default.Lock, contentDescription = "Locked", tint = AppColors.TextSecondary)
-                    else -> {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("${module.progressPercent}%", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.Navy, modifier = Modifier.padding(end = 8.dp))
-                            Icon(
-                                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint = AppColors.TextSecondary
-                            )
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = AppColors.TextSecondary
+                )
             }
 
             // Expanding sub-item details stream
-            AnimatedVisibility(visible = isExpanded && !module.isLocked) {
+            AnimatedVisibility(visible = isExpanded) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -489,8 +303,8 @@ private fun ExpandableModuleAccordion(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    module.activities?.forEach { activity ->
-                        ActivityRowItem(activity = activity, onClick = { onActivityClick(activity.id) })
+                    section.modules.forEach { module ->
+                        ActivityRowItem(module = module, onClick = { onActivityClick(module.id) })
                     }
                 }
             }
@@ -500,9 +314,9 @@ private fun ExpandableModuleAccordion(
 
 // --- Nested Dynamic Individual Activities Row Layouts ---
 @Composable
-private fun ActivityRowItem(activity: ModuleActivity, onClick: () -> Unit) {
-    val isCompleted = activity.status.lowercase() == "completed"
-    val isExam = activity.type.lowercase() == "exam"
+private fun ActivityRowItem(module: CourseModule, onClick: () -> Unit) {
+    val isCompleted = module.completionData?.state == 1
+    val isExam = module.modName.lowercase() == "assign" || module.modName.lowercase() == "quiz"
 
     Row(
         modifier = Modifier
@@ -543,6 +357,7 @@ private fun ActivityRowItem(activity: ModuleActivity, onClick: () -> Unit) {
                         modifier = Modifier.size(16.dp)
                     )
                 }
+
                 isExam -> {
                     Icon(
                         painter = painterResource(id = R.drawable.assignment),
@@ -551,6 +366,7 @@ private fun ActivityRowItem(activity: ModuleActivity, onClick: () -> Unit) {
                         modifier = Modifier.size(16.dp)
                     )
                 }
+
                 else -> {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
@@ -567,58 +383,19 @@ private fun ActivityRowItem(activity: ModuleActivity, onClick: () -> Unit) {
         // Center labels
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = activity.name,
+                text = module.name,
                 fontSize = 15.sp,
-                fontWeight = if (isExam) FontWeight.Bold else FontWeight.Medium,
-                color = AppColors.TextPrimary
+                fontWeight = FontWeight.Medium,
+                color = AppColors.TextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(2.dp))
-
-            // Subtitle status display logic configurations
-            val subtitleText = buildString {
-                append(activity.type.replaceFirstChar { it.uppercase() })
-                if (!activity.duration.isNullOrEmpty()) {
-                    append("  •  ${activity.duration}")
-                }
-                if (!activity.dueLabel.isNullOrEmpty()) {
-                    append("  •  ${activity.dueLabel}")
-                }
-            }
             Text(
-                text = subtitleText,
+                text = module.modName.replaceFirstChar { it.uppercase() },
                 fontSize = 12.sp,
-                color = if (isExam && !isCompleted) AppColors.Error else AppColors.TextSecondary,
-                fontWeight = if (isExam) FontWeight.Medium else FontWeight.Normal
+                color = AppColors.TextSecondary
             )
         }
-    }
-}
-
-// --- Core Shared Media Resources Callout Box ---
-@Composable
-private fun CourseResourcesCard(resources: CourseResources, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppColors.Surface, RoundedCornerShape(24.dp))
-            .border(1.dp, AppColors.Border, RoundedCornerShape(24.dp))
-            .clickable(onClick = onClick)
-            .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(AppColors.Background, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Default.Folder, contentDescription = null, tint = AppColors.TextSecondary, modifier = Modifier.size(22.dp))
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = resources.label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-            Text(text = resources.description, fontSize = 13.sp, color = AppColors.TextSecondary)
-        }
-        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = AppColors.TextPrimary, modifier = Modifier.size(18.dp))
     }
 }

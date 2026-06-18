@@ -20,7 +20,6 @@ import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetailsResponse
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResourcesResponse
 import com.example.moodlegovapp.domain.models.FileUploadResponse
@@ -84,10 +83,13 @@ interface RetrofitApiService {
         @Query("moodlewsrestformat") format: String = "json"
     ): Response<List<Course>>
 
-    @GET("courses")
-    suspend fun getCourseDetail(
-        @Query("courseId") courseId: Int
-    ): Response<CourseDetailsResponse>
+    @GET("webservice/rest/server.php")
+    suspend fun getCourseContents(
+        @Query("courseid") courseId: Int,
+        @Query("wstoken") token: String = "b4cd92a9bbb816fc54ae1a43a01d1dcc",
+        @Query("wsfunction") wsfunction: String = "core_course_get_contents",
+        @Query("moodlewsrestformat") format: String = "json"
+    ): Response<List<com.example.moodlegovapp.domain.models.CourseSection>>
 
     @GET("courses")
     suspend fun getCourseModules(

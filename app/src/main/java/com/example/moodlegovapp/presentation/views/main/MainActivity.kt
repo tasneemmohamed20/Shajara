@@ -177,8 +177,8 @@ fun NavGraphBuilder.mainAppGraph(
     assembly: DependencyContainer
 ) {
     composable(ScreensRoute.Home.route) {
-        DashboardScreen(assembly = assembly, onCourseClick = { courseId ->
-            navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId))
+        DashboardScreen(assembly = assembly, onCourseClick = { courseId, courseName, progress ->
+            navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId, courseName, progress))
         }, onLeaderboardClick = {
             // Navigate to full leaderboard screen
             // e.g., navController.navigate("leaderboard")
@@ -222,10 +222,16 @@ fun NavGraphBuilder.mainAppGraph(
 
     composable(
         route = ScreensRoute.CourseDetail.route,
-        arguments = listOf(navArgument("courseId") { type = NavType.IntType })
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("courseName") { type = NavType.StringType; defaultValue = "" },
+            navArgument("progress") { type = NavType.IntType; defaultValue = 0 }
+        )
     ) { backStackEntry ->
         val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
-        val vm = remember(courseId) { assembly.makeCourseDetailViewModel(courseId) }
+        val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
+        val progress = backStackEntry.arguments?.getInt("progress") ?: 0
+        val vm = remember(courseId) { assembly.makeCourseDetailViewModel(courseId, courseName, progress) }
 
         CourseOverviewScreen(
             vm = vm,

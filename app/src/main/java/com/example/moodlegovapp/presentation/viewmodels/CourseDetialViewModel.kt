@@ -3,10 +3,7 @@ package com.example.moodlegovapp.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moodlegovapp.data.network.AppResult
-import com.example.moodlegovapp.domain.models.CourseDetail
-import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResources
-import com.example.moodlegovapp.domain.models.NextAssignment
+import com.example.moodlegovapp.domain.models.*
 import com.example.moodlegovapp.domain.repositoryinterface.CoursesRepositoryProtocol
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,27 +14,19 @@ import kotlinx.coroutines.launch
 
 class CourseDetailViewModel(
     private val courseId: Int,
+    val courseName: String,
+    val progress: Int,
     private val coursesRepository: CoursesRepositoryProtocol
 ) : ViewModel() {
 
-    private val _courseDetail = MutableStateFlow<CourseDetail?>(null)
-    val courseDetail: StateFlow<CourseDetail?> = _courseDetail
+    private val _courseSections = MutableStateFlow<List<CourseSection>>(emptyList())
+    val courseSections: StateFlow<List<CourseSection>> = _courseSections
 
-    val modules: StateFlow<List<CourseModule>> = _courseDetail
-        .map { it?.modules.orEmpty() }
+    val modules: StateFlow<List<CourseModule>> = _courseSections
+        .map { sections -> sections.flatMap { it.modules } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val nextAssignment: StateFlow<NextAssignment?> = _courseDetail
-        .map { it?.nextRequiredAssignment }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-    val courseResources: StateFlow<CourseResources?> = _courseDetail
-        .map { it?.courseResources }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-    val overallProgress: StateFlow<Int> = _courseDetail
-        .map { it?.overallProgress ?: 0 }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val overallProgress: StateFlow<Int> = MutableStateFlow(progress)
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -51,8 +40,8 @@ class CourseDetailViewModel(
             _errorMessage.value = null
 
             try {
-                when (val result = coursesRepository.getCourseDetail(courseId)) {
-                    is AppResult.Success -> _courseDetail.value = result.data
+                when (val result = coursesRepository.getCourseContents(courseId)) {
+                    is AppResult.Success -> _courseSections.value = result.data
                     is AppResult.Failure -> _errorMessage.value = result.error.errorDescription
                     else -> Unit
                 }

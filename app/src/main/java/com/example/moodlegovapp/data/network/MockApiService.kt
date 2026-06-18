@@ -25,8 +25,8 @@ import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetail
-import com.example.moodlegovapp.domain.models.CourseDetailsResponse
+import com.example.moodlegovapp.domain.models.CourseSection
+
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
 import com.example.moodlegovapp.domain.models.CourseResourcesResponse
@@ -116,21 +116,19 @@ class MockApiService(
         }
     }
 
-    override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> {
+    override suspend fun getCourseContents(courseId: Int): AppResult<List<CourseSection>> {
         fakeDelay()
         return try {
-            val response = readJson(R.raw.mock_course_detail, object : TypeToken<CourseDetailsResponse>() {})
-            response.data?.let { detail ->
-                AppResult.Success(detail.copy(id = courseId))
-            } ?: AppResult.Failure(AppError.DecodingError)
+            // Since we don't have a mock JSON for core_course_get_contents yet, we'll return an empty list or fake data
+            AppResult.Success(emptyList())
         } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)
         }
     }
 
     override suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>> {
-        return when (val result = getCourseDetail(courseId)) {
-            is AppResult.Success -> AppResult.Success(result.data.modules)
+        return when (val result = getCourseContents(courseId)) {
+            is AppResult.Success -> AppResult.Success(result.data.flatMap { it.modules })
             is AppResult.Failure -> result
             is AppResult.Loading -> AppResult.Loading
         }

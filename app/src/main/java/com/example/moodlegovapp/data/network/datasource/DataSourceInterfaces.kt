@@ -7,7 +7,7 @@ import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetail
+import com.example.moodlegovapp.domain.models.CourseSection
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
 import com.example.moodlegovapp.domain.models.LeaderboardData
@@ -33,7 +33,7 @@ interface UserDataSource {
 
 interface CoursesDataSource {
     suspend fun getEnrolledCourses(): AppResult<List<Course>>
-    suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail>
+    suspend fun getCourseContents(courseId: Int): AppResult<List<CourseSection>>
     suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>>
     suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>>
 }

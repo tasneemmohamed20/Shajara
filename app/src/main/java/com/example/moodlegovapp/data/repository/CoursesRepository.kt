@@ -5,7 +5,7 @@ import com.example.moodlegovapp.domain.repositoryinterface.CoursesRepositoryProt
 import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.Course
-import com.example.moodlegovapp.domain.models.CourseDetail
+import com.example.moodlegovapp.domain.models.CourseSection
 import com.example.moodlegovapp.domain.models.CourseModule
 import com.example.moodlegovapp.domain.models.CourseResource
 
@@ -14,7 +14,7 @@ class CoursesRepository(
 ) : CoursesRepositoryProtocol {
 
     override suspend fun getEnrolledCourses(): AppResult<List<Course>> = api.getEnrolledCourses()
-    override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> = api.getCourseDetail(courseId)
+    override suspend fun getCourseContents(courseId: Int): AppResult<List<CourseSection>> = api.getCourseContents(courseId)
     override suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>> = api.getCourseModules(courseId)
     override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> = api.getCourseResources(courseId)
     override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> = api.getAssignments(courseId)
