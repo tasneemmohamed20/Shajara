@@ -20,6 +20,7 @@ import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
 import com.example.moodlegovapp.domain.models.UserProfile
 import com.example.moodlegovapp.domain.models.UserResponse
+import com.example.moodlegovapp.domain.models.toUserProfile
 
 class RealApiService(
     private val retrofit: RetrofitApiService,
@@ -37,14 +38,35 @@ class RealApiService(
 
     // ── AUTH ──────────────────────────────────
     override suspend fun login(username: String, password: String): AppResult<AuthToken> {
-        return safeCall { retrofit.login(username, password) }
+        return when (val result = safeCall { retrofit.getUserByField(value = username) }) {
+            is AppResult.Success -> {
+                if (result.data.isNotEmpty()) {
+                    AppResult.Success(AuthToken("b4cd92a9bbb816fc54ae1a43a01d1dcc", null))
+                } else {
+                    AppResult.Failure(AppError.NetworkError("User not found"))
+                }
+            }
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
+        }
     }
 
     // ── USER ──────────────────────────────────
     override suspend fun getUserProfile(): AppResult<UserProfile> {
-        return when (val result = safeCall<UserResponse> { retrofit.getUserProfile(userId()) }) {
-            is AppResult.Success -> result.data.data?.let { AppResult.Success(it) }
-                                    ?: AppResult.Failure(AppError.DecodingError)
+        val username = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_USERNAME) ?: "test.student1"
+        return when (val result = safeCall { retrofit.getUserByField(value = username) }) {
+            is AppResult.Success -> {
+                val studentUser = result.data.firstOrNull()
+                if (studentUser != null) {
+                    // Save the user ID from the API call
+                    studentUser.id?.let {
+                        dataStoreManager.save(DataStoreManager.Companion.KEY_USER_ID, it.toString())
+                    }
+                    AppResult.Success(studentUser.toUserProfile())
+                } else {
+                    AppResult.Failure(AppError.DecodingError)
+                }
+            }
             is AppResult.Failure -> result
             is AppResult.Loading -> AppResult.Loading
         }
@@ -56,7 +78,14 @@ class RealApiService(
 
     // ── COURSES ───────────────────────────────
     override suspend fun getEnrolledCourses(): AppResult<List<Course>> {
-        return safeCall { retrofit.getEnrolledCourses(userId()) }
+        val cachedId = dataStoreManager.userIdState.value?.toIntOrNull()
+        val finalUserId = if (cachedId != null && cachedId != 101) {
+            cachedId
+        } else {
+            val profileResult = getUserProfile()
+            if (profileResult is AppResult.Success) profileResult.data.id else 101
+        }
+        return safeCall { retrofit.getEnrolledCourses(finalUserId) }
     }
 
     override suspend fun getCourseDetail(courseId: Int): AppResult<CourseDetail> {
@@ -169,7 +198,7 @@ class RealApiService(
         return when (result) {
             is AppResult.Success -> AppResult.Success(
                 if (query.isBlank()) result.data
-                else result.data.filter { it.title.contains(query, ignoreCase = true) }
+                else result.data.filter { it.fullName?.contains(query, ignoreCase = true) == true }
             )
             else -> result
         }

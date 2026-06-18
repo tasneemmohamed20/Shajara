@@ -52,16 +52,16 @@ fun CourseCard(
                     .background(AppColors.Navy.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
-                if (course.imageUrl.isNotEmpty()) {
+                if (course.courseImage != null && course.courseImage.isNotEmpty()) {
                     AsyncImage(
-                        model = course.imageUrl,
-                        contentDescription = course.title,
+                        model = course.courseImage,
+                        contentDescription = course.fullName ?: "Course",
                         modifier = Modifier.size(56.dp),
                         contentScale = ContentScale.Crop
                     )
                 } else {
                     Text(
-                        text = course.category.take(3),
+                        text = "CAT", // Fallback for course.category since it's an Int now
                         style = MaterialTheme.typography.labelMedium,
                         color = AppColors.Navy
                     )
@@ -70,20 +70,20 @@ fun CourseCard(
 
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = course.title,
+                    text = course.fullName ?: "Unknown Course",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.TextPrimary
                 )
                 Text(
-                    text = course.instructorName,
+                    text = "Unknown Instructor",
                     style = MaterialTheme.typography.bodyMedium,
                     color = AppColors.TextSecondary
                 )
             }
 
             Text(
-                text = "${course.progress}%",
+                text = "${course.progress ?: 0}%",
                 style = MaterialTheme.typography.labelMedium,
                 color = AppColors.Gold,
                 fontWeight = FontWeight.SemiBold
@@ -91,7 +91,7 @@ fun CourseCard(
         }
 
         LinearProgressIndicator(
-            progress = { course.progress / 100f },
+            progress = { (course.progress ?: 0) / 100f },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp)
@@ -100,12 +100,11 @@ fun CourseCard(
             trackColor = AppColors.Border
         )
 
-        if (course.dueIn.isNotEmpty()) {
-            Text(
-                text = "Due in ${course.dueIn}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = AppColors.TextSecondary
-            )
-        }
+        // removed course.dueIn logic as we don't have it in CourseItem. We could just skip it or show N/A
+        Text(
+            text = "Due in N/A",
+            style = MaterialTheme.typography.bodyMedium,
+            color = AppColors.TextSecondary
+        )
     }
 }

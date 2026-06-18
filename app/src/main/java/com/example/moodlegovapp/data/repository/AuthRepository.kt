@@ -16,6 +16,7 @@ class AuthRepository(
         return when (val result = api.login(username, password)) {
             is AppResult.Success -> {
                 dataStoreManager.save(DataStoreManager.Companion.KEY_TOKEN, result.data.token)
+                dataStoreManager.save(DataStoreManager.Companion.KEY_USERNAME, username)
                 result
             }
             else -> result

@@ -27,6 +27,7 @@ import com.example.moodlegovapp.domain.models.SubmissionSaveResponse
 import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
 import com.example.moodlegovapp.domain.models.UserProfile
+import com.example.moodlegovapp.domain.models.toUserProfile
 
 /**
  * Remote data source implementation that wraps Retrofit calls.
@@ -45,8 +46,18 @@ class RemoteDataSource(
     // ── AUTH ──────────────────────────────────────────────────────
 
     override suspend fun login(username: String, password: String): AppResult<AuthToken> {
-        return NetworkCallHandler.safeCall(retryPolicy) {
-            retrofit.login(username, password)
+        return when (val result = NetworkCallHandler.safeCall(retryPolicy) {
+            retrofit.getUserByField(value = username)
+        }) {
+            is AppResult.Success -> {
+                if (result.data.isNotEmpty()) {
+                    AppResult.Success(AuthToken("b4cd92a9bbb816fc54ae1a43a01d1dcc", null))
+                } else {
+                    AppResult.Failure(AppError.NetworkError("User not found"))
+                }
+            }
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 
@@ -55,37 +66,24 @@ class RemoteDataSource(
     override suspend fun getUserProfile(): AppResult<UserProfile> {
         Log.d(TAG, "getUserProfile: Initiating fetch for User ID: ${getCurrentUserId()}")
 
+        val username = dataStoreManager.get<String>(DataStoreManager.Companion.KEY_USERNAME) ?: "test.student1"
         return when (val result = NetworkCallHandler.safeCall(retryPolicy) {
-            retrofit.getUserProfile(getCurrentUserId())
+            retrofit.getUserByField(value = username)
         }) {
             is AppResult.Success -> {
-                val userProfile = result.data.data
-                if (userProfile != null) {
-                    Log.d(
-                        TAG,
-                        "getUserProfile: Success! Received profile for ${userProfile.fullName} (ID: ${userProfile.id})"
-                    )
-                    AppResult.Success(userProfile)
+                val studentUser = result.data.firstOrNull()
+                if (studentUser != null) {
+                    // Save the user ID from the API call
+                    studentUser.id?.let {
+                        dataStoreManager.save(DataStoreManager.Companion.KEY_USER_ID, it.toString())
+                    }
+                    AppResult.Success(studentUser.toUserProfile())
                 } else {
-                    Log.e(
-                        TAG,
-                        "getUserProfile: Failure - API payload field 'data' was null (DecodingError)"
-                    )
                     AppResult.Failure(AppError.DecodingError)
                 }
             }
-
-            is AppResult.Failure -> {
-                Log.e(
-                    TAG, "getUserProfile: Network or Server Failure. Error Details: ${result.error}"
-                )
-                result
-            }
-
-            is AppResult.Loading -> {
-                Log.d(TAG, "getUserProfile: Request is loading/retrying...")
-                AppResult.Loading
-            }
+            is AppResult.Failure -> result
+            is AppResult.Loading -> AppResult.Loading
         }
     }
 
@@ -98,8 +96,15 @@ class RemoteDataSource(
     // ── COURSES ───────────────────────────────────────────────────
 
     override suspend fun getEnrolledCourses(): AppResult<List<Course>> {
+        val cachedId = dataStoreManager.userIdState.value?.toIntOrNull()
+        val finalUserId = if (cachedId != null && cachedId != 101) {
+            cachedId
+        } else {
+            val profileResult = getUserProfile()
+            if (profileResult is AppResult.Success) profileResult.data.id else 101
+        }
         return NetworkCallHandler.safeCall(retryPolicy) {
-            retrofit.getEnrolledCourses(getCurrentUserId())
+            retrofit.getEnrolledCourses(finalUserId)
         }
     }
 
@@ -242,7 +247,7 @@ class RemoteDataSource(
         return when (result) {
             is AppResult.Success -> AppResult.Success(
                 if (query.isBlank()) result.data
-                else result.data.filter { it.title.contains(query, ignoreCase = true) })
+                else result.data.filter { it.fullName?.contains(query, ignoreCase = true) == true })
 
             else -> result
         }

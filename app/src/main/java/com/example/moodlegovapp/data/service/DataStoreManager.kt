@@ -47,6 +47,7 @@ class DataStoreManager private constructor(val context: Context) {
         val KEY_TOKEN = stringPreferencesKey("auth_token")
         val KEY_PRIVATE_TOKEN = stringPreferencesKey("private_token")
         val KEY_USER_ID = stringPreferencesKey("user_id")
+        val KEY_USERNAME = stringPreferencesKey("username")
         val KEY_LANGUAGE = stringPreferencesKey("app_language")
 
         @Volatile private var instance: DataStoreManager? = null

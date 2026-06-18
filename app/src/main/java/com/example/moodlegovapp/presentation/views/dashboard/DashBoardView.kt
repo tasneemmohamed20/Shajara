@@ -358,7 +358,7 @@ private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: In
                     contentAlignment = Alignment.Center
                 ) {
                     @OptIn(ExperimentalGlideComposeApi::class) GlideImage(
-                        model = profileUrl,
+                        model = user?.profileImageUrl,
                         contentDescription = "User Profile Picture",
                         modifier = Modifier.size(48.dp),
                     )

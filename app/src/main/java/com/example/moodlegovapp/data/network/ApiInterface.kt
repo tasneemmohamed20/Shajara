@@ -60,18 +60,15 @@ interface ApiServiceProtocol :
 
 interface RetrofitApiService {
 
-    // AUTH
-    @GET("auth/login")
-    suspend fun login(
-        @Query("username") username: String,
-        @Query("password") password: String
-    ): Response<AuthToken>
-
-    // USER
-    @GET("user/profile")
-    suspend fun getUserProfile(
-        @Query("id") userId: Int
-    ): Response<UserResponse>
+    // AUTH & USER
+    @GET("webservice/rest/server.php")
+    suspend fun getUserByField(
+        @Query("wstoken") token: String = "b4cd92a9bbb816fc54ae1a43a01d1dcc",
+        @Query("wsfunction") wsfunction: String = "core_user_get_users_by_field",
+        @Query("moodlewsrestformat") format: String = "json",
+        @Query("field") field: String = "username",
+        @Query("values[0]") value: String
+    ): Response<List<com.example.moodlegovapp.domain.models.StudentUser>>
 
     @GET("progress/overview")
     suspend fun getPerformanceOverview(
@@ -79,9 +76,12 @@ interface RetrofitApiService {
     ): Response<PerformanceOverview>
 
     // COURSES
-    @GET("user/enrolled-courses")
+    @GET("webservice/rest/server.php")
     suspend fun getEnrolledCourses(
-        @Query("id") userId: Int
+        @Query("userid") userId: Int,
+        @Query("wstoken") token: String = "b4cd92a9bbb816fc54ae1a43a01d1dcc",
+        @Query("wsfunction") wsfunction: String = "core_enrol_get_users_courses",
+        @Query("moodlewsrestformat") format: String = "json"
     ): Response<List<Course>>
 
     @GET("courses")

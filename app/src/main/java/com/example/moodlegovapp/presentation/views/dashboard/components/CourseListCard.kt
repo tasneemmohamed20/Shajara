@@ -135,7 +135,7 @@ private fun InnerCourseItemCard(
     modifier: Modifier = Modifier
 ) {
     val animatedProgress by animateFloatAsState(
-        targetValue = course.progress / 100f,
+        targetValue = (course.progress ?: 0) / 100f,
         animationSpec = tween(durationMillis = 800, easing = EaseOut),
         label = "innerCardProgress"
     )
@@ -159,13 +159,21 @@ private fun InnerCourseItemCard(
                     .height(145.dp)
             ) {
                 // 1. The Composable image goes here, filling the entire parent Box bounds
-                GlideImage(
-//                    model = course.imageUrl,
-                    model = R.drawable.crime,
-                    contentDescription = course.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (course.courseImage != null) {
+                    GlideImage(
+                        model = course.courseImage,
+                        contentDescription = course.fullName ?: "Course Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    GlideImage(
+                        model = R.drawable.crime,
+                        contentDescription = course.fullName ?: "Course Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
                 // 2. Optional: Dark gradient overlay drawn ON TOP of the image so your white text pops cleanly
                 Box(
@@ -180,7 +188,7 @@ private fun InnerCourseItemCard(
 
                 // 3. Course Title Text Overlay (placed at the bottom-start of the Box stack)
                 Text(
-                    text = course.title,
+                    text = course.fullName ?: "Unknown Course",
                     color = Color.White,
                     fontSize = 21.sp,
                     fontWeight = FontWeight.Bold,
@@ -212,7 +220,7 @@ private fun InnerCourseItemCard(
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        text = course.instructorName,
+                        text = "Unknown Instructor", // Fallback, not in CourseItem
                         style = SpTypography.caption(),
                         color = SpColors.DarkGray,
                         fontSize = 14.sp
@@ -252,7 +260,7 @@ private fun InnerCourseItemCard(
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.course_card_due_in, course.dueIn),
+                            text = stringResource(R.string.course_card_due_in, "N/A"), // Fallback due date
                             color = SpColors.Error,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
@@ -261,7 +269,7 @@ private fun InnerCourseItemCard(
                         )
 
                         Text(
-                            text = course.category, // Displays "Crime Scene Analysis"
+                            text = "Category ${course.category ?: "Unknown"}", // ID instead of Name
                             color = SpColors.Error,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,
@@ -284,7 +292,7 @@ private fun InnerCourseItemCard(
                             color = SpColors.DarkGray
                         )
                         Text(
-                            text = "${course.progress}%",
+                            text = "${course.progress ?: 0}%",
                             style = SpTypography.caption(),
                             color = SpColors.DarkBrown,
                             fontWeight = FontWeight.Bold

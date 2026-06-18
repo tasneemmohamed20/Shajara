@@ -146,7 +146,7 @@ class MockApiService(
         return try {
             val all = readJson(R.raw.mock_enrolled_courses, object : TypeToken<List<Course>>() {})
             val filtered = if (query.isBlank()) all
-            else all.filter { it.title.contains(query, ignoreCase = true) }
+            else all.filter { it.fullName?.contains(query, ignoreCase = true) == true }
             AppResult.Success(filtered)
         } catch (_: Exception) {
             AppResult.Failure(AppError.DecodingError)

@@ -1,6 +1,9 @@
 package com.example.moodlegovapp.domain.models
+import android.util.Log
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import com.google.gson.annotations.SerializedName
 
-// 1. The top-level API Wrapper response
 data class UserResponse(
     val success: Boolean,
     val data: UserProfile? = null
@@ -64,4 +67,71 @@ data class UserCertificate(
 data class Settings(
     val language: String,
     val notificationsEnabled: Boolean
+)
+
+fun StudentUser.toUserProfile(): UserProfile {
+    Log.i("user", this.toString())
+    return UserProfile(
+        id = this.id ?: 0,
+        fullName = this.fullname ?: this.firstname ?: "Student User",
+        email = this.email ?: "",
+        profileImageUrl = this.profileImageUrl ?: "",
+        role = "Student", // Defaulting as not available in StudentUser
+        department = this.department ?: "",
+        institution = this.institution ?: "",
+        batch = "N/A",
+        rank = "N/A",
+        rankNumber = 0,
+        level = 1,
+        totalXP = 0,
+        xpToNextLevel = 100,
+        xpProgressPercent = 0,
+        performance = Performance(0, "0%", 0, "0%", 0, "0%"),
+        badges = emptyList(),
+        certificates = emptyList(),
+        settings = Settings(this.lang ?: "en", true)
+    )
+}
+
+
+@Serializable
+data class StudentUser(
+    val id: Int? = null,
+    val username: String? = null,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val fullname: String? = null,
+    val email: String? = null,
+    val department: String? = null,
+    val institution: String? = null,
+    val firstaccess: Long? = null,          // Using Long for UNIX timestamps
+    val lastaccess: Long? = null,           // Using Long for UNIX timestamps
+    val auth: String? = null,
+    val suspended: Boolean? = null,
+    val confirmed: Boolean? = null,
+    val lang: String? = null,
+    val theme: String? = null,
+    val timezone: String? = null,           // Kept as String since "99" is in quotes
+
+    @SerialName("mailformat")
+    @SerializedName("mailformat")
+    val mailFormat: Int? = null,
+
+    @SerialName("trackforums")
+    @SerializedName("trackforums")
+    val trackForums: Int? = null,
+
+    val description: String? = null,
+
+    @SerialName("descriptionformat")
+    @SerializedName("descriptionformat")
+    val descriptionFormat: Int? = null,
+
+    @SerialName("profileimageurlsmall")
+    @SerializedName("profileimageurlsmall")
+    val profileImageUrlSmall: String? = null,
+
+    @SerialName("profileimageurl")
+    @SerializedName("profileimageurl")
+    val profileImageUrl: String? = null
 )

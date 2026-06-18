@@ -1,27 +1,94 @@
 package com.example.moodlegovapp.domain.models
 
-enum class CourseStatus {
-    ACTIVE,
-    NEW,
-    COMPLETED,
-    IN_PROGRESS
-}
+import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Course(
     val id: Int,
-    val title: String,
-    val category: String,
-    val imageUrl: String,
-    val instructorName: String,
-    val instructorImage: String,
-    val progress: Int,
-    val dueIn: String,
-    val dueDate: String,
-    val startDate: String,
-    val endDate: String,
-    val status: CourseStatus,
-    val tasks: Int,
-    val totalModules: Int,
-    val certificates: Int,
-    val isFavorite: Boolean
+
+    @SerializedName("shortname")
+    val shortName: String? = null,
+
+    @SerializedName("fullname")
+    val fullName: String? = null,
+
+    @SerializedName("displayname")
+    val displayName: String? = null,
+
+    @SerializedName("enrolledusercount")
+    val enrolledUserCount: Int? = null,
+
+    @SerializedName("idnumber")
+    val idNumber: String? = null,
+
+    val visible: Int? = null, // Can change to Boolean if you use a custom deserializer mapping 1/0 to true/false
+    val summary: String? = null,
+
+    @SerializedName("summaryformat")
+    val summaryFormat: Int? = null,
+
+    val format: String? = null,
+
+    @SerializedName("courseimage")
+    val courseImage: String? = null,
+
+    @SerializedName("showgrades")
+    val showGrades: Boolean? = null,
+
+    val lang: String? = null,
+
+    @SerializedName("enablecompletion")
+    val enableCompletion: Boolean? = null,
+
+    @SerializedName("completionhascriteria")
+    val completionHasCriteria: Boolean? = null,
+
+    @SerializedName("completionusertracked")
+    val completionUserTracked: Boolean? = null,
+
+    val category: Int? = null,
+    val progress: Int? = null, // Can be changed to Double if progress can be a fraction
+    val completed: Boolean? = null,
+
+    @SerializedName("startdate")
+    val startDate: Long? = null, // UNIX timestamps
+
+    @SerializedName("enddate")
+    val endDate: Long? = null,   // UNIX timestamps
+
+    val marker: Int? = null,
+
+    @SerializedName("lastaccess")
+    val lastAccess: Long? = null, // Nullable just in case a user has never accessed it
+
+    @SerializedName("isfavourite")
+    val isFavourite: Boolean? = null,
+
+    val hidden: Boolean? = null,
+
+    @SerializedName("overviewfiles")
+    val overviewFiles: List<OverviewFile> = emptyList(),
+
+    @SerializedName("showactivitydates")
+    val showActivityDates: Boolean? = null,
+
+    @SerializedName("showcompletionconditions")
+    val showCompletionConditions: Boolean? = null,
+
+    @SerializedName("timemodified")
+    val timeModified: Long? = null
+)
+
+@Serializable
+data class OverviewFile(
+    val filename: String? = null,
+    val filepath: String? = null,
+    val filesize: Int? = null,
+    val fileurl: String? = null,
+
+    @SerializedName("timemodified")
+    val timeModified: Long? = null,
+
+    val mimetype: String? = null
 )
