@@ -1,4 +1,5 @@
 package com.example.moodlegovapp.presentation.views.assigments
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moodlegovapp.presentation.viewmodels.AssignmentsViewModel
@@ -24,6 +27,7 @@ import com.example.moodlegovapp.ui.theme.AppColors
 
 @Composable
 fun AssignmentDetailsScreen(
+    courseId: Int,
     assignmentId: Int,
     viewModel: AssignmentsViewModel,
     onBackClick: () -> Unit,
@@ -33,9 +37,11 @@ fun AssignmentDetailsScreen(
     val submissionStatus by viewModel.submissionStatus.collectAsState()
     val isLoading by viewModel.isLoadingDetail.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState() // NEW: Collect the error message
+    val courseResources by viewModel.courseResources.collectAsState()
 
-    LaunchedEffect(assignmentId) {
-        viewModel.fetchAssignmentDetail(assignmentId)
+    LaunchedEffect(courseId, assignmentId) {
+        viewModel.fetchAssignmentDetail(courseId, assignmentId)
+        viewModel.fetchCourseResources(courseId)
     }
 
     // 1. Show loader ONLY if it's actively loading and we don't have data yet
@@ -58,7 +64,7 @@ fun AssignmentDetailsScreen(
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { viewModel.fetchAssignmentDetail(assignmentId) }) {
+                Button(onClick = { viewModel.fetchAssignmentDetail(courseId, assignmentId) }) {
                     Text("Retry")
                 }
             }
@@ -95,16 +101,16 @@ fun AssignmentDetailsScreen(
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 24.dp),
+                .fillMaxSize(),
+//                .padding(paddingValues),
+//            contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
                 AssignmentHeader(
                     title = currentAssignment.name,
-                    courseName = currentAssignment.courseName ?: "Course",
-                    status = currentAssignment.status,
+                    courseName = "Course ${currentAssignment.course}",
+                    status = "Pending", // Needs separate status API
                     onBackClick = onBackClick
                 )
             }
@@ -122,7 +128,8 @@ fun AssignmentDetailsScreen(
                     Icon(Icons.Default.Schedule, contentDescription = null, tint = AppColors.Error, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(currentAssignment.dueLabel ?: "Due Date", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.Error)
+                        val dueStr = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault()).format(java.util.Date(currentAssignment.dueDate * 1000L))
+                        Text("Due: $dueStr", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.Error)
                         Text(currentAssignment.name, fontSize = 12.sp, color = AppColors.Error.copy(alpha = 0.8f))
                     }
                 }
@@ -158,7 +165,7 @@ fun AssignmentDetailsScreen(
                             Column {
                                 Text("LEARNING OBJECTIVE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppColors.Navy)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(currentAssignment.learningObjective ?: "", fontSize = 13.sp, color = AppColors.TextPrimary)
+                                Text("Objectives from Intro", fontSize = 13.sp, color = AppColors.TextPrimary)
                             }
                         }
                     }
@@ -169,18 +176,19 @@ fun AssignmentDetailsScreen(
             item {
                 Column(modifier = Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Refresh, title = "ATTEMPTS", value = "${currentAssignment.usedAttempts} / ${currentAssignment.maxAttempts}")
-                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Description, title = "SUBMISSION", value = currentAssignment.allowedFileTypes?.joinToString(", ")?.replace(".", "")?.uppercase() ?: "Any")
+                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Refresh, title = "ATTEMPTS", value = "0 / ${currentAssignment.maxAttempts}")
+                        val fileTypes = currentAssignment.configs.find { it.plugin == "file" && it.name == "filetypeslist" }?.value ?: ""
+                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Description, title = "SUBMISSION", value = fileTypes.ifBlank { "Any" })
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Star, title = "GRADING", value = "${currentAssignment.maxGrade} Points")
-                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Scale, title = "CUT-OFF DATE", value = "${currentAssignment.gradeWeightPercent}% of Final")
+                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Star, title = "GRADING", value = "${currentAssignment.grade} Points")
+                        StatCard(modifier = Modifier.weight(1f), icon = Icons.Default.Scale, title = "CUT-OFF DATE", value = if (currentAssignment.cutoffDate > 0) java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()).format(java.util.Date(currentAssignment.cutoffDate * 1000L)) else "None")
                     }
                 }
             }
 
             // Resources
-            if (!currentAssignment.resources.isNullOrEmpty()) {
+//            if (currentAssignment.introAttachments.isNotEmpty()) {
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
@@ -192,25 +200,37 @@ fun AssignmentDetailsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Folder, contentDescription = null, tint = AppColors.Navy, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Resources", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
+                                    Text("Attachments", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
                                 }
-                                Text("Download All", fontSize = 13.sp, color = AppColors.Navy, modifier = Modifier.clickable { })
                             }
                             Spacer(modifier = Modifier.height(16.dp))
-                            currentAssignment.resources.forEach { resource ->
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val allFiles = courseResources.flatMap { it.contentFiles }
+                            allFiles.forEach { file ->
+                                val name = file.filename
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).border(1.dp, AppColors.Border, RoundedCornerShape(16.dp)).padding(16.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                        .border(1.dp, AppColors.Border, RoundedCornerShape(16.dp))
+                                        .clickable {
+                                            val token = "b4cd92a9bbb816fc54ae1a43a01d1dcc"
+                                            val url = file.fileurl
+                                            val finalUrl = if (url.contains("?")) "$url&token=$token" else "$url?token=$token"
+                                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(finalUrl))
+                                            context.startActivity(intent)
+                                        }
+                                        .padding(16.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(modifier = Modifier.size(40.dp).background(AppColors.Background, CircleShape), contentAlignment = Alignment.Center) {
-                                            Icon(if (resource.mimeType?.contains("zip") == true) Icons.Default.Archive else Icons.Default.PictureAsPdf, contentDescription = null, tint = AppColors.Error, modifier = Modifier.size(20.dp))
+                                            Icon(if (name.endsWith(".zip")) Icons.Default.Archive else Icons.Default.PictureAsPdf, contentDescription = null, tint = AppColors.Error, modifier = Modifier.size(20.dp))
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
-                                        Column {
-                                            Text(resource.name, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary)
-                                            Text("${resource.mimeType?.split("/")?.last()?.uppercase()} • ${resource.fileSizeLabel}", fontSize = 12.sp, color = AppColors.TextSecondary)
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(name, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = AppColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
                                     }
                                     Icon(Icons.Default.Download, contentDescription = null, tint = AppColors.Navy)
@@ -219,7 +239,7 @@ fun AssignmentDetailsScreen(
                         }
                     }
                 }
-            }
+//            }
 
             // Status
             item {

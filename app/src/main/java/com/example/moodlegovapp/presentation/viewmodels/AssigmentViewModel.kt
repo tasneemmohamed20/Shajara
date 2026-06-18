@@ -2,11 +2,11 @@ package com.example.moodlegovapp.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moodlegovapp.data.network.AppResult
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.MoodleAssignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatus
-import com.example.moodlegovapp.domain.models.CourseResource
+import com.example.moodlegovapp.domain.models.MoodleResource
 import com.example.moodlegovapp.domain.models.FileUploadResult
 import com.example.moodlegovapp.domain.repositoryinterface.AssignmentsRepositoryProtocol
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,16 +26,16 @@ class AssignmentsViewModel(
 
     // ── Assignment list ────────────────────────────────────────────────────
 
-    private val _assignments = MutableStateFlow<List<Assignment>>(emptyList())
-    val assignments: StateFlow<List<Assignment>> = _assignments.asStateFlow()
+    private val _assignments = MutableStateFlow<List<MoodleAssignment>>(emptyList())
+    val assignments: StateFlow<List<MoodleAssignment>> = _assignments.asStateFlow()
 
     private val _isLoadingList = MutableStateFlow(false)
     val isLoadingList: StateFlow<Boolean> = _isLoadingList.asStateFlow()
 
     // ── Assignment detail ──────────────────────────────────────────────────
 
-    private val _selectedAssignment = MutableStateFlow<Assignment?>(null)
-    val selectedAssignment: StateFlow<Assignment?> = _selectedAssignment.asStateFlow()
+    private val _selectedAssignment = MutableStateFlow<MoodleAssignment?>(null)
+    val selectedAssignment: StateFlow<MoodleAssignment?> = _selectedAssignment.asStateFlow()
 
     private val _isLoadingDetail = MutableStateFlow(false)
     val isLoadingDetail: StateFlow<Boolean> = _isLoadingDetail.asStateFlow()
@@ -65,8 +65,8 @@ class AssignmentsViewModel(
 
     // ── Course resources ───────────────────────────────────────────────────
 
-    private val _courseResources = MutableStateFlow<List<CourseResource>>(emptyList())
-    val courseResources: StateFlow<List<CourseResource>> = _courseResources.asStateFlow()
+    private val _courseResources = MutableStateFlow<List<MoodleResource>>(emptyList())
+    val courseResources: StateFlow<List<MoodleResource>> = _courseResources.asStateFlow()
 
     private val _isLoadingResources = MutableStateFlow(false)
     val isLoadingResources: StateFlow<Boolean> = _isLoadingResources.asStateFlow()
@@ -101,12 +101,12 @@ class AssignmentsViewModel(
     }
 
     /** Load full detail for a single assignment and its submission status. */
-    fun fetchAssignmentDetail(assignmentId: Int) {
+    fun fetchAssignmentDetail(courseId: Int, assignmentId: Int) {
         viewModelScope.launch {
             _isLoadingDetail.value = true
             _errorMessage.value    = null
             try {
-                when (val result = repository.getAssignmentDetail(assignmentId)) {
+                when (val result = repository.getAssignmentDetail(courseId, assignmentId)) {
                     is AppResult.Success -> _selectedAssignment.value = result.data
                     is AppResult.Failure -> _errorMessage.value = result.error.errorDescription
                     is AppResult.Loading -> Unit
@@ -153,7 +153,7 @@ class AssignmentsViewModel(
             }
         }
     }
-    fun selectAssignment(assignment: Assignment) {
+    fun selectAssignment(assignment: MoodleAssignment) {
         _selectedAssignment.value = assignment
         fetchSubmissionStatus(assignment.id)
     }

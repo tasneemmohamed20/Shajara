@@ -15,12 +15,10 @@ import com.example.moodlegovapp.data.network.datasource.SearchDataSource
 import com.example.moodlegovapp.data.network.datasource.StatsDataSource
 import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatus
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatusResponse
-import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
@@ -28,8 +26,7 @@ import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseSection
 
 import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.CourseResourcesResponse
+
 import com.example.moodlegovapp.domain.models.FileUploadResult
 import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.LeaderboardResponse
@@ -151,36 +148,15 @@ class MockApiService(
         }
     }
 
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
+    override suspend fun getAssignments(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleAssignment>> {
         fakeDelay()
-        return try {
-            val response = readJson(
-                R.raw.assigment,
-                object : TypeToken<AssignmentsResponse>() {}
-            )
-            val all = response.data?.assignments ?: emptyList()
-            val filtered = if (courseId <= 0) all
-            else all.filter { it.courseId == courseId }
-            AppResult.Success(filtered)
-        } catch (_: Exception) {
-            AppResult.Failure(AppError.DecodingError)
-        }
+        return AppResult.Success(emptyList())
     }
 
     // 2. getAssignmentDetail — finds a single assignment by id from the same file.
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
+    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<com.example.moodlegovapp.domain.models.MoodleAssignment> {
         fakeDelay()
-        return try {
-            val response = readJson(
-                R.raw.assigment,
-                object : TypeToken<AssignmentsResponse>() {}
-            )
-            val found = response.data?.assignments?.find { it.id == assignmentId }
-            found?.let { AppResult.Success(it) }
-                ?: AppResult.Failure(AppError.NotFound)
-        } catch (_: Exception) {
-            AppResult.Failure(AppError.DecodingError)
-        }
+        return AppResult.Failure(AppError.NotFound)
     }
 
     // 3. getSubmissionStatus — reads mock_assignment_submission_status.json and
@@ -251,20 +227,10 @@ class MockApiService(
         }
     }
 
-    // 7. getCourseResources — now reads from mock_course_resources.json.
-    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
+    // 7. getCourseResources — now returns empty mock data for MoodleResources
+    override suspend fun getCourseResources(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleResource>> {
         fakeDelay()
-        return try {
-            val response = readJson(
-                R.raw.course_resource,
-                object : TypeToken<CourseResourcesResponse>() {}
-            )
-            response.data?.resources
-                ?.let { AppResult.Success(it) }
-                ?: AppResult.Success(emptyList())
-        } catch (_: Exception) {
-            AppResult.Failure(AppError.DecodingError)
-        }
+        return AppResult.Success(emptyList())
     }
 
     // ── Private helper (add to MockApiService body) ───────────────────────────────

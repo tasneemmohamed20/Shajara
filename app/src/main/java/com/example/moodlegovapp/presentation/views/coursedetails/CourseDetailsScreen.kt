@@ -64,6 +64,7 @@ fun CourseOverviewScreen(
     modifier: Modifier = Modifier
 ) {
     val courseSections by vm.courseSections.collectAsState()
+    val courseResources by vm.courseResources.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
 
@@ -138,6 +139,8 @@ fun CourseOverviewScreen(
                         expandedSectionId =
                             if (expandedSectionId == section.id) null else section.id
                     },
+                    courseResources = courseResources,
+                    onResourcesClick = onResourcesClick,
                     onActivityClick = onActivityClick
                 )
             }
@@ -231,6 +234,8 @@ private fun ExpandableSectionAccordion(
     section: CourseSection,
     isExpanded: Boolean,
     onHeaderClick: () -> Unit,
+    courseResources: List<com.example.moodlegovapp.domain.models.MoodleResource>,
+    onResourcesClick: (String) -> Unit,
     onActivityClick: (Int) -> Unit
 ) {
     Card(
@@ -304,7 +309,17 @@ private fun ExpandableSectionAccordion(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     section.modules.forEach { module ->
-                        ActivityRowItem(module = module, onClick = { onActivityClick(module.id) })
+                        val resourceUrl = courseResources.find { it.id == module.instance }?.contentFiles?.firstOrNull()?.fileurl
+                        ActivityRowItem(
+                            module = module, 
+                            onClick = { 
+                                if (module.modName.lowercase() == "resource" && resourceUrl != null) {
+                                    onResourcesClick(resourceUrl)
+                                } else {
+                                    onActivityClick(module.instance)
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -381,7 +396,7 @@ private fun ActivityRowItem(module: CourseModule, onClick: () -> Unit) {
         Spacer(modifier = Modifier.width(14.dp))
 
         // Center labels
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f).clickable(onClick = onClick)) {
             Text(
                 text = module.name,
                 fontSize = 15.sp,

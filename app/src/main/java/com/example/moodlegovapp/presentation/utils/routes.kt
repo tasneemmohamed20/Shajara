@@ -22,12 +22,12 @@ sealed class ScreensRoute(val route: String) : Serializable {
     }
 
     // --- NEW ROUTES ---
-    object AssignmentDetails : ScreensRoute("assignment_details/{assignmentId}") {
-        fun createRoute(assignmentId: Int): String = "assignment_details/$assignmentId"
+    object AssignmentDetails : ScreensRoute("assignment_details/{courseId}/{assignmentId}") {
+        fun createRoute(courseId: Int, assignmentId: Int): String = "assignment_details/$courseId/$assignmentId"
     }
 
-    object AssignmentSubmission : ScreensRoute("assignmentSubmission/{assignmentId}") {
-        fun createRoute(assignmentId: Int) = "assignmentSubmission/$assignmentId"
+    object AssignmentSubmission : ScreensRoute("assignmentSubmission/{courseId}/{assignmentId}") {
+        fun createRoute(courseId: Int, assignmentId: Int) = "assignmentSubmission/$courseId/$assignmentId"
     }
 }
 

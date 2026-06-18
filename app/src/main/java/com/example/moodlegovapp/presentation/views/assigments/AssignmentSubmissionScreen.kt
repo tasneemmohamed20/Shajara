@@ -26,7 +26,8 @@ import com.example.moodlegovapp.ui.theme.AppColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssignmentSubmissionScreen(
-    assignmentId: Int,           // add this parameter
+    courseId: Int,
+    assignmentId: Int,
     viewModel: AssignmentsViewModel,
     onBackClick: () -> Unit,
     onSubmissionSuccess: () -> Unit
@@ -42,8 +43,8 @@ fun AssignmentSubmissionScreen(
     var selectedTab by remember { mutableStateOf("File Upload") }
 
     // Trigger fetch when screen opens
-    LaunchedEffect(assignmentId) {
-        viewModel.fetchAssignmentDetail(assignmentId)
+    LaunchedEffect(courseId, assignmentId) {
+        viewModel.fetchAssignmentDetail(courseId, assignmentId)
     }
 
     LaunchedEffect(submissionResult) {
@@ -112,7 +113,7 @@ fun AssignmentSubmissionScreen(
         ) {
             item {
                 SubmissionHeader(
-                    courseName = assignment!!.courseName ?: "COURSE",
+                    courseName = "Course ${assignment!!.course}",
                     title = assignment!!.name,
                     onBackClick = onBackClick
                 )
@@ -223,10 +224,8 @@ fun AssignmentSubmissionScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("REQUIREMENTS", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppColors.Gold)
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            assignment?.requirements?.forEach { req ->
-                                Text("•  $req", fontSize = 13.sp, color = AppColors.TextSecondary, modifier = Modifier.padding(vertical = 4.dp))
-                            }
+                            // Requirements could be extracted from assignment.intro if available
+                            Text("•  Review the overview carefully.", fontSize = 13.sp, color = AppColors.TextSecondary, modifier = Modifier.padding(vertical = 4.dp))
                         }
                     }
 

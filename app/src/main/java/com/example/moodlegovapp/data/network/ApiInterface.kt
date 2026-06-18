@@ -15,13 +15,12 @@ import com.example.moodlegovapp.data.network.datasource.UserDataSource
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatusResponse
-import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResourcesResponse
+
 import com.example.moodlegovapp.domain.models.FileUploadResponse
 import com.example.moodlegovapp.domain.models.LeaderboardResponse
 import com.example.moodlegovapp.domain.models.Notification
@@ -99,18 +98,20 @@ interface RetrofitApiService {
 
     // ── Assignments ────────────────────────────────────────────────────────
 
-    /** GET /api/courses/assignments?userId={userId} */
-    @GET("api/courses/assignments")
+    @GET("webservice/rest/server.php")
     suspend fun getAssignments(
-        @Query("userId") userId: Int
-    ): Response<AssignmentsResponse>
+        @Query("wstoken") token: String = "b4cd92a9bbb816fc54ae1a43a01d1dcc",
+        @Query("wsfunction") wsfunction: String = "mod_assign_get_assignments",
+        @Query("moodlewsrestformat") format: String = "json"
+    ): Response<com.example.moodlegovapp.domain.models.CourseAssignmentsResponse>
 
-    /** GET /api/courses/assignments?userId={userId}&courseId={courseId} */
-    @GET("api/courses/assignments")
+    @GET("webservice/rest/server.php")
     suspend fun getAssignmentsByCourse(
-        @Query("userId")   userId:   Int,
-        @Query("courseId") courseId: Int
-    ): Response<AssignmentsResponse>
+        @Query("courseids[0]") courseId: Int,
+        @Query("wstoken") token: String = "b4cd92a9bbb816fc54ae1a43a01d1dcc",
+        @Query("wsfunction") wsfunction: String = "mod_assign_get_assignments",
+        @Query("moodlewsrestformat") format: String = "json"
+    ): Response<com.example.moodlegovapp.domain.models.CourseAssignmentsResponse>
 
     /** GET /api/courses/assignments/{assignmentId}/submission?userId={userId} */
     @GET("api/courses/assignments/{assignmentId}/submission")
@@ -150,12 +151,13 @@ interface RetrofitApiService {
 
     // ── Course resources ───────────────────────────────────────────────────
 
-    /** GET /api/courses/{courseId}/resources?userId={userId} */
-    @GET("api/courses/{courseId}/resources")
+    @GET("webservice/rest/server.php")
     suspend fun getCourseResources(
-        @Path("courseId") courseId: Int,
-        @Query("userId")  userId:   Int
-    ): Response<CourseResourcesResponse>
+        @Query("courseids[0]") courseId: Int,
+        @Query("wstoken") token: String = "b4cd92a9bbb816fc54ae1a43a01d1dcc",
+        @Query("wsfunction") wsfunction: String = "mod_resource_get_resources_by_courses",
+        @Query("moodlewsrestformat") format: String = "json"
+    ): Response<com.example.moodlegovapp.domain.models.MoodleResourcesResponse>
 
     // NOTIFICATIONS
     @GET("notifications")

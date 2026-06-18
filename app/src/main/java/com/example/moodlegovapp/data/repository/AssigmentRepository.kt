@@ -7,11 +7,11 @@ import com.example.moodlegovapp.data.network.NetworkCallHandler
 import com.example.moodlegovapp.data.network.RetrofitApiService
 import com.example.moodlegovapp.data.network.RetryPolicy
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.MoodleAssignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatus
-import com.example.moodlegovapp.domain.models.CourseResource
+
 import com.example.moodlegovapp.domain.models.FileUploadResult
 import com.example.moodlegovapp.domain.repositoryinterface.AssignmentsRepositoryProtocol
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -67,41 +67,47 @@ class AssignmentsRepository(
 
     // ── Listing ────────────────────────────────────────────────────────────
 
-    override suspend fun getAllAssignments(): AppResult<List<Assignment>> =
+    override suspend fun getAllAssignments(): AppResult<List<com.example.moodlegovapp.domain.models.MoodleAssignment>> =
         withFallback(
             tag = "getAllAssignments",
             networkCall = {
                 when (val r = NetworkCallHandler.safeCall(retryPolicy) {
-                    retrofit.getAssignments(userId())
+                    retrofit.getAssignments()
                 }) {
-                    is AppResult.Success -> AppResult.Success(r.data.data?.assignments ?: emptyList())
+                    is AppResult.Success -> {
+                        val assignments = r.data.courses.flatMap { it.assignments }
+                        AppResult.Success(assignments)
+                    }
                     is AppResult.Failure -> r
                     is AppResult.Loading -> AppResult.Loading
                 }
             },
-            mockCall = { mock.getAssignments(courseId = -1) }
+            mockCall = { mock.getAssignments(courseId = -1) as AppResult<List<com.example.moodlegovapp.domain.models.MoodleAssignment>> }
         )
 
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> =
+    override suspend fun getAssignments(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleAssignment>> =
         withFallback(
             tag = "getAssignments(courseId=$courseId)",
             networkCall = {
                 when (val r = NetworkCallHandler.safeCall(retryPolicy) {
-                    retrofit.getAssignmentsByCourse(userId(), courseId)
+                    retrofit.getAssignmentsByCourse(courseId)
                 }) {
-                    is AppResult.Success -> AppResult.Success(r.data.data?.assignments ?: emptyList())
+                    is AppResult.Success -> {
+                        val assignments = r.data.courses.flatMap { it.assignments }
+                        AppResult.Success(assignments)
+                    }
                     is AppResult.Failure -> r
                     is AppResult.Loading -> AppResult.Loading
                 }
             },
-            mockCall = { mock.getAssignments(courseId) }
+            mockCall = { mock.getAssignments(courseId) as AppResult<List<com.example.moodlegovapp.domain.models.MoodleAssignment>> }
         )
 
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> =
+    override suspend fun getAssignmentDetail(courseId: Int, assignmentId: Int): AppResult<com.example.moodlegovapp.domain.models.MoodleAssignment> =
         withFallback(
             tag = "getAssignmentDetail($assignmentId)",
             networkCall = {
-                when (val r = getAllAssignments()) {
+                when (val r = getAssignments(courseId)) {
                     is AppResult.Success -> {
                         Log.d("AssignmentsRepo", "All IDs: ${r.data.map { it.id }}")
                         r.data.find { it.id == assignmentId }
@@ -198,16 +204,14 @@ class AssignmentsRepository(
 
     // ── Resources ──────────────────────────────────────────────────────────
 
-    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> =
+    override suspend fun getCourseResources(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleResource>> =
         withFallback(
             tag = "getCourseResources(courseId=$courseId)",
             networkCall = {
                 when (val r = NetworkCallHandler.safeCall(retryPolicy) {
-                    retrofit.getCourseResources(courseId, userId())
+                    retrofit.getCourseResources(courseId)
                 }) {
-                    is AppResult.Success -> r.data.data?.resources
-                        ?.let { AppResult.Success(it) }
-                        ?: AppResult.Success(emptyList())
+                    is AppResult.Success -> AppResult.Success(r.data.resources)
                     is AppResult.Failure -> r
                     is AppResult.Loading -> AppResult.Loading
                 }

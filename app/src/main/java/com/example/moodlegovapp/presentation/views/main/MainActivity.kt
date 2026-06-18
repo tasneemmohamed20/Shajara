@@ -233,41 +233,60 @@ fun NavGraphBuilder.mainAppGraph(
         val progress = backStackEntry.arguments?.getInt("progress") ?: 0
         val vm = remember(courseId) { assembly.makeCourseDetailViewModel(courseId, courseName, progress) }
 
+        val context = androidx.compose.ui.platform.LocalContext.current
         CourseOverviewScreen(
             vm = vm,
             onBackClick = { navController.popBackStack() },
             onReviewAssignmentClick = { assignmentId ->
-                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(assignmentId))
+                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(courseId, assignmentId))
             },
-            onActivityClick = { },
-            onResourcesClick = { })
+            onActivityClick = { assignmentId ->
+                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(courseId, assignmentId))
+            },
+            onResourcesClick = { url -> 
+                val token = "b4cd92a9bbb816fc54ae1a43a01d1dcc"
+                val finalUrl = if (url.contains("?")) "$url&token=$token" else "$url?token=$token"
+                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(finalUrl))
+                context.startActivity(intent)
+            }
+        )
     }
 
     composable(
         route = ScreensRoute.AssignmentDetails.route,
-        arguments = listOf(navArgument("assignmentId") { type = NavType.IntType })
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("assignmentId") { type = NavType.IntType }
+        )
     ) { backStackEntry ->
+        val courseId = backStackEntry.arguments?.getInt("courseId") ?: return@composable
         val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
         val vm = remember { assembly.makeAssignmentsViewModel() } // Ensure this exists in your DependencyContainer
 
         AssignmentDetailsScreen(
+            courseId = courseId,
             assignmentId = assignmentId,
             viewModel = vm,
             onBackClick = { navController.popBackStack() },
             onStartAssignmentClick = { id ->
-                navController.navigate(ScreensRoute.AssignmentSubmission.createRoute(id))
+                navController.navigate(ScreensRoute.AssignmentSubmission.createRoute(courseId, id))
             }
         )
     }
 
     composable(
         route = ScreensRoute.AssignmentSubmission.route,
-        arguments = listOf(navArgument("assignmentId") { type = NavType.IntType })
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("assignmentId") { type = NavType.IntType }
+        )
     ) { backStackEntry ->
+        val courseId = backStackEntry.arguments?.getInt("courseId") ?: return@composable
         val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
         val vm = remember { assembly.makeAssignmentsViewModel() }
 
         AssignmentSubmissionScreen(
+            courseId = courseId,
             assignmentId = assignmentId,
             viewModel = vm,
             onBackClick = { navController.popBackStack() },

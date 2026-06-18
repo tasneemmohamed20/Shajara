@@ -1,22 +1,33 @@
 package com.example.moodlegovapp.domain.models
 
+import com.google.gson.annotations.SerializedName
+
 // ── Course resource ───────────────────────────────────────────────────────────
 // Matches the /api/courses/{courseId}/resources response shape from courses.json
 
-data class CourseResource(
-    val id: String,
+data class MoodleResource(
+    val id: Int,
+    val coursemodule: Int,
+    val course: Int,
     val name: String,
-    val fileName: String?,
-    val mimeType: String?,
-    val fileSizeLabel: String?,
-    val downloadUrl: String?
+    val section: Int,
+    val visible: Boolean,
+    @SerializedName("contentfiles")
+    val contentFiles: List<MoodleResourceFile>
 )
 
-data class CourseResourcesResponse(
-    val success: Boolean,
-    val data: CourseResourcesData?
+data class MoodleResourceFile(
+    val filename: String,
+    val filepath: String,
+    val filesize: Long,
+    val fileurl: String,
+    val timemodified: Long,
+    val mimetype: String,
+    val isexternalfile: Boolean,
+    val icon: String
 )
 
-data class CourseResourcesData(
-    val resources: List<CourseResource>
+data class MoodleResourcesResponse(
+    val resources: List<MoodleResource>,
+    val warnings: List<MoodleWarning> = emptyList()
 )

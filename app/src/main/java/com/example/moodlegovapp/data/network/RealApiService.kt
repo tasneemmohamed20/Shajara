@@ -1,17 +1,14 @@
 package com.example.moodlegovapp.data.network
 
 import com.example.moodlegovapp.data.service.DataStoreManager
-import com.example.moodlegovapp.domain.models.Assignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
-import com.example.moodlegovapp.domain.models.AssignmentsResponse
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
 import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseSection
 import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResource
-import com.example.moodlegovapp.domain.models.CourseResourcesResponse
+
 import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
@@ -103,18 +100,21 @@ class RealApiService(
     }
 
 
-    override suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>> {
-        return when (val r = safeCall<AssignmentsResponse> {
-            if (courseId <= 0) retrofit.getAssignments(userId())
-            else               retrofit.getAssignmentsByCourse(userId(), courseId)
+    override suspend fun getAssignments(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleAssignment>> {
+        return when (val r = safeCall<com.example.moodlegovapp.domain.models.CourseAssignmentsResponse> {
+            if (courseId <= 0) retrofit.getAssignments()
+            else               retrofit.getAssignmentsByCourse(courseId)
         }) {
-            is AppResult.Success -> AppResult.Success(r.data.data?.assignments ?: emptyList())
+            is AppResult.Success -> {
+                val assignments = r.data.courses.flatMap { it.assignments }
+                AppResult.Success(assignments)
+            }
             is AppResult.Failure -> r
             is AppResult.Loading -> AppResult.Loading
         }
     }
 
-    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment> {
+    override suspend fun getAssignmentDetail(assignmentId: Int): AppResult<com.example.moodlegovapp.domain.models.MoodleAssignment> {
         // No dedicated detail endpoint on the mock server — pull list and filter.
         return when (val r = getAssignments(-1)) {
             is AppResult.Success -> r.data.find { it.id == assignmentId }
@@ -137,11 +137,11 @@ class RealApiService(
 
 // ── COURSE RESOURCES ──────────────────────────────────────────────────────────
 
-    override suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>> {
-        return when (val r = safeCall<CourseResourcesResponse> {
-            retrofit.getCourseResources(courseId, userId())
+    override suspend fun getCourseResources(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleResource>> {
+        return when (val r = safeCall<com.example.moodlegovapp.domain.models.MoodleResourcesResponse> {
+            retrofit.getCourseResources(courseId)
         }) {
-            is AppResult.Success -> AppResult.Success(r.data.data?.resources ?: emptyList())
+            is AppResult.Success -> AppResult.Success(r.data.resources)
             is AppResult.Failure -> r
             is AppResult.Loading -> AppResult.Loading
         }

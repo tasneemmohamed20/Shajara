@@ -1,7 +1,7 @@
 package com.example.moodlegovapp.data.network.datasource
 
 import com.example.moodlegovapp.data.network.AppResult
-import com.example.moodlegovapp.domain.models.Assignment
+import com.example.moodlegovapp.domain.models.MoodleAssignment
 import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AuthToken
 import com.example.moodlegovapp.domain.models.Badge
@@ -9,7 +9,7 @@ import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseSection
 import com.example.moodlegovapp.domain.models.CourseModule
-import com.example.moodlegovapp.domain.models.CourseResource
+
 import com.example.moodlegovapp.domain.models.LeaderboardData
 import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
@@ -35,12 +35,12 @@ interface CoursesDataSource {
     suspend fun getEnrolledCourses(): AppResult<List<Course>>
     suspend fun getCourseContents(courseId: Int): AppResult<List<CourseSection>>
     suspend fun getCourseModules(courseId: Int): AppResult<List<CourseModule>>
-    suspend fun getCourseResources(courseId: Int): AppResult<List<CourseResource>>
+    suspend fun getCourseResources(courseId: Int): AppResult<List<com.example.moodlegovapp.domain.models.MoodleResource>>
 }
 
 interface AssignmentsDataSource {
-    suspend fun getAssignments(courseId: Int): AppResult<List<Assignment>>
-    suspend fun getAssignmentDetail(assignmentId: Int): AppResult<Assignment>
+    suspend fun getAssignments(courseId: Int): AppResult<List<MoodleAssignment>>
+    suspend fun getAssignmentDetail(assignmentId: Int): AppResult<MoodleAssignment>
     suspend fun submitAssignment(submission: AssignmentSubmission): AppResult<Unit>
 }
 

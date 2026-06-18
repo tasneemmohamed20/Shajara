@@ -22,6 +22,9 @@ class CourseDetailViewModel(
     private val _courseSections = MutableStateFlow<List<CourseSection>>(emptyList())
     val courseSections: StateFlow<List<CourseSection>> = _courseSections
 
+    private val _courseResources = MutableStateFlow<List<MoodleResource>>(emptyList())
+    val courseResources: StateFlow<List<MoodleResource>> = _courseResources
+
     val modules: StateFlow<List<CourseModule>> = _courseSections
         .map { sections -> sections.flatMap { it.modules } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -40,10 +43,18 @@ class CourseDetailViewModel(
             _errorMessage.value = null
 
             try {
-                when (val result = coursesRepository.getCourseContents(courseId)) {
-                    is AppResult.Success -> _courseSections.value = result.data
-                    is AppResult.Failure -> _errorMessage.value = result.error.errorDescription
-                    else -> Unit
+                // Fetch sections
+                val sectionsResult = coursesRepository.getCourseContents(courseId)
+                if (sectionsResult is AppResult.Success) {
+                    _courseSections.value = sectionsResult.data
+                } else if (sectionsResult is AppResult.Failure) {
+                    _errorMessage.value = sectionsResult.error.errorDescription
+                }
+
+                // Fetch resources to get file URLs
+                val resourcesResult = coursesRepository.getCourseResources(courseId)
+                if (resourcesResult is AppResult.Success) {
+                    _courseResources.value = resourcesResult.data
                 }
             } finally {
                 _isLoading.value = false
