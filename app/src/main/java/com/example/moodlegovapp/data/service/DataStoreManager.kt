@@ -21,24 +21,23 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-// Top-level DataStore delegate
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "gov_moodle_secure_prefs")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "gov_moodle_secure_prefs"
+)
 
-class DataStoreManager private constructor(val context: Context) {
+class DataStoreManager private constructor(
+    context: Context, @PublishedApi internal val dataStore: DataStore<Preferences>
+) {
 
     private val aead: Aead
-
-    // 1. Create a background scope tied to the lifecycle of this Singleton
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
         AeadConfig.register()
-        val keysetHandle = AndroidKeysetManager.Builder()
-            .withSharedPref(context, "tink_keyset", "tink_prefs")
-            .withKeyTemplate(KeyTemplates.get("AES256_GCM"))
-            .withMasterKeyUri("android-keystore://gov_moodle_master_key")
-            .build()
-            .keysetHandle
+        val keysetHandle =
+            AndroidKeysetManager.Builder().withSharedPref(context, "tink_keyset", "tink_prefs")
+                .withKeyTemplate(KeyTemplates.get("AES256_GCM"))
+                .withMasterKeyUri("android-keystore://gov_moodle_master_key").build().keysetHandle
 
         aead = keysetHandle.getPrimitive(Aead::class.java)
     }
@@ -47,17 +46,25 @@ class DataStoreManager private constructor(val context: Context) {
         val KEY_TOKEN = stringPreferencesKey("auth_token")
         val KEY_PRIVATE_TOKEN = stringPreferencesKey("private_token")
         val KEY_USER_ID = stringPreferencesKey("user_id")
+        val KEY_USERNAME = stringPreferencesKey("username")
         val KEY_LANGUAGE = stringPreferencesKey("app_language")
 
-        @Volatile private var instance: DataStoreManager? = null
+        val KEY_OFFLINE_MODE_ENABLED = stringPreferencesKey("offline_mode_enabled")
+        val KEY_SYNC_WIFI_ONLY = stringPreferencesKey("sync_wifi_only")
+        val KEY_DISABLED_COURSE_DOWNLOADS = stringPreferencesKey("disabled_course_downloads")
+        val KEY_LAST_SYNC_AT = stringPreferencesKey("last_sync_at")
 
-        fun getInstance(context: Context): DataStoreManager =
-            instance ?: synchronized(this) {
-                instance ?: DataStoreManager(context.applicationContext).also { instance = it }
+        @Volatile
+        private var instance: DataStoreManager? = null
+
+        fun getInstance(context: Context): DataStoreManager = instance ?: synchronized(this) {
+            instance ?: DataStoreManager(
+                context.applicationContext, context.applicationContext.dataStore
+            ).also {
+                instance = it
             }
+        }
     }
-
-    // ── CRYPTO HELPERS ────────────────────────
 
     private fun encrypt(value: String): String {
         val encrypted = aead.encrypt(value.toByteArray(), null)
@@ -75,45 +82,57 @@ class DataStoreManager private constructor(val context: Context) {
         }
     }
 
-    // ── REACTIVE CACHE (For the Interceptor) ──
+    val languageState: StateFlow<String?> =
+        dataStore.data.map { prefs -> decrypt(prefs[KEY_LANGUAGE]) }.stateIn(
+                scope = applicationScope, started = SharingStarted.Eagerly, initialValue = null
+            )
 
-    val languageState: StateFlow<String?> = context.dataStore.data
-        .map { prefs -> decrypt(prefs[KEY_LANGUAGE]) }
-        .stateIn(
-            scope = applicationScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null
+    val authTokenState: StateFlow<String?> =
+        dataStore.data.map { prefs -> decrypt(prefs[KEY_TOKEN]) }.stateIn(
+                scope = applicationScope, started = SharingStarted.Eagerly, initialValue = null
+            )
+
+    val userIdState: StateFlow<String?> =
+        dataStore.data.map { prefs -> decrypt(prefs[KEY_USER_ID]) }.stateIn(
+                scope = applicationScope, started = SharingStarted.Eagerly, initialValue = null
+            )
+
+    val offlineModeEnabledState: StateFlow<Boolean> = dataStore.data.map { prefs ->
+            decrypt(prefs[KEY_OFFLINE_MODE_ENABLED])?.toBooleanStrictOrNull() ?: true
+        }.stateIn(
+            scope = applicationScope, started = SharingStarted.Eagerly, initialValue = true
         )
 
-    /**
-     * 2. This StateFlow eagerly reads the token from disk on initialization and
-     * keeps it in memory. It updates automatically whenever the token is changed.
-     */
-    val authTokenState: StateFlow<String?> = context.dataStore.data
-        .map { prefs -> decrypt(prefs[KEY_TOKEN]) }
-        .stateIn(
-            scope = applicationScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null
+    val syncWifiOnlyState: StateFlow<Boolean> = dataStore.data.map { prefs ->
+            decrypt(prefs[KEY_SYNC_WIFI_ONLY])?.toBooleanStrictOrNull() ?: false
+        }.stateIn(
+            scope = applicationScope, started = SharingStarted.Eagerly, initialValue = false
         )
 
-    val userIdState : StateFlow<String?> = context.dataStore.data
-        .map { prefs -> decrypt(prefs[KEY_USER_ID]) }
-        .stateIn(
-            scope = applicationScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null
+    val lastSyncAtState: StateFlow<Long?> = dataStore.data.map { prefs ->
+            decrypt(prefs[KEY_LAST_SYNC_AT])?.toLongOrNull()
+        }.stateIn(
+            scope = applicationScope, started = SharingStarted.Eagerly, initialValue = null
         )
 
-    // ── CORE DATASTORE API ────────────────────
+    suspend fun isCourseDownloadDisabled(courseId: Int): Boolean {
+        val csv = get<String>(KEY_DISABLED_COURSE_DOWNLOADS) ?: return false
+        return csv.split(",").mapNotNull { it.toIntOrNull() }.contains(courseId)
+    }
+
+    suspend fun markSyncedNow() {
+        save(KEY_LAST_SYNC_AT, System.currentTimeMillis())
+    }
 
     suspend fun <T> save(key: Preferences.Key<String>, value: T) {
         val encryptedValue = encrypt(value.toString())
-        context.dataStore.edit { prefs -> prefs[key] = encryptedValue }
+        dataStore.edit { prefs ->
+            prefs[key] = encryptedValue
+        }
     }
 
     suspend inline fun <reified T> get(key: Preferences.Key<String>): T? {
-        val encryptedValue = context.dataStore.data.firstOrNull()?.get(key)
+        val encryptedValue = dataStore.data.firstOrNull()?.get(key)
         val decryptedString = decrypt(encryptedValue) ?: return null
 
         return when (T::class) {
@@ -127,10 +146,14 @@ class DataStoreManager private constructor(val context: Context) {
     }
 
     suspend fun delete(key: Preferences.Key<String>) {
-        context.dataStore.edit { prefs -> prefs.remove(key) }
+        dataStore.edit { prefs ->
+            prefs.remove(key)
+        }
     }
 
     suspend fun clearAll() {
-        context.dataStore.edit { prefs -> prefs.clear() }
+        dataStore.edit { prefs ->
+            prefs.clear()
+        }
     }
 }
