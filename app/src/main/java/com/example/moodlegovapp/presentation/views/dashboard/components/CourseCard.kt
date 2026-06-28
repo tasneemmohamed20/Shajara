@@ -52,7 +52,7 @@ fun CourseListCard(
     modifier: Modifier = Modifier
 ) {
     val animatedProgress by animateFloatAsState(
-        targetValue = course.progress / 100f,
+        targetValue = (course.progress ?: 0) / 100f,
         animationSpec = tween(800, easing = EaseOut),
         label = "cardProgress"
     )
@@ -74,15 +74,21 @@ fun CourseListCard(
                     .height(150.dp)
             ) {
                 // Background Course Thumbnail Photo
-                GlideImage(
-//                    model = course.imageUrl, // Map from your model instance or use a fallback asset
-                    model = R.drawable.crime,
-                    contentDescription = course.title,
-                    contentScale = ContentScale.Crop,
-//                    loading = placeholder(Color.LightGray),
-//                    failure = placeholder(Color(0xFF1A3550)),
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (course.courseImage != null) {
+                    GlideImage(
+                        model = course.courseImage,
+                        contentDescription = course.fullName ?: "Course",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    GlideImage(
+                        model = R.drawable.crime,
+                        contentDescription = course.fullName ?: "Course",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
                 // Translucent dark gradient layer so the white title text is always readable
                 Box(
@@ -122,7 +128,7 @@ fun CourseListCard(
                     }
 
                     Text(
-                        text = course.title,
+                        text = course.fullName ?: "Unknown Course",
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -152,7 +158,7 @@ fun CourseListCard(
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = course.instructorName ,
+                        text = "Unknown Instructor",
                         style = SpTypography.bodyPrimary(),
                         color = SpColors.DarkGray,
                         fontSize = 12.sp
@@ -176,7 +182,7 @@ fun CourseListCard(
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
-                            text = "Due in ${ course.dueIn }",
+                            text = "Due in N/A",
                             color = SpColors.Error,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
@@ -184,7 +190,7 @@ fun CourseListCard(
                     }
 
                     Text(
-                        text = "${course.progress}%",
+                        text = "${course.progress ?: 0}%",
                         color = SpColors.Gold,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold

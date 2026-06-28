@@ -54,6 +54,7 @@ class LoginViewModel(
                 when (result) {
                     is AppResult.Success -> {
                         // session already handled token + profile
+
                     }
 
                     is AppResult.Failure -> {

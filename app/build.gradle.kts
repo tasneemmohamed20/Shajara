@@ -1,15 +1,16 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
-
+kotlin {
+    jvmToolchain(21)
+}
 android {
     namespace = "com.example.moodlegovapp"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.moodlegovapp"
@@ -20,17 +21,15 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
+//            isShrinkResources = false
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     buildFeatures {
         compose = true
@@ -49,22 +48,19 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation("androidx.compose.runtime:runtime-livedata")
+    implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.compose)
-    // Security crypto for EncryptedSharedPreferences / MasterKey
-    implementation("androidx.security:security-crypto:1.1.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-     implementation ("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.material3:material3:1.3.2")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.gson)
+     implementation (libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.material3)
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation(libs.coil.compose)
     implementation(libs.androidx.appcompat)
 //    implementation(libs.androidx.tv.material)
     testImplementation(libs.junit)
@@ -75,15 +71,38 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
     // Preferences DataStore
+
     implementation(libs.androidx.datastore.preferences)
 
     // Google Tink for Encryption
     implementation(libs.tink.android) // Use the latest stable version
     
     //Glide
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta09")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.compose)
+    implementation(libs.glide)
 
     // Androidx Core Splashscreen
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.splashscreen)
+
+    // ── Offline support ────────────────────────────────────────────────
+    // Room: local cache for courses/content/assignments + offline action queue
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // WorkManager: periodic background synchronization (mirrors Moodle app's
+    // "automatic sync every 10 minutes" behaviour)
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // Coroutines core (Flow used by connectivity observer / sync engine)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.security.crypto)
+
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
 }

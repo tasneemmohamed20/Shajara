@@ -2,12 +2,15 @@ package com.example.moodlegovapp.data.repository
 
 import android.content.Context
 import com.example.moodlegovapp.data.network.ApiServiceProtocol
-import com.example.moodlegovapp.data.network.FallbackApiService
-import com.example.moodlegovapp.data.network.MockApiService
 import com.example.moodlegovapp.data.network.NetworkConfig
 import com.example.moodlegovapp.data.network.RealApiService
 import com.example.moodlegovapp.data.network.RetrofitApiService
 import com.example.moodlegovapp.data.network.RetrofitClient
+import com.example.moodlegovapp.data.offline.OfflineCache
+import com.example.moodlegovapp.data.offline.connectivity.ConnectivityObserver
+import com.example.moodlegovapp.data.offline.db.OfflineDatabase
+import com.example.moodlegovapp.data.offline.download.FileDownloadManager
+import com.example.moodlegovapp.data.offline.sync.PendingActionQueue
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.example.moodlegovapp.domain.repositoryinterface.AssignmentsRepositoryProtocol
 
@@ -25,9 +28,12 @@ class AppDependencies private constructor(context: Context) {
 
     val dataStoreManager: DataStoreManager = DataStoreManager.getInstance(context)
 
-    private val localMock: MockApiService by lazy {
-        MockApiService(context, dataStoreManager)
-    }
+    // ── Offline support ────────────────────────────────────────────────────
+    private val offlineDatabase: OfflineDatabase by lazy { OfflineDatabase.getInstance(context) }
+    val connectivityObserver: ConnectivityObserver by lazy { ConnectivityObserver.getInstance(context) }
+    val fileDownloadManager: FileDownloadManager by lazy { FileDownloadManager.getInstance(context) }
+    val pendingActionQueue: PendingActionQueue by lazy { PendingActionQueue(offlineDatabase.pendingActionDao()) }
+    private val offlineCache: OfflineCache by lazy { OfflineCache(offlineDatabase.cachedResponseDao(), connectivityObserver) }
     private val retrofitService: RetrofitApiService by lazy {
         RetrofitClient.create(
             dataStoreManager,
@@ -41,14 +47,7 @@ class AppDependencies private constructor(context: Context) {
         )
         RealApiService(retrofit, dataStoreManager)
     }
-
-    val apiService: ApiServiceProtocol by lazy {
-        if (NetworkConfig.ENABLE_LOCAL_FALLBACK) {
-            FallbackApiService(networkApi, localMock)
-        } else {
-            networkApi
-        }
-    }
+    val apiService: ApiServiceProtocol by lazy { networkApi }
 
     val authRepository: AuthRepository by lazy {
         AuthRepository(
@@ -58,25 +57,49 @@ class AppDependencies private constructor(context: Context) {
     }
 
     val userRepository: UserRepository by lazy {
-        UserRepository(api = apiService)
+        UserRepository(api = apiService, offlineCache = offlineCache, dataStoreManager = dataStoreManager)
     }
 
     val coursesRepository: CoursesRepository by lazy {
-        CoursesRepository(api = apiService)
+        CoursesRepository(
+            api = apiService,
+            offlineCache = offlineCache,
+            connectivity = connectivityObserver,
+            pendingActions = pendingActionQueue,
+            dataStoreManager = dataStoreManager
+        )
     }
 
     val notificationsRepository: NotificationsRepository by lazy {
-        NotificationsRepository(notificationsDataSource = apiService)
+        NotificationsRepository(
+            notificationsDataSource = apiService,
+            offlineCache = offlineCache,
+            connectivity = connectivityObserver,
+            pendingActions = pendingActionQueue,
+            dataStoreManager = dataStoreManager
+        )
     }
 
     val certificatesRepository: CertificatesRepository by lazy {
-        CertificatesRepository(certificatesDataSource = apiService)
+        CertificatesRepository(
+            certificatesDataSource = apiService,
+            offlineCache = offlineCache,
+            dataStoreManager = dataStoreManager
+        )
     }
     val assignmentsRepository: AssignmentsRepositoryProtocol by lazy {
         AssignmentsRepository(
             retrofit = retrofitService,
-            mock = localMock,
-            dataStoreManager = dataStoreManager
+            dataStoreManager = dataStoreManager,
+            offlineCache = offlineCache,
+            connectivity = connectivityObserver,
+            pendingActions = pendingActionQueue
         )
     }
+    val tasksRepository: TasksRepository by lazy { TasksRepository(retrofitService) }
+    val gradesRepository: GradesRepository by lazy { GradesRepository(retrofitService) }
+    val courseResourcesRepository: CourseResourcesRepository by lazy { CourseResourcesRepository(retrofitService) }
+    val lessonRepository: LessonRepository by lazy { LessonRepository(retrofitService) }
+    val quizFeedbackRepository: QuizFeedbackRepository by lazy { QuizFeedbackRepository(retrofitService) }
+
 }

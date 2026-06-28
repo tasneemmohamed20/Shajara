@@ -1,27 +1,39 @@
 package com.example.moodlegovapp.domain.models
 
-// 1. Top-level API Wrapper Response
+import com.google.gson.annotations.SerializedName
+
+// Supports both the old mock wrapper and the real Moodle response.
 data class LeaderboardResponse(
-    val success: Boolean,
-    val data: LeaderboardData? = null
+    val success: Boolean? = null,
+    val data: LeaderboardData? = null,
+    val courseid: Int? = null,
+    val ranking: List<MoodleRankingEntry> = emptyList(),
+    val warnings: List<Any> = emptyList()
 )
 
-// 2. The core Leaderboard data wrapper
+data class MoodleRankingEntry(
+    val rank: Int = 0,
+    @SerializedName("userid") val userId: Int = 0,
+    @SerializedName("fullname") val fullName: String = "",
+    val email: String? = null,
+    @SerializedName("finalgrade") val finalGrade: Int? = null,
+    val percentage: Int? = null
+)
+
 data class LeaderboardData(
-    val currentUserRank: Int,
-    val totalParticipants: Int,
-    val leaderboard: List<LeaderboardEntry>
+    val currentUserRank: Int = 0,
+    val totalParticipants: Int = 0,
+    val leaderboard: List<LeaderboardEntry> = emptyList()
 )
 
-// 3. Individual leaderboard row items
 data class LeaderboardEntry(
-    val rank: Int,
-    val userId: Int,
-    val fullName: String,
-    val profileImageUrl: String,
-    val xp: Int,
-    val level: Int,
-    val course: String?,              // Nullable because items 2, 4, 5, and 6 return null
-    val isCurrentUser: Boolean,
-    val xpThisWeek: Int? = null       // Nullable/Optional because only the current user profile has this
+    val rank: Int = 0,
+    val userId: Int = 0,
+    val fullName: String = "",
+    val profileImageUrl: String = "",
+    val xp: Int = 0,
+    val level: Int = 1,
+    val course: String? = null,
+    val isCurrentUser: Boolean = false,
+    val xpThisWeek: Int? = null
 )

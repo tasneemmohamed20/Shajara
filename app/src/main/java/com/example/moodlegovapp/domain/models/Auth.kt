@@ -1,5 +1,7 @@
 package com.example.moodlegovapp.domain.models
 
+import com.google.gson.annotations.SerializedName
+
 data class LoginRequest(
     val username: String,
     val password: String,
@@ -7,6 +9,9 @@ data class LoginRequest(
 )
 
 data class AuthToken(
+
+    @SerializedName("token")
     val token: String,
-    val privateToken: String?
+    @SerializedName("privatetoken")
+    val privateToken: String? = null
 )

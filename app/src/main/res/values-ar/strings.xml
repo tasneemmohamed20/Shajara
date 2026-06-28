@@ -107,6 +107,8 @@
     <!-- Tab Bar -->
     <string name="tab_home">الرئيسية</string>
     <string name="tab_courses">الدورات</string>
+    <string name="tab_tasks">المهام</string>
+    <string name="tab_grades">الدرجات</string>
     <string name="tab_notifications">التنبيهات</string>
     <string name="tab_profile">الملف الشخصي</string>
 

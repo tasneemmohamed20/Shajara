@@ -10,6 +10,13 @@ import com.example.moodlegovapp.presentation.viewmodels.DashboardViewModel
 import com.example.moodlegovapp.presentation.viewmodels.LoginViewModel
 import com.example.moodlegovapp.presentation.viewmodels.NotificationsViewModel
 import com.example.moodlegovapp.presentation.viewmodels.ProfileViewModel
+import com.example.moodlegovapp.presentation.viewmodels.ForgotPasswordViewModel
+import com.example.moodlegovapp.presentation.viewmodels.LessonVideoViewModel
+import com.example.moodlegovapp.presentation.viewmodels.CourseResourcesViewModel
+import com.example.moodlegovapp.presentation.viewmodels.GradesViewModel
+import com.example.moodlegovapp.presentation.viewmodels.TasksViewModel
+import com.example.moodlegovapp.presentation.viewmodels.QuizAttemptViewModel
+import com.example.moodlegovapp.presentation.viewmodels.FeedbackSurveyViewModel
 
 class DependencyContainer private constructor(private val deps: AppDependencies) {
 
@@ -31,6 +38,13 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
         )
     }
 
+    // ── Offline support accessors ───────────────────────────────────────────
+    val connectivityObserver get() = deps.connectivityObserver
+    val fileDownloadManager get() = deps.fileDownloadManager
+    val pendingActionQueue get() = deps.pendingActionQueue
+    val dataStoreManager get() = deps.dataStoreManager
+    fun syncEngine(context: Context) = com.example.moodlegovapp.data.offline.sync.SyncEngine.getInstance(context)
+
     // mirrors iOS: public func makeLoginViewModel() -> LoginViewModelDI
     fun makeLoginViewModel(): LoginViewModel =
         LoginViewModel(
@@ -43,16 +57,19 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
         DashboardViewModel(
             userRepository = deps.userRepository,
             coursesRepository = deps.coursesRepository,
-            notificationsRepository = deps.notificationsRepository
+            notificationsRepository = deps.notificationsRepository,
+            certificatesRepository = deps.certificatesRepository
         )
 
     // mirrors iOS: public func makeCoursesViewModel() -> CoursesViewModelDI
     fun makeCoursesViewModel(): CoursesViewModel =
         CoursesViewModel(coursesRepository = deps.coursesRepository)
 
-    fun makeCourseDetailViewModel(courseId: Int): CourseDetailViewModel =
+    fun makeCourseDetailViewModel(courseId: Int, courseName: String, progress: Int): CourseDetailViewModel =
         CourseDetailViewModel(
             courseId = courseId,
+            courseName = courseName,
+            progress = progress,
             coursesRepository = deps.coursesRepository
         )
 
@@ -70,4 +87,18 @@ class DependencyContainer private constructor(private val deps: AppDependencies)
             // the same way it exposes coursesRepository and userRepository!
             repository = deps.assignmentsRepository
         )
+    fun makeTasksViewModel(): TasksViewModel = TasksViewModel(deps.tasksRepository)
+
+    fun makeGradesViewModel(): GradesViewModel = GradesViewModel(deps.gradesRepository)
+
+    fun makeCourseResourcesViewModel(): CourseResourcesViewModel = CourseResourcesViewModel(deps.courseResourcesRepository)
+
+    fun makeLessonVideoViewModel(): LessonVideoViewModel = LessonVideoViewModel(deps.lessonRepository)
+
+    fun makeForgotPasswordViewModel(): ForgotPasswordViewModel = ForgotPasswordViewModel(deps.authRepository)
+
+    fun makeQuizAttemptViewModel(): QuizAttemptViewModel = QuizAttemptViewModel(deps.quizFeedbackRepository)
+
+    fun makeFeedbackSurveyViewModel(): FeedbackSurveyViewModel = FeedbackSurveyViewModel(deps.quizFeedbackRepository)
+
 }

@@ -5,11 +5,14 @@ enum class ScheduleFilter {
 }
 
 data class TrainingEvent(
-    val id: Int,
-    val title: String,
-    val type: String,
-    val description: String,
-    val date: String,
-    val location: String,
-    val instructorName: String
+    val id: Int = 0,
+    val title: String = "",
+    val type: String = "event",
+    val description: String = "",
+    val date: String = "",
+    val location: String = "",
+    val instructorName: String = "",
+    val rawTimeStart: Long = 0L,
+    val courseId: Int = 0,
+    val moduleName: String = ""
 )

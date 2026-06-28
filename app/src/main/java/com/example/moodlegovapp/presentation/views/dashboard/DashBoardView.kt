@@ -1,6 +1,5 @@
 package com.example.moodlegovapp.presentation.views.dashboard
 
-import android.util.Log
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -36,7 +35,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -86,68 +84,82 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 @Composable
 fun DashboardScreen(
     assembly: DependencyContainer,
-    onCourseClick: (Int) -> Unit,
+    onCourseClick: (Int, String, Int) -> Unit,
     onLeaderboardClick: () -> Unit,
-
+    onNotificationClick: () -> Unit = {}
 ) {
     val vm = remember { assembly.makeDashboardViewModel() }
 
     // Collect each StateFlow from the ViewModel individually
     val user by vm.user.collectAsState()
-    val enrolledCourses by vm.enrolledCourses.collectAsState()
+    val allEnrolledCourses by vm.allEnrolledCourses.collectAsState()
+    val continueTrainingCourses by vm.continueTrainingCourses.collectAsState()
+    val trainingEvents by vm.trainingEvents.collectAsState()
+    val dashboardCertificates by vm.certificates.collectAsState()
+    val activeCoursesCount by vm.activeCoursesCount.collectAsState()
+    val completedCoursesCount by vm.completedCoursesCount.collectAsState()
+    val dueActivitiesCount by vm.dueActivitiesCount.collectAsState()
+    val averageProgress by vm.averageProgress.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val errorMessage by vm.errorMessage.collectAsState()
     val unreadCount by vm.unreadCount.collectAsState()
     val profileUrl = R.drawable.avatar
     var searchQuery by remember { mutableStateOf("") }
     var currentFilter by remember { mutableStateOf(TrainingFilter.ACTIVE) }
-    val pullState = rememberPullToRefreshState()
     var activeSchedulePeriod by remember { mutableStateOf(SchedulePeriod.TODAY) }
 
-    val dueActivities = enrolledCourses.size - (user?.performance?.overallProgress ?: 10)
-    val rawNotifications by vm.notifications.collectAsState()
-
-    val formattedEvents = remember(rawNotifications) {
-        rawNotifications.map { notif ->
-            val resourceId = when (notif.iconType.lowercase()) {
-                "assignment"  -> R.drawable.ic_tasks
-                "certificate" -> R.drawable.ic_completed
-                "achievement" -> R.drawable.ic_completed
-                "course"      -> R.drawable.ic_courses
-                else          -> R.drawable.notification_icon
+    val filteredContinueTrainingCourses = remember(continueTrainingCourses, currentFilter) {
+        when (currentFilter) {
+            TrainingFilter.ACTIVE -> continueTrainingCourses.filter { course ->
+                course.completed != true && ((course.progress ?: 0) in 1..99)
             }
-            val timeAndDate = when {
-                notif.sessionDate.isNotBlank() && notif.sessionTime.isNotBlank() ->
-                    "${notif.sessionDate} · ${notif.sessionTime}"
-                notif.sessionDate.isNotBlank() -> notif.sessionDate
-                else -> notif.createdAtFormatted
+            TrainingFilter.NEW -> continueTrainingCourses.filter { course ->
+                course.completed != true && (course.progress ?: 0) <= 0
             }
-            ScheduleEvent(
-                id          = notif.id,
-                title       = notif.title,
-                type        = notif.notificationType,
-                category    = notif.shortBody.ifBlank { notif.body },
-                timeAndDate = timeAndDate,
-                location    = notif.location,
-                instructor  = "Maj. Ahmed Al-Mansouri",
-                iconRes     = resourceId
-            )
+            TrainingFilter.COMPLETED -> continueTrainingCourses.filter { course ->
+                course.completed == true || (course.progress ?: 0) >= 100
+            }
         }
     }
 
-    val leaderboardData by vm.leaderboard.collectAsState()
-    val completedCertificates = remember(user?.certificates) {
-        user?.certificates?.take(3).orEmpty()
+    val formattedEvents = remember(trainingEvents, activeSchedulePeriod) {
+        val now = System.currentTimeMillis() / 1000L
+        val maxTime = when (activeSchedulePeriod) {
+            SchedulePeriod.TODAY -> now + 24 * 60 * 60
+            SchedulePeriod.WEEK -> now + 7 * 24 * 60 * 60
+            SchedulePeriod.MONTH -> now + 31 * 24 * 60 * 60
+        }
+
+        trainingEvents
+            .filter { it.rawTimeStart == 0L || it.rawTimeStart in now..maxTime }
+            .map { event ->
+                val resourceId = when (event.moduleName.lowercase()) {
+                    "assign" -> R.drawable.ic_tasks
+                    "certificate", "customcert" -> R.drawable.ic_completed
+                    "course" -> R.drawable.ic_courses
+                    else -> R.drawable.notification_icon
+                }
+                ScheduleEvent(
+                    id = event.id,
+                    title = event.title,
+                    type = event.type,
+                    category = event.moduleName.ifBlank { event.description },
+                    timeAndDate = event.date,
+                    location = event.location,
+                    instructor = event.instructorName,
+                    iconRes = resourceId
+                )
+            }
     }
 
-    val onLeaderboardClick = {
-        // Navigate to full leaderboard screen
-        // e.g., navController.navigate("leaderboard")
+    val leaderboardData by vm.leaderboard.collectAsState()
+    val completedCertificates = remember(dashboardCertificates) {
+        dashboardCertificates.take(3)
     }
+
 
     LaunchedEffect(Unit) {
         vm.loadAll()
-        user?.let { Log.i("dashboard", it.profileImageUrl) }
     }
 
     Box(
@@ -163,6 +175,11 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // ── Offline / sync status ───────────────
+                item {
+                    com.example.moodlegovapp.presentation.views.offline.OfflineStatusBanner()
+                }
+
                 // ── Header ────────────────────────────
                 item {
                     DashboardHeader(
@@ -188,17 +205,17 @@ fun DashboardScreen(
 
                 item {
                     ContinueTrainingSectionCard(
-                        enrolledCourses = enrolledCourses, onCourseClick = { selectedCourse ->
-                            onCourseClick(selectedCourse.id)
+                        enrolledCourses = filteredContinueTrainingCourses, onCourseClick = { selectedCourse ->
+                            onCourseClick(selectedCourse.id, selectedCourse.fullName ?: "", selectedCourse.progress ?: 0)
                         }, modifier = Modifier.padding(16.dp)
                     )
                 }
 
                 item {
                     DashboardMetricsRow(
-                        activeCoursesCount = enrolledCourses.size,
-                        dueActivitiesCount = dueActivities,
-                        completedCount = user?.performance?.overallProgress ?: 10,
+                        activeCoursesCount = activeCoursesCount,
+                        dueActivitiesCount = dueActivitiesCount,
+                        completedCount = completedCoursesCount,
 //                        modifier =  Modifier.padding(16.dp)
                     )
                 }
@@ -217,13 +234,19 @@ fun DashboardScreen(
 
                 // ── All Training Programs ─────────────
                 item {
-                    SectionHeader(title = stringResource(R.string.dashboard_all_programs), count = enrolledCourses.size)
+                    SectionHeader(title = stringResource(R.string.dashboard_all_programs), count = allEnrolledCourses.size)
                 }
 
-                items(enrolledCourses) { course ->
+                items(
+                    allEnrolledCourses.filter { course ->
+                        searchQuery.isBlank() ||
+                            (course.fullName ?: "").contains(searchQuery, ignoreCase = true) ||
+                            (course.shortName ?: "").contains(searchQuery, ignoreCase = true)
+                    }
+                ) { course ->
                     CourseListCard(
                         course = course,
-                        onClick = { onCourseClick(course.id) },
+                        onClick = { onCourseClick(course.id, course.fullName ?: "", course.progress ?: 0) },
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                 }
@@ -278,7 +301,7 @@ fun DashboardScreen(
                 item {
                     SectionHeader(
                         title = stringResource(R.string.completed),
-                        count = user?.certificates?.size,
+                        count = dashboardCertificates.size,
                         color = AppColors.Success
                     )
                 }
@@ -314,7 +337,7 @@ fun DashboardScreen(
                 }
 
                 // ── Empty state when loaded but no courses ─
-                if (!isLoading && enrolledCourses.isEmpty() && errorMessage == null) {
+                if (!isLoading && allEnrolledCourses.isEmpty() && errorMessage == null) {
                     item {
                         EmptyStateView(
                             message = stringResource(R.string.login_welcome_title),
@@ -330,7 +353,7 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: Int) {
+private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: Int , onNotificationClick: () -> Unit = {}){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -358,7 +381,7 @@ private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: In
                     contentAlignment = Alignment.Center
                 ) {
                     @OptIn(ExperimentalGlideComposeApi::class) GlideImage(
-                        model = profileUrl,
+                        model = user?.profileImageUrl,
                         contentDescription = "User Profile Picture",
                         modifier = Modifier.size(48.dp),
                     )
@@ -387,7 +410,7 @@ private fun DashboardHeader(user: UserProfile?, unreadCount: Int, profileUrl: In
                             .size(40.dp)
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = 0.15f))
-                            .clickable { /* Handle click */ }, contentAlignment = Alignment.Center
+                            .clickable { onNotificationClick() }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painterResource(R.drawable.notification_icon),

@@ -3,6 +3,7 @@ package com.example.moodlegovapp.data.network
 import android.util.Log
 import com.example.moodlegovapp.data.service.DataStoreManager
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -26,11 +27,18 @@ object RetrofitClient {
         val authInterceptor = Interceptor { chain ->
             val original = chain.request()
             val token = dataStoreManager.authTokenState.value
-            val request = if (token != null && !NetworkConfig.USE_REMOTE_MOCK) {
+            var url = original.url
+            if (!token.isNullOrBlank() && url.queryParameter("wstoken") != null && !NetworkConfig.USE_REMOTE_MOCK) {
+                url = url.newBuilder()
+                    .setQueryParameter("wstoken", token)
+                    .build()
+            }
+            val request = if (!token.isNullOrBlank() && !NetworkConfig.USE_REMOTE_MOCK) {
                 original.newBuilder()
+                    .url(url)
                     .addHeader("Authorization", "Bearer $token")
                     .build()
-            } else original
+            } else original.newBuilder().url(url).build()
             chain.proceed(request)
         }
 
@@ -77,7 +85,20 @@ object RetrofitClient {
             // )
             .build()
 
-        val gson = GsonBuilder().setLenient().create()
+        val intDeserializer = JsonDeserializer<Int> { json, _, _ ->
+            when {
+                json == null || json.isJsonNull -> 0
+                json.isJsonPrimitive && json.asJsonPrimitive.isNumber -> json.asDouble.toInt()
+                json.isJsonPrimitive && json.asJsonPrimitive.isString -> json.asString.toDoubleOrNull()?.toInt() ?: 0
+                else -> 0
+            }
+        }
+
+        val gson = GsonBuilder()
+            .setLenient()
+            .registerTypeAdapter(Int::class.javaObjectType, intDeserializer)
+            .registerTypeAdapter(Int::class.javaPrimitiveType, intDeserializer)
+            .create()
 
         return Retrofit.Builder()
             .baseUrl(NetworkConfig.BASE_URL + "/")

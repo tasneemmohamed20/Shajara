@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +39,15 @@ import com.example.moodlegovapp.presentation.views.Profile.ProfileScreen
 import com.example.moodlegovapp.presentation.views.assigments.AssignmentDetailsScreen
 import com.example.moodlegovapp.presentation.views.assigments.AssignmentSubmissionScreen
 import com.example.moodlegovapp.presentation.views.auth.LoginStepOneView
+import com.example.moodlegovapp.presentation.views.auth.ForgotPasswordScreen
+import com.example.moodlegovapp.presentation.views.auth.CheckEmailScreen
+import com.example.moodlegovapp.presentation.views.tasks.TasksScreen
+import com.example.moodlegovapp.presentation.views.grades.GradesScreen
+import com.example.moodlegovapp.presentation.views.notifications.NotificationScreen
+import com.example.moodlegovapp.presentation.views.resources.CourseResourcesScreen
+import com.example.moodlegovapp.presentation.views.lesson.LessonVideoScreen
+import com.example.moodlegovapp.presentation.views.quiz.QuizAttemptScreen
+import com.example.moodlegovapp.presentation.views.feedback.FeedbackSurveyScreen
 import com.example.moodlegovapp.presentation.views.coursedetails.CourseOverviewScreen
 import com.example.moodlegovapp.presentation.views.dashboard.DashboardScreen
 import com.example.moodlegovapp.ui.theme.AppColors
@@ -78,6 +88,23 @@ class MainActivity : AppCompatActivity() {
             )
         )
         assembly = DependencyContainer.getInstance(this)
+
+        // ── Offline sync bootstrap ──────────────────────────────────────────
+        // Schedules the WorkManager-driven background sync (approximates the
+        // Moodle doc's "automatic, every 10 minutes" behaviour) and also syncs
+        // immediately whenever connectivity is regained while the app is open,
+        // which is the tighter, in-app equivalent of that same behaviour.
+        com.example.moodlegovapp.data.offline.sync.PeriodicSyncWorker.schedule(applicationContext)
+        val connectivityObserver = com.example.moodlegovapp.data.offline.connectivity.ConnectivityObserver.getInstance(applicationContext)
+        lifecycleScope.launch {
+            var wasOnline = connectivityObserver.isOnlineNow()
+            connectivityObserver.isOnline.collect { online ->
+                if (online && !wasOnline) {
+                    com.example.moodlegovapp.data.offline.sync.SyncEngine.getInstance(applicationContext).syncNow()
+                }
+                wasOnline = online
+            }
+        }
 
         setContent {
             MoodleGovAppTheme {
@@ -167,7 +194,29 @@ fun NavGraphBuilder.authGraph(
         LoginStepTwoView(
             onLoginSuccess = onLoginSuccess,
             assembly = DependencyContainer.getInstance(LocalContext.current),
-            onBackClicked = { navController.popBackStack() })
+            onBackClicked = { navController.popBackStack() },
+            onForgotPassword = { navController.navigate(ScreensRoute.ForgotPassword.route) })
+    }
+
+    composable(ScreensRoute.ForgotPassword.route) {
+        val vm = remember { assembly.makeForgotPasswordViewModel() }
+        ForgotPasswordScreen(
+            vm = vm,
+            onBackClick = { navController.popBackStack() },
+            onCheckEmail = { navController.navigate(ScreensRoute.CheckEmail.createRoute(vm.email.value)) }
+        )
+    }
+
+    composable(
+        route = ScreensRoute.CheckEmail.route,
+        arguments = listOf(navArgument("email") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val email = backStackEntry.arguments?.getString("email") ?: ""
+        CheckEmailScreen(
+            email = email,
+            onBackToLogin = { navController.popBackStack(ScreensRoute.LoginStepTwo.route, inclusive = false) },
+            onBackClick = { navController.popBackStack() }
+        )
     }
 }
 
@@ -177,28 +226,29 @@ fun NavGraphBuilder.mainAppGraph(
     assembly: DependencyContainer
 ) {
     composable(ScreensRoute.Home.route) {
-        DashboardScreen(assembly = assembly, onCourseClick = { courseId ->
-            navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId))
+        DashboardScreen(assembly = assembly, onCourseClick = { courseId, courseName, progress ->
+            navController.navigate(ScreensRoute.CourseDetail.createRoute(courseId, courseName, progress))
         }, onLeaderboardClick = {
-            // Navigate to full leaderboard screen
-            // e.g., navController.navigate("leaderboard")
+        }, onNotificationClick = {
+            navController.navigate(ScreensRoute.Notifications.route)
         })
     }
 
-    composable(ScreensRoute.Courses.route) {
-        Surface(modifier = Modifier.fillMaxSize(), color = SpColors.LightGray) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Courses", style = SpTypography.headingL(), color = SpColors.DarkBrown)
-            }
-        }
+    composable(ScreensRoute.Tasks.route) {
+        val vm = remember { assembly.makeTasksViewModel() }
+        TasksScreen(vm = vm, onTaskClick = { assignmentId ->
+            navController.navigate(ScreensRoute.AssignmentDetails.createRoute(0, assignmentId))
+        })
+    }
+
+    composable(ScreensRoute.Grades.route) {
+        val vm = remember { assembly.makeGradesViewModel() }
+        GradesScreen(vm = vm)
     }
 
     composable(ScreensRoute.Notifications.route) {
-        Surface(modifier = Modifier.fillMaxSize(), color = SpColors.LightGray) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Notifications", style = SpTypography.headingL(), color = SpColors.DarkBrown)
-            }
-        }
+        val vm = remember { assembly.makeNotificationsViewModel() }
+        NotificationScreen(vm = vm, onBackClick = { navController.popBackStack() })
     }
 
     composable(ScreensRoute.Profile.route) {
@@ -222,46 +272,159 @@ fun NavGraphBuilder.mainAppGraph(
 
     composable(
         route = ScreensRoute.CourseDetail.route,
-        arguments = listOf(navArgument("courseId") { type = NavType.IntType })
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("courseName") { type = NavType.StringType; defaultValue = "" },
+            navArgument("progress") { type = NavType.IntType; defaultValue = 0 }
+        )
     ) { backStackEntry ->
         val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
-        val vm = remember(courseId) { assembly.makeCourseDetailViewModel(courseId) }
+        val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
+        val progress = backStackEntry.arguments?.getInt("progress") ?: 0
+        val vm = remember(courseId) { assembly.makeCourseDetailViewModel(courseId, courseName, progress) }
 
+        val context = androidx.compose.ui.platform.LocalContext.current
         CourseOverviewScreen(
             vm = vm,
             onBackClick = { navController.popBackStack() },
             onReviewAssignmentClick = { assignmentId ->
-                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(assignmentId))
+                navController.navigate(ScreensRoute.AssignmentDetails.createRoute(courseId, assignmentId))
             },
-            onActivityClick = { },
-            onResourcesClick = { })
+            onActivityClick = { activity ->
+                val kind = activity.modName.lowercase()
+                when (kind) {
+                    "assign", "assignment", "workshop" -> {
+                        val assignmentId = if (activity.instance > 0) activity.instance else activity.id
+                        navController.navigate(ScreensRoute.AssignmentDetails.createRoute(courseId, assignmentId))
+                    }
+                    "quiz", "exam" -> {
+                        // Moodle native quiz APIs accept quiz.id, and on some PSA activities they accept cmid.
+                        // iOS sends the quiz instance when available and keeps cmid as fallback.
+                        val quizId = if (activity.instance > 0) activity.instance else activity.id
+                        navController.navigate(ScreensRoute.QuizAttempt.createRoute(quizId, activity.id))
+                    }
+                    "feedback", "survey" -> {
+                        // Feedback accepts feedback.id or cmid. Prefer instance, keep cmid fallback in the screen if needed.
+                        val feedbackId = if (activity.instance > 0) activity.instance else activity.id
+                        navController.navigate(ScreensRoute.FeedbackSurvey.createRoute(feedbackId))
+                    }
+                    "scorm", "lesson", "page", "url", "lti", "book" -> {
+                        navController.navigate(ScreensRoute.LessonVideo.createRoute(activity.id))
+                    }
+                    "resource", "folder" -> {
+                        navController.navigate(ScreensRoute.CourseResources.createRoute(courseId))
+                    }
+                    else -> {
+                        navController.navigate(ScreensRoute.LessonVideo.createRoute(activity.id))
+                    }
+                }
+            },
+            onResourcesClick = { _ ->
+                navController.navigate(ScreensRoute.CourseResources.createRoute(courseId))
+            }
+        )
+    }
+
+    composable(
+        route = ScreensRoute.CourseResources.route,
+        arguments = listOf(navArgument("courseId") { type = NavType.IntType })
+    ) { backStackEntry ->
+        val courseId = backStackEntry.arguments?.getInt("courseId") ?: 0
+        val vm = remember { assembly.makeCourseResourcesViewModel() }
+        CourseResourcesScreen(courseId = courseId, vm = vm, onBackClick = { navController.popBackStack() })
+    }
+
+    composable(
+        route = ScreensRoute.LessonVideo.route,
+        arguments = listOf(navArgument("cmid") { type = NavType.IntType })
+    ) { backStackEntry ->
+        val cmid = backStackEntry.arguments?.getInt("cmid") ?: 0
+        val vm = remember { assembly.makeLessonVideoViewModel() }
+        LessonVideoScreen(cmid = cmid, vm = vm, onBackClick = { navController.popBackStack() })
+    }
+
+
+    composable(
+        route = ScreensRoute.QuizAttempt.route,
+        arguments = listOf(
+            navArgument("quizId") { type = NavType.IntType },
+            navArgument("cmid") { type = NavType.IntType; defaultValue = 0 }
+        )
+    ) { backStackEntry ->
+        val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
+        val cmid = backStackEntry.arguments?.getInt("cmid") ?: 0
+        val vm = remember { assembly.makeQuizAttemptViewModel() }
+        QuizAttemptScreen(quizId = quizId, cmid = cmid, vm = vm, onBackClick = { navController.popBackStack() })
+    }
+
+    composable(
+        route = ScreensRoute.FeedbackSurvey.route,
+        arguments = listOf(navArgument("feedbackId") { type = NavType.IntType })
+    ) { backStackEntry ->
+        val feedbackId = backStackEntry.arguments?.getInt("feedbackId") ?: 0
+        val vm = remember { assembly.makeFeedbackSurveyViewModel() }
+        FeedbackSurveyScreen(feedbackId = feedbackId, vm = vm, onBackClick = { navController.popBackStack() })
     }
 
     composable(
         route = ScreensRoute.AssignmentDetails.route,
-        arguments = listOf(navArgument("assignmentId") { type = NavType.IntType })
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("assignmentId") { type = NavType.IntType }
+        )
     ) { backStackEntry ->
+        val courseId = backStackEntry.arguments?.getInt("courseId") ?: return@composable
         val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
         val vm = remember { assembly.makeAssignmentsViewModel() } // Ensure this exists in your DependencyContainer
 
         AssignmentDetailsScreen(
+            courseId = courseId,
             assignmentId = assignmentId,
             viewModel = vm,
             onBackClick = { navController.popBackStack() },
             onStartAssignmentClick = { id ->
-                navController.navigate(ScreensRoute.AssignmentSubmission.createRoute(id))
+                navController.navigate(ScreensRoute.AssignmentSubmission.createRoute(courseId, id))
+            }
+        )
+    }
+
+
+
+    // Backward-compatible route for older calls that navigate with only assignmentId,
+    // e.g. navController.navigate("assignment_details/301"). Without this, the app
+    // crashes with "destination cannot be found".
+    composable(
+        route = "assignment_details/{assignmentId}",
+        arguments = listOf(
+            navArgument("assignmentId") { type = NavType.IntType }
+        )
+    ) { backStackEntry ->
+        val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
+        val vm = remember { assembly.makeAssignmentsViewModel() }
+        AssignmentDetailsScreen(
+            courseId = 101,
+            assignmentId = assignmentId,
+            viewModel = vm,
+            onBackClick = { navController.popBackStack() },
+            onStartAssignmentClick = { id ->
+                navController.navigate(ScreensRoute.AssignmentSubmission.createRoute(101, id))
             }
         )
     }
 
     composable(
         route = ScreensRoute.AssignmentSubmission.route,
-        arguments = listOf(navArgument("assignmentId") { type = NavType.IntType })
+        arguments = listOf(
+            navArgument("courseId") { type = NavType.IntType },
+            navArgument("assignmentId") { type = NavType.IntType }
+        )
     ) { backStackEntry ->
+        val courseId = backStackEntry.arguments?.getInt("courseId") ?: return@composable
         val assignmentId = backStackEntry.arguments?.getInt("assignmentId") ?: return@composable
         val vm = remember { assembly.makeAssignmentsViewModel() }
 
         AssignmentSubmissionScreen(
+            courseId = courseId,
             assignmentId = assignmentId,
             viewModel = vm,
             onBackClick = { navController.popBackStack() },

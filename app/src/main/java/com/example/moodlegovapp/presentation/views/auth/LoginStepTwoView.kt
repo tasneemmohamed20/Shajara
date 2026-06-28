@@ -37,7 +37,8 @@ import com.example.moodlegovapp.ui.theme.SpTypography
 @Composable
 fun LoginStepTwoView(
     onLoginSuccess: () -> Unit, assembly: DependencyContainer,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    onForgotPassword: () -> Unit = {}
 ) {
     val vm: LoginViewModel = remember { assembly.makeLoginViewModel() }
 
@@ -95,7 +96,7 @@ fun LoginStepTwoView(
                     onPasswordChange = vm::onPasswordChange,
                     onTogglePassword = { isPasswordVisible = !isPasswordVisible },
                     onRememberMe = { rememberMe = !rememberMe },
-                    onForgotPassword = { /* TODO */ },
+                    onForgotPassword = onForgotPassword,
                     onLogin = {
                         focusManager.clearFocus()
                         vm.login()

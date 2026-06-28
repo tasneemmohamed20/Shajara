@@ -2,20 +2,18 @@ package com.example.moodlegovapp.data.network
 
 object NetworkConfig {
 
-    // Real production base (replace when available)
-    private const val REAL_BASE = "https://moodle.gov.ae"
+    // Real production base
+    private const val REAL_BASE = "https://psa.intellectilearn.net"
 
-    // Postman mock server for development
-    private const val MOCK_BASE = "https://3b61ee6a-f0f1-4a09-a023-5906659e57eb.mock.pstmn.io"
+    // Moodle web service token used for wstoken-based REST calls and for
+    // appending ?token= to pluginfile.php / webview URLs.
+    const val WS_TOKEN = "05be238ddaec1f05a511f6290a290106"
 
-    // true  → network calls go to Postman mock server (development)
-    // false → network calls go to the real Moodle API (production)
-    const val USE_REMOTE_MOCK = true
+    // Always use the real Moodle API. No Postman mock server and no local mock fallback.
+    const val USE_REMOTE_MOCK = false
+    const val ENABLE_LOCAL_FALLBACK = false
 
-    // When true, failed network calls fall back to local res/raw JSON via MockApiService
-    const val ENABLE_LOCAL_FALLBACK = true
-
-    val BASE_URL: String get() = if (USE_REMOTE_MOCK) MOCK_BASE else REAL_BASE
+    val BASE_URL: String get() = REAL_BASE
 
     const val CONNECT_TIMEOUT = 30L   // seconds
     const val READ_TIMEOUT    = 30L

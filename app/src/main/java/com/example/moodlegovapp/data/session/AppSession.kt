@@ -55,24 +55,52 @@ class AppSession(
         }
     }
 
-    suspend fun login(username: String, password: String): AppResult<AuthToken> {
-        val result = authRepository.login(username, password)
+    suspend fun login(
+        username: String,
+        password: String
+    ): AppResult<AuthToken> {
+
+        val result = authRepository.login(
+            username = username,
+            password = password
+        )
 
         if (result is AppResult.Success) {
-            dataStoreManager.save(DataStoreManager.KEY_TOKEN, result.data.token)
+
+            dataStoreManager.save(
+                DataStoreManager.KEY_TOKEN,
+                result.data.token
+            )
+
             result.data.privateToken?.let {
-                dataStoreManager.save(DataStoreManager.KEY_PRIVATE_TOKEN, it)
+                dataStoreManager.save(
+                    DataStoreManager.KEY_PRIVATE_TOKEN,
+                    it
+                )
             }
+
+            dataStoreManager.save(
+                DataStoreManager.KEY_USERNAME,
+                username
+            )
+
             _authToken.postValue(result.data)
 
-            // fetch user profile after login
-            userRepository?.getUserProfile()?.let { userResult ->
-                if (userResult is AppResult.Success) {
+            // IMPORTANT:
+            // Load profile only after login succeeds
+            when (val userResult = userRepository?.getUserProfile()) {
+
+                is AppResult.Success -> {
+
                     _currentUser.postValue(userResult.data)
+
                     dataStoreManager.save(
-                        DataStoreManager.Companion.KEY_USER_ID, userResult.data.id
+                        DataStoreManager.KEY_USER_ID,
+                        userResult.data.id
                     )
                 }
+
+                else -> {}
             }
         }
 

@@ -16,11 +16,18 @@ class AuthRepository(
         return when (val result = api.login(username, password)) {
             is AppResult.Success -> {
                 dataStoreManager.save(DataStoreManager.Companion.KEY_TOKEN, result.data.token)
+                dataStoreManager.save(DataStoreManager.Companion.KEY_USERNAME, username)
                 result
             }
             else -> result
         }
     }
+
+    override suspend fun requestPasswordReset(email: String) = api.requestPasswordReset(email)
+
+    override suspend fun getSignupSettings() = api.getSignupSettings()
+
+    override suspend fun getSiteInfo() = api.getSiteInfo()
 
     override suspend fun logout() = dataStoreManager.clearAll()
 
