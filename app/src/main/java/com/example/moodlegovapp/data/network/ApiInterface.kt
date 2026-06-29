@@ -16,20 +16,13 @@ import com.example.moodlegovapp.domain.models.AssignmentSubmission
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionFinalize
 import com.example.moodlegovapp.domain.models.AssignmentSubmissionStatusResponse
 import com.example.moodlegovapp.domain.models.AuthToken
-import com.example.moodlegovapp.domain.models.Badge
-import com.example.moodlegovapp.domain.models.Certificate
 import com.example.moodlegovapp.domain.models.Course
 import com.example.moodlegovapp.domain.models.CourseModule
-
 import com.example.moodlegovapp.domain.models.FileUploadResponse
-import com.example.moodlegovapp.domain.models.LeaderboardResponse
-import com.example.moodlegovapp.domain.models.Notification
 import com.example.moodlegovapp.domain.models.PerformanceOverview
 import com.example.moodlegovapp.domain.models.SubmissionFinalizeResponse
 import com.example.moodlegovapp.domain.models.SubmissionSaveResponse
-import com.example.moodlegovapp.domain.models.TrainingEvent
 import com.example.moodlegovapp.domain.models.TrainingStats
-import com.example.moodlegovapp.domain.models.UserResponse
 import com.google.gson.JsonElement
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

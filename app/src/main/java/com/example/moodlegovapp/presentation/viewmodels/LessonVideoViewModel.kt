@@ -14,4 +14,23 @@ class LessonVideoViewModel(private val repository: LessonRepository): ViewModel(
     private val _isLoading = MutableStateFlow(false); val isLoading: StateFlow<Boolean> = _isLoading
     private val _error = MutableStateFlow<String?>(null); val error: StateFlow<String?> = _error
     fun load(cmid:Int){ viewModelScope.launch{ _isLoading.value=true; _error.value=null; try{ when(val r=repository.getLesson(cmid)){ is AppResult.Success -> _lesson.value=r.data; is AppResult.Failure -> _error.value=r.error.errorDescription; is AppResult.Loading -> Unit } } finally{ _isLoading.value=false } } }
+    fun markComplete(cmid: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                when (val r = repository.markComplete(cmid)) {
+                    is AppResult.Success -> {
+                        load(cmid)
+                    }
+                    is AppResult.Failure -> {
+                        _error.value = r.error.errorDescription
+                    }
+                    is AppResult.Loading -> Unit
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }
