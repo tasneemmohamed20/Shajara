@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Exposes /data/data/<pkg>/files/offline_files/** (where FileDownloadManager
+         stores downloaded course resources) to other apps via FileProvider so
+         downloaded PDFs/zips/etc. can be opened with ACTION_VIEW while offline. -->
+    <files-path name="offline_files" path="offline_files/" />
+</paths>
